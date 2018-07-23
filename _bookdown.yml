@@ -1,0 +1,2 @@
+book_filename: mriids_manuscript
+rmd_files: ["index.Rmd", "rmd/abstract.Rmd", "rmd/intro.Rmd", "rmd/results.Rmd"]

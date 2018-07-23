@@ -1,0 +1,5 @@
+# Introduction
+
+other tools that do similar stuff - EpiDMS [@liu2016epidms]
+slightly old paper - authors curated news themselves! 
+[@chowell2016elucidating]

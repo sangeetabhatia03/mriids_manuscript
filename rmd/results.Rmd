@@ -1,0 +1,27 @@
+# Results
+
+The raw data from ProMED is shown in Figure \@ref(fig:hmraw)
+
+```{r hmraw, echo = FALSE, fig.cap = "Raw data from HealthMap", fig.align = "center"}
+knitr::include_graphics("figures/hmraw.png")
+```
+
+
+## Cleaning ProMED/HealthMap data feeds
+
+The data cleaning consists of the following steps : extracting the
+total case counts as a sum of desired case categories, merging
+duplicate alerts, removing data that made the cumulative case counts 
+inconsistent and finally, fill in the missing data using
+interpolation. Results at each step pre-processing workflow for Sierra
+Leone are show in Figure \@ref(fig:hmclean).
+
+
+```{r hmclean, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+knitr::include_graphics("figures/guinea.png")
+```
+
+
+
+
+## Comparison of incidence trends from different sources

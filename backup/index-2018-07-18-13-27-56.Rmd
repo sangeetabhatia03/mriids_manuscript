@@ -1,0 +1,25 @@
+--- 
+title: "Big Brother Is Watching : Using Digital Surveillance Tools for 
+Near Real-Time Mapping of the Risk of International Infectious Disease Spread"
+author: "Sangeeta Bhatia, Anne Cori and Pierre Nouvellet"
+date: ""
+output:
+  bookdown::pdf_book:
+    template: tex/template_article.tex
+    keep_tex: yes
+    citation_package: natbib
+#    latex_engine: xelatex
+    toc_depth: 3
+    toc_unnumbered: no
+    toc_appendix: yes
+    quote_footer: ["\\begin{flushright}", "\\end{flushright}"]
+bibliography: [bib/mriids.bib]
+biblio-style: apalike
+link-citations: yes
+colorlinks: no  
+# toc: no
+lot: no
+lof: no
+site: bookdown::bookdown_site
+---
+

@@ -1,0 +1,24 @@
+  In our increasingly interconnected world, it is crucial to
+  understand the risk of an outbreak originating in one country/region
+  and  spreading to the rest of the world. Rapid recognition and
+  response to potential pandemics and emerging diseases have become
+  essential global health priorities. Digital disease surveillance
+  tools such as ProMed and HealthMap have the potential to serve as
+  important early warning systems as well as complement the field
+  surveillance data during an ongoing outbreak. While there are a
+  number of systems that carry out digital disease surveillance, there
+  is as yet a lack of tools that can compile and analyse the generated
+  data to produce easily understood actionable reports. We present a 
+  flexible statistical model that uses different streams
+  of data (such as disease surveillance data, mobility data etc.) for
+  short-term incidence trend forecasting.  
+  In validating the model using data collected by ProMED and
+  HealthMap during the 2014-2016 West African Ebola outbreak,
+  we provide a realistic appraisal of the strengths and limitations
+  of such data in incidence forecasting.
+  We infer incidence trends at finer spatial scales from
+  aggregated data. Our work shows how the data from
+  event based surveillance systems (EBS) can complement the data
+  collected from traditional public health infrastructure. During an
+  ongoing crisis, combining data from different sources gives
+  stakeholders a more complete picture.

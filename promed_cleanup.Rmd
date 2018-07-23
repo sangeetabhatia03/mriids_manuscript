@@ -1,0 +1,96 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Pre-processing ProMED feed
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+```
+# Countries of interest
+```{r}
+wafrica <- c("Guinea", "Sierra Leone", "Liberia")
+```
+First read in and clean up the data from ProMed. 
+```{r pmread, echo=FALSE}
+
+promed <- here::here("data/raw",
+                     "ProMED_Ebola_2014-2016.csv") %>%
+    readr::read_csv()
+
+promed <- janitor::clean_names(promed)
+promed$issue_date <- lubridate::dmy_hm(promed$issue_date)
+promed$issue_date <- format(promed$issue_date,
+                            format = "%m/%d/%y %H:%M")
+
+```
+
+
+The categories in ProMed data are: Cumulative SC (suspected
+cases),Cumulative SD, Cumulative CC, and Cumulative CD.
+While dealing with HealthMap data, we use suspected and confirmed
+cases. We will do the same here.
+In comparing the two data sets, we sum across all four
+categories in ProMED and derive incidence data from cumulative data.
+
+```{r hmread, echo = FALSE}
+
+promed <- rename(promed,
+                 "sc" = "cumulative_sc",
+                 "sd" = "cumulative_sd",
+                 "cc" = "cumulative_cc",
+                 "cd" = "cumulative_cd",
+                 "healthmap_alert_id" = "hm_alert_id")
+
+species   <- "Humans"
+disease   <- "Ebola"
+case.type <- "SCC"
+promed <- filter(promed,
+                 species == species,
+                 disease == disease,
+                 country %in% wafrica)
+
+promed_bycountry <- split(promed, promed$country) 
+
+promed_weekly    <- map_dfr(promed_bycountry,
+                            function(case.count){
+                               location <- case.count$country[1]
+                               case.count <- 
+                                   incidence.from.DS1(case.count,
+                                                      species, disease,
+                                                      case.type,
+                                                      location,
+                                                      merge_rule = "median") 
+                                 daily.to.weekly(case.count)})
+
+
+promed_weekly$Date %<>% lubridate::ymd(.)
+
+```
+```{r promed_viz}
+
+ggplot(promed_weekly, aes(Date, incid)) +
+    facet_grid(Country~.) +
+    geom_point() +
+    theme_minimal()
+
+```
