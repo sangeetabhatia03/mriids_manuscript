@@ -5,7 +5,7 @@ output:
     keep_tex: true
     fig_caption: true
     latex_engine: pdflatex
-title: 
+title: Cleaning up the feed from HealthMap/ProMED
 author:
 - name: Sangeeta Bhatia
   affiliation: Imperial College London
@@ -20,8 +20,8 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  infile: HealthMap_Ebola_GNE_WHO.csv
-  outfile: healthmap
+  infile: promed_2014-2016-renamed.csv
+  outfile: promed
 ---
 
 
@@ -64,20 +64,20 @@ Visualising the raw data.
 
 ```{r}
 
-healthmap <- here::here("data/raw",
+feed <- here::here("data/raw",
                         params$infile) %>%
              read.csv(stringsAsFactors = FALSE) %>%
     filter(Species == species &
            Disease == disease &
            Country %in% wafrica)
 
-healthmap <- janitor::clean_names(healthmap)
+feed <- janitor::clean_names(feed)
 
 ```
 
 Strip the date of the time stamp
 ```{r}
-healthmap <- tidyr::separate(healthmap,
+feed <- tidyr::separate(feed,
                              issue_date,
                              sep = " ",
                              into = c("issue_date", "time"),
@@ -90,14 +90,14 @@ healthmap <- tidyr::separate(healthmap,
 Split the data by country.
 
 ```{r split}
-by.location <- healthmap %>%
+by.location <- feed %>%
     split(.$country) 
 
 ```
 
 ### Raw data by case category
 
-```{r}
+```{r rawviz}
 raw_p <- purrr::map(by.location, function(x) {
     x <- select(x, issue_date, sc, sd, cc, cd, country) %>%
         tidyr::gather(case_type,
@@ -126,7 +126,10 @@ raw_p <- purrr::map(by.location, function(x) {
 ## 
 
 ```{r hmraw}
-ggpubr::ggarrange(plotlist = raw_p, common.legend = TRUE)
+ggpubr::ggarrange(plotlist = raw_p, common.legend = TRUE) %>%
+    ggpubr::ggexport(filename = here::here("figures",
+                                           paste0(params$outfile,
+                                                  "_raw.png")))
 ```
 # Data clean-up
 
@@ -144,7 +147,7 @@ cum_cases <- purrr::map(by.location, function(df) {
 
 ## Merge duplicate alerts
 
-```{r}
+```{r cols}
 cols.to.keep <- c("location", "country", "disease", "species",
                   "healthmap_alert_id", "headline", "url",
                   "alert_tag", "feed_name", "lon", "lat")
@@ -160,7 +163,7 @@ no_dups <- purrr::map(cum_cases, function(df) {
 
 ## Remove outliers. 
 
-```{r}
+```{r noout}
 use_last   <- 20
 p.within.k <- 0.50
 k_sd       <- mRIIDS:::interval_width_for_p(use_last,
@@ -181,7 +184,7 @@ no_outliers <- purrr::map(no_dups, function(df) {
 ```
 
 ## Make monotonically increasing.
-```{r}
+```{r inc}
 mono_inc <- purrr::map(no_outliers,
                        ~ mRIIDS:::make_monotonically_increasing(.x))
 
@@ -189,7 +192,8 @@ mono_inc <- purrr::map(no_outliers,
 
 ## Interpolate missing data
 Finally, interpolate missing data.
-```{r}
+
+```{r interp}
 interpolated <- purrr::map(mono_inc, mRIIDS:::interpolate_missing_data)
     
   
@@ -214,7 +218,7 @@ cases_ts <- function(x) {
 
 ```
 
-```{r}
+```{r viz1}
 total_p <- purrr::map(cum_cases, cases_ts)
 ```
 
@@ -275,14 +279,18 @@ graphs <- list(raw_p,
 purrr::map(countries, function(c){
     cspecific <- purrr::map(graphs, ~ .x[[c]])
     p <- ggpubr::ggarrange(plotlist = cspecific, nrow = 3, ncol = 2)
-    ggpubr::ggexport(p, filename = here::here("figures", paste0(c, ".png")))
+    ggpubr::ggexport(p, filename = here::here("figures",
+                                              paste0(params$outfile,
+                                                     "_",
+                                                     c,
+                                                     ".png")))
 })
 
 ```
 
 ## Derive incidence time series from interpolated cumulative cases
 
-```{r}
+```{r tall}
 incid_tall <- purrr::map_dfr(interpolated, function(x) {
     x <- select(x,
                 date = interpolated_date,
@@ -295,7 +303,7 @@ incid_tall <- purrr::map_dfr(interpolated, function(x) {
 
 And reshape
 
-```{r}
+```{r wide}
 incid_wide <- tidyr::spread(incid_tall, country, incid, fill = 0)
 ```
 
