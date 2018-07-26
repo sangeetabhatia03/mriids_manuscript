@@ -1,0 +1,226 @@
+---
+output: 
+  pdf_document:
+    citation_package: natbib
+    keep_tex: false
+    fig_caption: true
+    latex_engine: pdflatex
+title: Estimation of Model Parameters
+author:
+- name: Sangeeta Bhatia
+  affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r Sys.Date()`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+# spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  tproj : 329
+  twindow : 7
+  n.dates.sim : 35
+  mobilty: !r list(K = 1, pow_N_from = 1, pow_N_to = 1)
+  incid: 
+  nsamples: 1000  
+---
+
+
+```{r setup, eval = TRUE}
+
+library(ggthemes)
+library(ggplot2)
+library(dplyr)
+library(rstan)
+library(EpiEstim)
+library(mRIIDS)
+```
+
+## Read incidence data
+
+```{r incid}
+incid <- here::here("data/processed", params$incid) %>%
+    readr::read_csv()
+trng <- incid[seq_len(params$tproj), ]
+valdtn <- incid[(params$tproj + 1):nrow(incid), ]
+
+I0    <- as.matrix(select(trng, -date))
+n_loc <- ncol(I0)
+
+```
+
+## Read stan fit object
+
+```{r}
+fitobj <- paste0(params$tproj, "_", params$twindow, ".rds")
+fit1 <- here::here("data/stanfits", fitobj) %>%
+    readRDS(.)
+```
+
+## R index matrix 
+
+
+
+```{r rindex}
+change_at <- seq(from = params$twindow + 1,
+                 to = params$tproj,
+                 by = params$twindow)
+num_groups <- n_loc
+group_strength <- rep(1, n_loc)
+num_Rjt <- num_groups * (length(change_at) + 1)
+rvector <- mapply(rep, seq_len(num_Rjt), group_strength)
+rvector <- unlist(rvector)
+
+
+rindex <- mRIIDS:::makeRmatrix(
+                       rvector,
+                       nrow = params$tproj,
+                       ncol = n_loc,
+                       change_at = change_at
+                   )
+
+```
+
+## Ebola params
+```{r}
+
+```
+## Test model fit
+
+The fitted model has draws from the posterior distribution.
+We can use these samples to project forward thus doing either
+goodness-of-fit test or predictive modeling.
+
+```{r test_fit, eval = TRUE}
+
+list_of_draws <- rstan::extract(fit1)
+r_samples     <- list_of_draws[["R"]]
+gamma_samples <- list_of_draws[["gamma"]]
+pstay_samples <- list_of_draws[["pstay"]]
+
+```
+
+Distances have been calculated using geosphere package. Read in the 
+distance matrix and extract the lower triangle.
+
+```{r}
+
+distances <- here::here("data/processed", "distances.mat") %>%
+    read.table(header = FALSE)
+distances <- as.matrix(distances) 
+distances <- distances[lower.tri(distances)]
+
+```
+
+Read in populations and arrange then in the same order as in the
+distance vector.
+
+```{r}
+centroids <- here::here("data/processed",
+                        "centroids.csv") %>%
+    read.csv()
+
+idx <- mRIIDS:::lower_tri_idx(nrow(distances))
+n_from <- centroids$pop[idx[, 1]]
+n_to <- centroids$pop[idx[, 2]]
+
+```
+
+```{r project, eval = TRUE}
+index <- sample(seq_len(nrow(r_samples)),
+                params$nsamples)
+
+mobilty <- params$mobilty
+daily_projections <- lapply(index, function(row){
+                                     gamma <- gamma_samples[row]
+                                     pstay <- pstay_samples[row]
+                                     R_posterior <- apply(rindex, c(1, 2),
+                                                          function(i) r_samples[row, i])
+                                     mobilty$pow_dist <- gamma
+                                     flowmat <- mRIIDS:::flow_matrix(distances,
+                                                            n_from,
+                                                            n_to,
+                                                            place_names = centroids$country,
+                                                            model = "gravity",
+                                                            mobilty)
+
+
+                                     ## Relative risk
+                                     rel_risk <- flowmat / rowSums(flowmat, na.rm=TRUE)
+
+                                     ## matrix characterising the population movement between geographical units
+
+                                     pij <- mRIIDS:::probability_movement(rel_risk,
+                                                                          pstay)
+                                     
+                                     out <- mRIIDS:::project(I0,
+                                                             R_posterior,
+                                                             SI_Distr,
+                                                             pij,
+                                                             n_days) 
+                                     out <- 
+                                      as.data.frame(out) 
+                                     
+                                     out$date <- tail(dates, nrow(out))
+                                     out
+})
+
+
+```
+
+```{r weekly, eval = !simulated_data}
+
+weekly_projections <- lapply(daily_projections, daily.to.weekly) %>%
+                      bind_rows(.)
+projections_distr <- projection_quantiles(weekly_projections)
+
+```
+
+```{r}
+weekly.available <- c(training    =
+                          list(who_wide[seq_len(t.proj), ]),
+                      validation =
+                          list(who_wide[t.proj:(t.proj + n_days), ])) %>%
+                       lapply(daily.to.weekly) %>%
+                       bind_rows(.id = "Category")
+
+trng.start <- pull(who_wide, Date)[t.proj] - time_window
+vldtn.end  <- pull(who_wide, Date)[t.proj] + n_days
+p <- plot.weekly3(weekly.available,
+                  projections_distr, trng.start,
+                  vldtn.end)
+
+```
+
+```{r plot_save, eval = TRUE}
+
+paste0(ADM0, "-",
+       t.proj, "-",
+       n_days, "-", time_window, ".csv") %>%
+    here::here("output", .) %>%
+    readr::write_csv(x = projections_distr, path = .)
+
+outname <- paste0(ADM0, "-", t.proj, "-", n_days, "-", time_window, ".png")
+outfile <- here::here("output/figures", outname)
+ggsave(outfile, p)
+
+
+```
+
+
+```{r test_sim, eval = simulated_data}
+
+I_df <- as.data.frame(I)
+I_df %<>% tibble::rownames_to_column(.)
+I_tall <- tidyr::gather(I_df, var, val, -rowname)
+I_tall$rowname %<>% as.numeric
+ggplot(I_tall, aes(rowname, val)) + geom_point() +
+    facet_grid(var~.) +
+    geom_vline(xintercept = change_at)
+
+```
+
+
