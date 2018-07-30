@@ -65,28 +65,25 @@ fit1 <- here::here("data/stanfits", fitobj) %>%
 
 
 ```{r rindex}
-change_at <- seq(from = params$twindow + 1,
-                 to = params$tproj,
-                 by = params$twindow)
-num_groups <- n_loc
-group_strength <- rep(1, n_loc)
-num_Rjt <- num_groups * (length(change_at) + 1)
-rvector <- mapply(rep, seq_len(num_Rjt), group_strength)
-rvector <- unlist(rvector)
-
-
-rindex <- mRIIDS:::makeRmatrix(
-                       rvector,
-                       nrow = params$tproj,
-                       ncol = n_loc,
-                       change_at = change_at
-                   )
-
+rindex <- paste0("rindex_",
+                 params$tproj,
+                 "_",
+                 params$twindow,
+                 ".rds")
+rindex <- here::here("data/stanfits",
+                     rindex) %>% readRDS()
 ```
 
 ## Ebola params
 ```{r}
-
+si <- paste0("si_",
+             params$tproj,
+             "_",
+             params$twindow,
+             ".rds")
+si <- here::here("data/stanfits",
+                 si) %>%
+    readRDS()
 ```
 ## Test model fit
 
