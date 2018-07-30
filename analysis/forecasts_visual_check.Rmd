@@ -1,0 +1,105 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Visually checking the forecasts 
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  tproj : 84
+  twindow : 7
+  incid : healthmap_wide.csv
+  n.dates.sim : 35
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+library(ggthemes)
+```
+# Read in the incidence 
+
+```{r incid}
+incid <- here::here("data/processed",
+                    params$incid) %>%
+    readr::read_csv()
+trng <- incid[seq_len(params$tproj), ]
+vldtn <- incid[(params$tproj + 1):(params$tproj + params$n.dates.sim), ]
+```
+
+Turn them into weekly series for comparison.
+
+```{r weekly}
+trng_weekly <- mRIIDS:::daily.to.weekly(trng) %>%
+    tidyr::gather(country, incidence, -date)
+vldtn_weekly <- mRIIDS:::daily.to.weekly(vldtn) %>%
+        tidyr::gather(country, incidence, -date)
+
+trng_weekly$date <- as.Date(trng_weekly$date)
+vldtn_weekly$date <- as.Date(vldtn_weekly$date)
+```
+
+## Read in the forecasts
+
+```{r pred}
+infile <- paste0("forecasts_",
+                 params$tproj,
+                 "_",
+                 params$twindow,
+                 ".csv")
+
+forecasts <- here::here("data/output",
+                        infile) %>%
+    readr::read_csv()
+
+```
+
+## Plot
+
+```{r}
+p <- ggplot()
+p <- p + geom_point(data = trng_weekly,
+                    aes(date, incidence),
+                    col = "blue")
+p <- p + geom_point(data = vldtn_weekly,
+                    aes(date, incidence),
+                    col = "red")
+p <- p + facet_wrap(country ~ ., nrow = 3)
+p <- p + geom_ribbon(data = forecasts,
+                     aes(x = date,
+                         ymin = ymin,
+                         ymax = ymax),
+                     alpha = 0.3,
+                     fill = "red")
+p <-  p + theme_classic()
+```
+
+## Save
+
+```{r}
+outfile <- paste0("forecasts_",
+                  params$tproj,
+                  "_",
+                  params$twindow,
+                  ".png")
+
+ggsave(filename = here::here("data/output",
+                             outfile),
+       plot = p)
+
+```
