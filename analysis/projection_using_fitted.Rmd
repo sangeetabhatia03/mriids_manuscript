@@ -23,19 +23,16 @@ params:
   tproj : 329
   twindow : 7
   n.dates.sim : 35
-  mobilty: !r list(K = 1, pow_N_from = 1, pow_N_to = 1)
-  incid: 
+  mobility: !r list(K = 1, pow_N_from = 1, pow_N_to = 1)
+  incid: healthmap_wide.csv
   nsamples: 1000  
 ---
 
 
 ```{r setup, eval = TRUE}
 
-library(ggthemes)
-library(ggplot2)
 library(dplyr)
 library(rstan)
-library(EpiEstim)
 library(mRIIDS)
 ```
 
