@@ -1,0 +1,88 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Reproduction number as a function of the time window 
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  tproj: 84
+  twindow: !r c(7, 14, 21, 28, 42)
+  N: 3
+  incid: healthmap_wide.csv
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+library(ggthemes)
+```
+
+## Read incidence data
+
+```{r incid}
+incid <- here::here("data/processed", params$incid) %>%
+    readr::read_csv(n_max = params$tproj)
+countries <- colnames(select(incid, -date))
+```
+
+
+The shorter the time window, the more the number of parameters in our
+model. We use the reproduction numbers in the last window to project.
+Hence we will look at how the estimates vary with the time window for
+a given point at which we are projection.
+
+```{r fits}
+suffix <- paste0(params$tproj, "_", params$twindow, ".rds")
+names(suffix) <- paste0("at_", params$twindow)
+fits <- map(suffix,
+            ~ readRDS(here::here("data/stanfits",
+                                 .x)))
+
+rsamples <- map(fits, ~ rstan::extract(.x)[["R"]])
+```
+In each case, the last N variables are of particular interest as 
+these are the ones that we use for projection.
+
+```{r}
+rsamples <- map_dfr(rsamples, function(x) {
+    df <- x[ , (ncol(x) - params$N + 1 ):ncol(x)]
+    colnames(df) <- countries
+    as.data.frame(df)
+}, .id = "at")
+
+rsamples <- tidyr::gather(rsamples, country, R, -at)
+```
+
+```{r viz}
+rsamples$at <- factor(rsamples$at,
+                      levels = names(suffix))
+p <- ggplot(rsamples, aes(at,
+                     R)) +
+    geom_point(alpha = 0.1) +
+    facet_wrap(~country, nrow = 3, scales = "free_y") +
+    theme_classic()
+```
+
+```{r save}
+outfile <- here::here("data/output",
+                      paste0("r_vs_twindow_", params$tproj, ".png"))
+
+ggpubr::ggarrange(p, align = "hv", ncol = 1) %>%
+    ggpubr::ggexport(filename = outfile)
+```

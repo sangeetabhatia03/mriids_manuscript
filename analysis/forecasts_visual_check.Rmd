@@ -5,7 +5,7 @@ citation_package: natbib
 keep_tex: false
 fig_caption: true
 latex_engine: pdflatex
-title: Visually checking the forecasts 
+title: Visualization of forecasts
 author:
 - name: Sangeeta Bhatia
 affiliation: Imperial College London
@@ -20,86 +20,139 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : 84
+  tproj : !r c(84, 126)
   twindow : 7
   incid : healthmap_wide.csv
   n.dates.sim : 35
+  place: Guinea
 ---
 
 ```{r setup, eval = TRUE}
 library(dplyr)
 library(purrr)
 library(ggplot2)
-library(ggthemes)
 ```
-# Read in the incidence 
+Read in the projections output.
+
+```{r forecasts}
+infiles <- paste0("forecasts_",
+                    params$tproj,
+                    "_",
+                    params$twindow,
+                    "_",
+                    params$n.dates.sim,
+                    ".csv")
+names(infiles) <- paste0(params$tproj,
+                           "_",
+                           params$twindow,
+                           "_",
+                           params$n.dates.sim
+                           )
+forecasts <- map_dfr(infiles, ~ readr::read_csv(here::here("data/output",
+                                                             .x)),
+                     .id = "parameters") %>%
+    filter(country == params$place)
+
+
+```
+
+Read in R estimates.
+
+```{r restim}
+## "Guinea_rsamples_539_49.rds"
+infiles <- here::here("data/stanfits",
+                      paste0(params$place,
+                             "_rsamples_",
+                             params$tproj,
+                             "_",
+                             params$twindow,
+                             ".rds"))
+
+names(infiles) <-  paste0(params$tproj,
+                          "_",
+                          params$twindow)
+                          
+
+restim <- map_dfr(infiles, readRDS, .id = "parameters")
+```
+
+Read in the incidence.
 
 ```{r incid}
-incid <- here::here("data/processed",
+incid <- incid <- here::here("data/processed",
                     params$incid) %>%
-    readr::read_csv()
-trng <- incid[seq_len(params$tproj), ]
-vldtn <- incid[(params$tproj + 1):(params$tproj + params$n.dates.sim), ]
+    readr::read_csv() %>%
+    select(date, params$place) %>%
+    mRIIDS:::daily.to.weekly(.)
+
+incid <- rename(incid,
+                "incidence" = params$place)
+
+incid$date <- as.Date(incid$date)
 ```
 
-Turn them into weekly series for comparison.
+Finally plot everything.
 
-```{r weekly}
-trng_weekly <- mRIIDS:::daily.to.weekly(trng) %>%
-    tidyr::gather(country, incidence, -date)
-vldtn_weekly <- mRIIDS:::daily.to.weekly(vldtn) %>%
-        tidyr::gather(country, incidence, -date)
-
-trng_weekly$date <- as.Date(trng_weekly$date)
-vldtn_weekly$date <- as.Date(vldtn_weekly$date)
-```
-
-## Read in the forecasts
-
-```{r pred}
-infile <- paste0("forecasts_",
-                 params$tproj,
-                 "_",
-                 params$twindow,
-                 ".csv")
-
-forecasts <- here::here("data/output",
-                        infile) %>%
-    readr::read_csv()
-
-```
-
-## Plot
-
-```{r}
+```{r forecastsplot}
 p <- ggplot()
-p <- p + geom_point(data = trng_weekly,
+p <- p + geom_point(data = incid,
                     aes(date, incidence),
                     col = "blue")
-p <- p + geom_point(data = vldtn_weekly,
-                    aes(date, incidence),
-                    col = "red")
-p <- p + facet_wrap(country ~ ., nrow = 3)
+## plot projections on top
 p <- p + geom_ribbon(data = forecasts,
                      aes(x = date,
                          ymin = ymin,
-                         ymax = ymax),
-                     alpha = 0.3,
-                     fill = "red")
+                         ymax = ymax,
+                         fill = parameters),
+                     alpha = 0.3)
+p <- p + geom_line(data = forecasts,
+                     aes(x = date,
+                         y = y,
+                         col = parameters))
+
 p <-  p + theme_classic()
+
 ```
 
-## Save
+Plot 2. First let us find the quantiles for each set of samples.
+```{r qu}
+r_quantiles <- select(restim, date, parameters)
+df <- data.frame()
+for (i in seq_len(nrow(restim))) {
+    qntls <- quantile(restim[i, -(1:4)], c(0.025, 0.50, 0.975))
+    df <- rbind(df, qntls)
+}
+r_quantiles <- cbind(r_quantiles, df)
+```
 
-```{r}
-outfile <- paste0("forecasts_",
-                  params$tproj,
-                  "_",
-                  params$twindow,
-                  ".png")
+```{r rplot}
+p2 <- ggplot()
+p2 <- p2 + geom_line(data = r_quantiles,
+                     aes(x = date,
+                         y = `50%`,
+                         col = parameters))
 
-ggsave(filename = here::here("data/output",
-                             outfile),
-       plot = p)
+p2 <- p2 + geom_ribbon(data = r_quantiles,
+                       aes(x = date,
+                           ymin = `2.5%`,
+                           ymax = `97.5%`,
+                           fill = parameters),
+                       alpha = 0.3)
+p2 <-  p2 + theme_classic()
+```
 
+Finally, write it out with a common legend.
+
+```{r save}
+prefix <- paste0(params$tproj,
+                 collapse = "_")
+outfile <- here::here("data/output",
+                      paste0(prefix, ".png"))
+ggpubr::ggarrange(p,
+                  p2,
+                  ncol = 1,
+                  nrow = 2,
+                  common.legend = TRUE,
+                  legend="bottom") %>%
+    ggpubr::ggexport(filename = outfile)
 ```

@@ -1,0 +1,126 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Extract MCMC draws from the fitted model
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  tproj: 84
+  twindow: 7
+  N: 3
+  incid: healthmap_wide.csv
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+```
+
+## Read incidence data
+
+The order of columns as the same as the order of columns in the input
+to Stan. Hence read the incidence data to get this order.
+
+```{r incid}
+incid <- here::here("data/processed", params$incid) %>%
+    readr::read_csv(n_max = params$tproj)
+trng_date <- incid$date[seq_len(params$tproj)]
+```
+
+## Read in fit object
+
+Extract the samples from the fitted Stan model and write them out for
+later use. 
+
+```{r fit}
+suffix <- paste0(params$tproj, "_", params$twindow, ".rds")
+fit1 <- readRDS(here::here("data/stanfits", suffix))
+```
+
+## Extract draws for each parameter
+
+```{r draws}
+list_of_draws <- rstan::extract(fit1)
+r_samples     <- list_of_draws[["R"]]
+gamma_samples <- list_of_draws[["gamma"]]
+pstay_samples <- list_of_draws[["pstay"]]
+
+```
+
+## R index matrix 
+
+Particularly for R, the matrix rindex contains the mapping of variable 
+name to time window and country.
+
+```{r rindex}
+rindex <- paste0("rindex_", suffix)
+rindex <- here::here("data/stanfits",
+                     rindex) %>% readRDS()
+
+rindex_df <- as.data.frame(rindex)
+colnames(rindex_df) <- colnames(select(incid, -date))
+```
+
+Attach dates to the rindex data frame so we will know what variables 
+are for which date.
+
+
+```{r}
+rindex_df$date <- trng_date
+
+```
+
+Each column in r_samples is a set of draws for a variable. The column
+number identifies the variable number.
+
+```{r}
+rindex_df <- tidyr::gather(rindex_df, country, var, -date)
+```
+
+Now go over each row of this data frame, look at the var variable,
+grab the corresponding column from r_samples and affix it to this row.
+
+```{r reshape}
+samples <- purrr::pmap(rindex_df, ~ r_samples[, ..3])
+samples <- do.call(rbind, samples)
+## colnames(samples) <- paste0("R_", seq_len(ncol(samples)))
+rsamples <- cbind(rindex_df, samples)
+```
+
+Finally save everything.
+
+```{r write}
+by_country <- split(rsamples, rsamples$country)
+purrr::imap(by_country, ~ saveRDS(.x,
+                           here::here("data/stanfits",
+                                      paste0(.y,
+                                             "_rsamples_",
+                                             suffix))))
+
+saveRDS(pstay_samples,
+        here::here("data/stanfits",
+                   paste0("pstay_samples_", suffix)))
+
+
+saveRDS(gamma_samples,
+        here::here("data/stanfits",
+                   paste0("gamma_samples_", suffix)))
+
+        
+```

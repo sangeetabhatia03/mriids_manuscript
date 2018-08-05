@@ -51,35 +51,36 @@ n_loc <- ncol(I0)
 
 ```
 
-## Read stan fit object
+## Read in other meta-data needed
 
+
+Read in populations and arrange then in the same order as in the
+incidence data.
+	
 ```{r}
-fitobj <- paste0(params$tproj, "_", params$twindow, ".rds")
-fit1 <- here::here("data/stanfits", fitobj) %>%
-    readRDS(.)
+centroids <- here::here("data/processed",
+                        "centroids.csv") %>%
+    read.csv()
+distances <- geosphere::distm(cbind(centroids$lon,
+                                    centroids$lat))
+distances <- as.matrix(distances) 
+distvec <- distances[lower.tri(distances)]
 ```
 
-## R index matrix 
+Also need the populations for estimating flows.
 
+```{r pops}
+idx <- mRIIDS:::lower_tri_idx(nrow(distances))
+n_from <- centroids$pop[idx[, 1]]
+n_to <- centroids$pop[idx[, 2]]
 
-
-```{r rindex}
-rindex <- paste0("rindex_",
-                 params$tproj,
-                 "_",
-                 params$twindow,
-                 ".rds")
-rindex <- here::here("data/stanfits",
-                     rindex) %>% readRDS()
 ```
+
 
 ## Ebola params
-```{r}
-si <- paste0("si_",
-             params$tproj,
-             "_",
-             params$twindow,
-             ".rds")
+```{r ebpars}
+suffix <- paste0(params$tproj, "_", params$twindow, ".rds")
+si <- paste0("si_", suffix)
 si <- here::here("data/stanfits",
                  si) %>%
     readRDS()
@@ -92,49 +93,47 @@ goodness-of-fit test or predictive modeling.
 
 ```{r test_fit, eval = TRUE}
 
-list_of_draws <- rstan::extract(fit1)
-r_samples     <- list_of_draws[["R"]]
-gamma_samples <- list_of_draws[["gamma"]]
-pstay_samples <- list_of_draws[["pstay"]]
+
+countries <- colnames(select(incid, -date))
+r_samples <- purrr::map(countries,
+                       ~ readRDS(here::here("data/stanfits",
+                                            paste0(.x,
+                                                   "_rsamples_",
+                                                   suffix))))
+gamma_samples <- readRDS(here::here("data/stanfits",
+                                    paste0("gamma_samples_",
+                                           suffix)))
+pstay_samples <- readRDS(here::here("data/stanfits",
+                                    paste0("pstay_samples_",
+                                           suffix)))
 
 ```
 
-Distances have been calculated using geosphere package. Read in the 
-distance matrix and extract the lower triangle.
+We want to use the estimate of R in the window right before we start
+projecting as the R for the window over which we project. So we will
+just pick out the relevant row from the samples.
 
 ```{r}
-
-distances <- here::here("data/processed", "distances.mat") %>%
-    read.table(header = FALSE)
-distances <- as.matrix(distances) 
-distvec <- distances[lower.tri(distances)]
-
+last_window <- tail(trng_dates, 1)
+r_pred <- purrr::map_dfr(r_samples, ~ filter(.x,
+                                             date == last_window))
+r_pred <- select(r_pred, - (date:var))
 ```
 
-Read in populations and arrange then in the same order as in the
-distance vector.
-
-```{r}
-centroids <- here::here("data/processed",
-                        "centroids.csv") %>%
-    read.csv()
-
-idx <- mRIIDS:::lower_tri_idx(nrow(distances))
-n_from <- centroids$pop[idx[, 1]]
-n_to <- centroids$pop[idx[, 2]]
-
-```
+Now we will sample from the full draw for each parameter of the model.
 
 ```{r project, eval = TRUE}
-index <- sample(seq_len(nrow(r_samples)),
+index <- sample(seq_along(gamma_samples),
                 params$nsamples)
 
 mobility <- params$mobility
 daily_projections <- lapply(index, function(row){
                                      gamma <- gamma_samples[row]
                                      pstay <- pstay_samples[row]
-                                     R_posterior <- apply(rindex, c(1, 2),
-                                                          function(i) r_samples[row, i])
+                                     R_posterior <- r_pred[, row]
+                                     R_posterior <- matrix(R_posterior,
+                                                           ncol = ncol(I0),
+                                                           nrow = 1)
                                      mobility$pow_dist <- gamma
                                      flowmat <- mRIIDS:::flow_matrix(distvec,
                                                             n_from,
@@ -179,10 +178,12 @@ And finally write the them out for later validation and testing.
 
 ```{r write}
 outfile <- paste0("forecasts_",
-                 params$tproj,
-                 "_",
-                 params$twindow,
-                 ".csv")
+                  params$tproj,
+                  "_",
+                  params$twindow,
+                  "_",
+                  params$n.dates.sim,
+                  ".csv")
 here::here("data/output",
            outfile) %>%
     readr::write_csv(x = projections_distr,
