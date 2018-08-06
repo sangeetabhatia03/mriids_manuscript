@@ -1,0 +1,52 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Diagnostic checks on the fitted model.
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  tproj : 84
+  twindow : 7
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+library(bayesplot)
+```
+
+## Read stan fit object
+
+```{r}
+fitobj <- paste0(params$tproj, "_", params$twindow, ".rds")
+fit1 <- here::here("data/stanfits", fitobj) %>%
+    readRDS(.)
+```
+
+# Rhat: potential scale reduction statistic
+
+```{r rhat}
+rhats <- bayesplot::rhat(fit1)
+bayesplot::mcmc_rhat(rhats)  + yaxis_text(hjust = 1)
+```
+# Effective Sample Sizes
+```{r neff}
+ratios_ne <- bayesplot::neff_ratio(fit1)
+bayesplot::mcmc_neff(ratios_ne, size = 2) + yaxis_text(hjust = 1)
+```

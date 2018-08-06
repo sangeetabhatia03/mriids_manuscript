@@ -1,0 +1,115 @@
+---
+output: 
+  pdf_document:
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+title: 
+author:
+- name: Sangeeta Bhatia
+  affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "Y"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+# spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+---
+
+
+```{r setup}
+library(dplyr)
+
+
+```
+
+
+# Wide Data load
+
+Read in cleaned-up and wide formatted data. 
+
+```{r hm_dataload, eval = TRUE}
+hm_wide <- here::here("data/processed",
+                      "healthmap_wide_from_july.csv") %>%
+    readr::read_csv(.)
+
+hm_wide$aggregated <- hm_wide$Guinea +
+    hm_wide$Liberia +
+    hm_wide$`Sierra Leone`
+
+weekly_incid <- mRIIDS:::daily.to.weekly(hm_wide)
+
+weekly_tall <- tidyr::gather(weekly_incid, country, incidence, -date)
+weekly_tall$date <- as.Date(weekly_tall$date)
+weekly_tall$week_starting <- lubridate::round_date(weekly_tall$date, "week")
+
+```
+
+## Read in projections
+
+```{r}
+projections_7 <-  here::here("output",
+                             "hm_projections_0.99_1_7.csv") %>%
+                  readr::read_csv(.)
+
+projections_14 <-  here::here("output",
+                              "hm_projections_0.99_1_14.csv") %>%
+                  readr::read_csv(.)
+
+projections_28 <- here::here("output",
+                             "hm_projections_0.99_1_28.csv") %>%
+                  readr::read_csv(.)
+```
+
+
+```{r}
+colnames(projections_7) <- sub("ymax", "ymax1", colnames(projections_7))
+colnames(projections_7) <- sub("ymin", "ymin1", colnames(projections_7))
+colnames(projections_7) <- sub("y\\.", "y1.", colnames(projections_7))
+
+colnames(projections_14) <- sub("ymax", "ymax2", colnames(projections_14))
+colnames(projections_14) <- sub("ymin", "ymin2", colnames(projections_14))
+colnames(projections_14) <- sub("y\\.", "y2.", colnames(projections_14))
+
+colnames(projections_28) <- sub("ymax", "ymax4", colnames(projections_28))
+colnames(projections_28) <- sub("ymin", "ymin4", colnames(projections_28))
+colnames(projections_28) <- sub("y\\.", "y4.", colnames(projections_28))
+
+
+
+
+```
+
+Drop the date column as it will mess things up.
+
+```{r}
+weekly_tall 
+```
+## Join to the incidence time series
+
+```{r}
+
+weekly_incid$date %<>% as.Date
+
+tmp <- plyr::join_all(list(projections_7,
+                           projections_14,
+                           projections_28),
+                      by = c("date",
+                             "projection_from"),
+                      type = "left")
+
+desired  <- dplyr::inner_join(weekly_incid,
+                              tmp,
+                              by =  "date")
+
+desired <- select(desired,
+                  projection_from,
+                  date,
+                  Guinea:`ymax4.aggregated`)
+
+```

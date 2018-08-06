@@ -20,16 +20,16 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj: 84
-  twindow: 7
+  tproj: 245
+  twindow: 49
   N: 3
-  incid: healthmap_wide.csv
+  incid: healthmap_wide_from_july.csv
 ---
 
 ```{r setup, eval = TRUE}
 library(dplyr)
 library(purrr)
-library(ggplot2)
+
 ```
 
 ## Read incidence data
@@ -65,7 +65,7 @@ pstay_samples <- list_of_draws[["pstay"]]
 
 ## R index matrix 
 
-Particularly for R, the matrix rindex contains the mapping of variable 
+For R, the matrix rindex contains the mapping of variable 
 name to time window and country.
 
 ```{r rindex}
@@ -99,8 +99,18 @@ grab the corresponding column from r_samples and affix it to this row.
 ```{r reshape}
 samples <- purrr::pmap(rindex_df, ~ r_samples[, ..3])
 samples <- do.call(rbind, samples)
-## colnames(samples) <- paste0("R_", seq_len(ncol(samples)))
 rsamples <- cbind(rindex_df, samples)
+```
+Also calculate the quantiles for each row. Apply flips the rows and 
+columns, hence some data wrangling is needed.
+
+```{r}
+sample_qntls <- apply(samples,
+                      1,
+                      quantile,
+                      probs = c(0.025, 0.5, 0.975))
+sample_qntls <- t(sample_qntls)
+sample_qntls <- cbind(rindex_df, sample_qntls)
 ```
 
 Finally save everything.
@@ -111,6 +121,14 @@ purrr::imap(by_country, ~ saveRDS(.x,
                            here::here("data/stanfits",
                                       paste0(.y,
                                              "_rsamples_",
+                                             suffix))))
+
+
+by_country <- split(sample_qntls, sample_qntls$country)
+purrr::imap(by_country, ~ saveRDS(.x,
+                           here::here("data/stanfits",
+                                      paste0(.y,
+                                             "_rquantiles_",
                                              suffix))))
 
 saveRDS(pstay_samples,

@@ -15,26 +15,34 @@ apply(pars, 1, function(row) {
   twindow <- row[2]
   rmarkdown::render("analysis/extract_mcmc_draws.Rmd",
   		     params = list(tproj = tproj,
-		     	           twindow = twindow))
+        	     	           twindow = twindow,
+                                   incid = "healthmap_wide_from_july.csv"))
 
   rmarkdown::render("analysis/projection_using_fitted.Rmd",
                     params = list(tproj = tproj,
-                                  twindow = twindow))
+                                  twindow = twindow,
+                                  incid = "healthmap_wide_from_july.csv"))
 
 })
 
+## For a given time window, at every pair of points at which
+## we have done forecasts
+twindow = seq(from = 7, to = 49, by = 7)
+countries <- c("Guinea", "Liberia", "Sierra Leone")
+for (tw in twindow) {
+    t_proj = seq(from = 2 * tw,
+                 to = 567,
+                 by = tw)
+    pairs <- combn(t_proj, 2)
+    apply(pairs, 2, function(col) {
+        rmarkdown::render("analysis/forecasts_visual_check.Rmd",
+                          params = list(tproj = col,
+                                        twindow = tw,
+                                        place = "Guinea"))
+        })
 
-  rmarkdown::render("analysis/forecasts_visual_check.Rmd",
-                    params = list(tproj = tproj,
-                                  twindow = twindow,
-                                  place = "Guinea"))
 
-  rmarkdown::render("analysis/forecasts_visual_check.Rmd",
-                    params = list(tproj = tproj,
-                                  twindow = twindow,
-                                  place = "Liberia"))
+}
 
-  rmarkdown::render("analysis/forecasts_visual_check.Rmd",
-                    params = list(tproj = tproj,
-                                  twindow = twindow,
-                                  place = "Sierra Leone"))
+
+
