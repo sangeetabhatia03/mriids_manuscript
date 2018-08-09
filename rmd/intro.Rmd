@@ -1,5 +1,69 @@
 # Introduction
+Pandemics and emerging diseases cause catastrophic morbidity, 
+mortality, and economic hardship
+and may occur at any time. Increasing globalization of 
+commerce, finance, production, and services
+has fostered rapid global movement of people, animals, plants, 
+food, and feed. With the transportation
+of people and goods comes the widespread dispersion of pathogens 
+that cause infectious diseases and
+the vectors that may spread them. Outbreaks that 
+begin in the most remote parts of the world now
+spread swiftly to urban centers in countries far 
+away with dangerous, global consequences.
+
+Early detection of infectious disease outbreaks has 
+the potential to limit the size of an outbreak and
+prevent an outbreak from becoming a pandemic. Digital 
+surveillance tools have the potential to play a significant role 
+in this. They can be used to complement the traditional public
+health infrastructure, particularly in resource-poor settings. 
+One of the earliest entrants in the field of digital surveillance 
+is The Program for Monitoring Emerging Diseases (ProMED). ProMED 
+was founded in 1994 with the goal of detecting emerging infectious 
+or toxin-mediated diseases through emails from clinicians, experts 
+and freely dissemiate contextualsied and curated information.
+
+HealthMap is another key player in the field of internet based 
+surveillance. In addition to using curated ProMED reports, 
+Healthmap utilises other informal sources such as online news 
+and eyewitness reports.
+
+However, gathering timely data, while critical, is but the first 
+step in the disease surveillance process. Compiling the data, 
+conducting analysis, and generating actionable reports that are 
+easily understood are equally important. While there has been a
+proliferation of digital surveillance tools as well as  
+epidemiological studies using data from these 
+tools [@chowell2016elucidating], there is as yet a dearth of a
+framework that can automatically combine various streams of  
+information to produce actionable reports, particularly during an 
+outbreak where such information would be most useful.
 
 other tools that do similar stuff - EpiDMS [@liu2016epidms]
 slightly old paper - authors curated news themselves! 
 [@chowell2016elucidating]
+
+To address this gap, the International Society for Infectious 
+Diseases (ISID) through its
+program ProMED along with project partners the Imperial College 
+London, HealthMap, and HealthSites.io, have developed 
+a system to estimate and visualize risks posed by
+outbreak events. The system integrated multiple data streams. 
+In this paper, we present the model implemented in this system. 
+We analyse ProMED data for the 2014 West African Ebola outbreak.
+Our work makes two key contributions. First, in using only  
+data available through ProMED to analyse this outbreak, we 
+provide a realistic appraisal of its strengths and weaknesses,
+especially is used in near real-time forecasting. Second, we 
+suggest a method to combine ground and digital surveillance 
+data to estimate a relatively more complete picture of the 
+spread of an outbreak. As other authors have emphasised, digital
+disease detection is not a replacement for, but complementary to
+public health infrastructure. Our work underscores how the two 
+can be used in conjunction with each other to better inform 
+stakeholders.
+
+
+
+

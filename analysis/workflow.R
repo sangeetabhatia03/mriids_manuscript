@@ -34,13 +34,14 @@ for (tw in twindow) {
                  to = 567,
                  by = tw)
     pairs <- combn(t_proj, 2)
-    apply(pairs, 2, function(col) {
-        rmarkdown::render("analysis/forecasts_visual_check.Rmd",
-                          params = list(tproj = col,
-                                        twindow = tw,
-                                        place = "Guinea"))
+    for (c in countries) {
+        apply(pairs, 2, function(col) {
+            rmarkdown::render("analysis/forecasts_visual_check.Rmd",
+                              params = list(tproj = col,
+                                            twindow = tw,
+                                            place = c))
         })
-
+ }
 
 }
 

@@ -36,7 +36,7 @@ Read in cleaned-up and wide formatted data.
 ```{r hm_dataload, eval = TRUE}
 hm_wide <- here::here("data/processed",
                       "healthmap_wide_from_july.csv") %>%
-    readr::read_csv(.)
+    readr::read_csv()
 
 hm_wide$aggregated <- hm_wide$Guinea +
     hm_wide$Liberia +
@@ -53,43 +53,52 @@ weekly_tall$week_starting <- lubridate::round_date(weekly_tall$date, "week")
 ## Read in projections
 
 ```{r}
-projections_7 <-  here::here("output",
-                             "hm_projections_0.99_1_7.csv") %>%
-                  readr::read_csv(.)
+twindow <- 49
+t_proj <- seq(from = 98, to = 567, by = 49)
+n.dates.sim <- 28
+infiles <- paste("forecasts",
+                 t_proj,
+                 twindow,
+                 n.dates.sim,
+                 sep = "_")
 
-projections_14 <-  here::here("output",
-                              "hm_projections_0.99_1_14.csv") %>%
-                  readr::read_csv(.)
-
-projections_28 <- here::here("output",
-                             "hm_projections_0.99_1_28.csv") %>%
-                  readr::read_csv(.)
+infiles <- paste0(infiles, ".csv")
+names(infiles) <- hm_wide$date[t_proj]
+projections <- purrr::map_dfr(infiles,
+                           ~ readr::read_csv(here::here("data/output",
+                                                        .x)),
+                           .id = "projection_from")
+                           
 ```
 
+Long to wide for y, ymin and ymax separately and then put them together.
 
 ```{r}
-colnames(projections_7) <- sub("ymax", "ymax1", colnames(projections_7))
-colnames(projections_7) <- sub("ymin", "ymin1", colnames(projections_7))
-colnames(projections_7) <- sub("y\\.", "y1.", colnames(projections_7))
+projections_y <- select(projections, - c(ymin, ymax))
+projections_ymin <- select(projections, - c(y, ymax))
+projections_ymax <- select(projections, - c(y, ymin))
 
-colnames(projections_14) <- sub("ymax", "ymax2", colnames(projections_14))
-colnames(projections_14) <- sub("ymin", "ymin2", colnames(projections_14))
-colnames(projections_14) <- sub("y\\.", "y2.", colnames(projections_14))
+projections_wide <- list(projections_y,
+                         projections_ymin,
+                         projections_ymax) %>%
+    purrr::map(function(df) {
+        df$date <- rep(1:4, nrow(df) / 4)
+        df$countrydate <- paste(df$date, df$country, sep = ".")
+        df <- select(df, - c(date, country))
+        var <- colnames(select(df, - c(projection_from, countrydate)))
+        df <- dcast(df, projection_from ~ countrydate, value.var = var)
+        colnames(df)[-1] <- paste0(var, colnames(df[-1]))
+        df
+    })
 
-colnames(projections_28) <- sub("ymax", "ymax4", colnames(projections_28))
-colnames(projections_28) <- sub("ymin", "ymin4", colnames(projections_28))
-colnames(projections_28) <- sub("y\\.", "y4.", colnames(projections_28))
-
-
+projections_wide <- left_join(projections_wide[[1]],
+                              projections_wide[[2]]) %>%
+    left_join(projections_wide[[3]])
 
 
 ```
 
-Drop the date column as it will mess things up.
 
-```{r}
-weekly_tall 
-```
 ## Join to the incidence time series
 
 ```{r}

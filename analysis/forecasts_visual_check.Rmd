@@ -22,8 +22,8 @@ endnote: no
 params:
   tproj : !r c(546, 252)
   twindow : 21
-  incid : healthmap_wide.csv
-  n.dates.sim : 35
+  incid : healthmap_wide_from_july.csv
+  n.dates.sim : 28
   place: Guinea
 ---
 
@@ -76,12 +76,14 @@ names(infiles) <-  paste0(params$tproj,
 restim <- map_dfr(infiles, readRDS, .id = "parameters")
 ```
 
-Read in the incidence.
+Read in the incidence. Chop it off at a little more than the max of 
+the times at which we are projecting.
 
 ```{r incid}
+cutoff <- max(params$tproj) + (2 * params$n.dates.sim)
 incid <- incid <- here::here("data/processed",
                     params$incid) %>%
-    readr::read_csv() %>%
+    readr::read_csv(n_max = cutoff) %>%
     select(date, params$place) %>%
     mRIIDS:::daily.to.weekly(.)
 
@@ -114,6 +116,16 @@ p <-  p + theme_classic()
 p <- p + xlab("") + ylab("Weekly Incidence")
 
 ```
+Also highlight the part of the incidence curve used to estimate the R
+used.
+
+```{r}
+used_from <- incid$date[(params$tproj - params$twindow) / 7]
+used_to <- incid$date[(params$tproj) / 7]
+p <- p + geom_vline(xintercept = as.numeric(c(used_from, used_to)),
+                    linetype = "dotted")
+
+```
 
 Plot 2. 
 
@@ -139,8 +151,15 @@ Finally, write it out with a common legend.
 ```{r save}
 prefix <- paste0(params$tproj,
                  collapse = "_")
-outfile <- here::here("data/output",
-                      paste0(prefix, ".png"))
+outfile <- here::here("data/output/figures",
+                      paste0(params$place,
+                             "_",
+                             prefix,
+                             "_"
+                             params$twindow,
+                             "_",
+                             params$n.dates.sim,
+                             ".png"))
 ggpubr::ggarrange(p,
                   p2,
                   ncol = 1,
