@@ -3,7 +3,7 @@
 The raw data from ProMED is shown in Figure \@ref(fig:hmraw)
 
 ```{r hmraw, echo = FALSE, fig.cap = "Raw data from HealthMap", fig.align = "center"}
-knitr::include_graphics("figures/hmraw.png")
+knitr::include_graphics("figures/promed_raw.png")
 ```
 
 

@@ -20,11 +20,11 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : !r c(546, 252)
-  twindow : 21
+  tproj : !r c(98, 245)
+  twindow : 7
   incid : healthmap_wide_from_july.csv
   n.dates.sim : 28
-  place: Guinea
+  place: Sierra Leone
 ---
 
 ```{r setup, eval = TRUE}
@@ -155,7 +155,7 @@ outfile <- here::here("data/output/figures",
                       paste0(params$place,
                              "_",
                              prefix,
-                             "_"
+                             "_",
                              params$twindow,
                              "_",
                              params$n.dates.sim,

@@ -1,0 +1,83 @@
+---
+output: 
+  pdf_document:
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+title: WHO Data Pre-processing
+author:
+- name: Sangeeta Bhatia
+  affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "Y"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+# spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=6, echo=FALSE, warning=FALSE, message=FALSE, fig.path = "figures/")
+```
+
+```{r setup, echo = FALSE}
+library(magrittr)
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+devtools::load_all()
+
+```
+
+# Introduction
+
+The pre-processing steps consist of turning the line count into a
+daily incidence series and turning the given tall data into wide data.
+
+
+The current data set has three possible values for the epidemiological
+case definition - confirmed, probable and suspected.
+Epidemiological case definition of probable and suspected cases
+differed across countries while confirmed cases were the ones
+confirmed through lab report. For the purpose of the current analysis,
+one approach could be to lump all of them together. The inferred date of
+onset (rather than the date reported) is used for estimation.
+The columns we use are : Country, EpiCaseDef (probably),
+DateOnsetInferred and CL_DistrictRes. 
+
+
+```{r rawdata, eval = TRUE}
+
+
+who_raw <- here::here("data/raw", "rstb20160308supp1.csv") %>%
+           read.csv(colClasses = c(Country = "factor",
+                                   EpiCaseDef = "character",
+                                   DateOnsetInferred = "Date",
+                                   CL_DistrictRes = "factor")) %>%
+           select(Country, EpiCaseDef,
+                  DateOnsetInferred,CL_DistrictRes) 
+```
+
+## Line-list to incidence time series
+
+This can be easily accomplished using the `incidence` package.
+
+```{r ll}
+incid <- split(who_raw, who_raw$Country) %>%
+    map_dfr(~ incidence::incidence(.x$DateOnsetInferred) %>%
+                as.data.frame,
+            .id = "country")
+
+
+incid <- tidyr::spread(incid, country, counts, fill = 0)
+incid <- rename(incid, "date" = "dates")
+```
+
+```{r save}
+outfile <- here::here("data/processed", "who_bycountry.csv")
+readr::write_csv(x = incid, path = outfile)
+```

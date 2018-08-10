@@ -4,13 +4,7 @@ Near Real-Time Mapping of the Risk of International Infectious Disease Spread"
 author: "Sangeeta Bhatia, Anne Cori and Pierre Nouvellet"
 site: bookdown::bookdown_site
 documentclass: article
-output:
-  bookdown::pdf_book: 
-    includes:
-      in_header: tex/template_yihui_mini.tex
-    latex_engine: xelatex
-    citation_package: natbib
-    keep_tex: yes
+output: word_document
 biblio-style: apalike
 bibliography: [bib/mriids.bib]
 link-citations: yes
