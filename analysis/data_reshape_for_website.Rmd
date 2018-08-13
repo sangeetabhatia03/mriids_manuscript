@@ -54,7 +54,7 @@ weekly_tall$week_starting <- lubridate::round_date(weekly_tall$date, "week")
 
 ```{r}
 twindow <- 49
-t_proj <- seq(from = 98, to = 567, by = 49)
+t_proj <- seq(from = 98, to = 567, by = 7)
 n.dates.sim <- 28
 infiles <- paste("forecasts",
                  t_proj,
@@ -86,7 +86,7 @@ projections_wide <- list(projections_y,
         df$countrydate <- paste(df$date, df$country, sep = ".")
         df <- select(df, - c(date, country))
         var <- colnames(select(df, - c(projection_from, countrydate)))
-        df <- dcast(df, projection_from ~ countrydate, value.var = var)
+        df <- data.table::dcast(df, projection_from ~ countrydate, value.var = var)
         colnames(df)[-1] <- paste0(var, colnames(df[-1]))
         df
     })
@@ -103,22 +103,27 @@ projections_wide <- left_join(projections_wide[[1]],
 
 ```{r}
 
-weekly_incid$date %<>% as.Date
+weekly_incid$date <- as.Date(weekly_incid$date)
+projections_wide$projection_from <- as.Date(projections_wide$projection_from)
+```
+Tack on an additional column identifying week in both data sets.
+```{r}
+weekly_incid$week_starting <- lubridate::floor_date(weekly_incid$date,
+                                                    unit = "week")
 
-tmp <- plyr::join_all(list(projections_7,
-                           projections_14,
-                           projections_28),
-                      by = c("date",
-                             "projection_from"),
-                      type = "left")
+projections_wide$week_starting <- lubridate::floor_date(projections_wide$projection_from,
+                                                        unit = "week")
 
+```
+
+```{r}
 desired  <- dplyr::inner_join(weekly_incid,
-                              tmp,
-                              by =  "date")
-
+                              projections_wide)
 desired <- select(desired,
+                  week_starting,
                   projection_from,
-                  date,
-                  Guinea:`ymax4.aggregated`)
+                  Liberia:`ymax4.Sierra Leone`,
+                  -one_of("date"))
+                  
 
 ```

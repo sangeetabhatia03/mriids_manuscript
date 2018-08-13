@@ -21,7 +21,7 @@ biblio-style: apsr
 endnote: no
 params:
   tproj : 245
-  twindow : 49
+  twindow : 7
   n.dates.sim : 28
   mobility: !r list(K = 1, pow_N_from = 1, pow_N_to = 1)
   incid: healthmap_wide_from_july.csv
@@ -48,7 +48,7 @@ pred_dates <- seq(from = max(trng_dates) + 1,
                   by = "1 day")
 I0    <- as.matrix(select(trng, -date))
 n_loc <- ncol(I0)
-
+countries <- colnames(select(incid, -date))
 ```
 
 ## Read in other meta-data needed
@@ -61,6 +61,7 @@ incidence data.
 centroids <- here::here("data/processed",
                         "centroids.csv") %>%
     read.csv()
+centroids <- centroids %>% slice(match(countries, country))
 distances <- geosphere::distm(cbind(centroids$lon,
                                     centroids$lat))
 distances <- as.matrix(distances) 

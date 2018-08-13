@@ -13,15 +13,79 @@ The data cleaning consists of the following steps : extracting the
 total case counts as a sum of desired case categories, merging
 duplicate alerts, removing data that made the cumulative case counts 
 inconsistent and finally, fill in the missing data using
-interpolation. Results at each step pre-processing workflow for Sierra
-Leone are show in Figure \@ref(fig:hmclean).
+interpolation. Results at each step pre-processing workflow for Guinea
+are shown in Figure \@ref(fig:hmclean).
 
 
 ```{r hmclean, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
-knitr::include_graphics("figures/guinea.png")
+knitr::include_graphics("figures/promed_Guinea.png")
 ```
 
 
 
 
 ## Comparison of incidence trends from different sources
+
+We compare incidence trends derived from ProMED and HealthMap as well
+as data from WHO. The results are shown in Figure \@ref(fig:incidcompare)
+
+```{r incidcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
+knitr::include_graphics("figures/who_promed_hm_incid.png")
+```
+
+Figure \@ref(fig:rcompare) compares the reproduction number estimated 
+from the respective incidence series. As expected, the estimated
+reproduction number are highly correlated.
+
+
+```{r rcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
+knitr::include_graphics("figures/who_promed_hm_r.png")
+```
+
+
+## Short term projections
+
+Figures \@(fig:guinea49, fig:liberia49, fig:sl49) show the weekly forecasts
+for 4 weeks from the point of projection. Reproduction number is
+estimated for each 7 week window upto the point of projection. The 
+reproduction number in the window immediately preceding the point of
+projection is used for forecasting and is assumed to be constant
+during the forecasting window. Each figure shows
+projections done at two points - one in the increasing and one in the
+declining phase of the epidemic. 
+
+
+```{r guinea49, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+knitr::include_graphics("figures/Guinea_98_245_49_28.png")
+```
+
+
+```{r liberia49, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+knitr::include_graphics("figures/Liberia_98_245_49_28.png")
+```
+
+
+```{r sl49, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+knitr::include_graphics("figures/SierraLeone_98_245_49_28.png")
+```
+
+
+We experimented with different window lengths for estimating R. 
+Figures \@(fig:guinea7, fig:liberia7, fig:sl7) show the forecasts for 
+the time points for a time window of 1 week. 
+
+
+
+```{r guinea7, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+knitr::include_graphics("figures/Guinea_98_245_7_28.png")
+```
+
+
+```{r liberia7, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+knitr::include_graphics("figures/Liberia_98_245_7_28.png")
+```
+
+
+```{r sl7, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+knitr::include_graphics("figures/SierraLeone_98_245_7_28.png")
+```
