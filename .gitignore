@@ -5,3 +5,5 @@
 /analysis/forecasts_visual_check.html
 /analysis/projection_using_fitted.pdf
 /analysis/projection_using_fitted.tex
+_book/*.pdf
+_book/*.tex
