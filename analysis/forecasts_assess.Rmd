@@ -20,10 +20,11 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : 245
+  tproj : 14
   twindow : 7
   n.dates.sim : 28
   incid: healthmap_wide_from_july.csv
+  place: Liberia
 ---
 
 ```{r setup, eval = TRUE}
@@ -31,7 +32,103 @@ library(dplyr)
 library(purrr)
 library(ggplot2)
 ```
-# Introduction
+The metrics are implemented in R package assessR.
+
+```{r install, eval = FALSE}
+devtools::install_github("sangeetabhatia03/assessR")
+```
+
+Read in the forecasts and the observed incidence.
+
+```{r incid}
+incid <- here::here("data/processed", params$incid) %>%
+    readr::read_csv()
+
+idx <- seq(from = params$tproj + 1,
+           length.out = params$n.dates.sim,
+           by = 1)
+
+observed <- incid[idx, ]
+
+```
+
+```{r pred}
+infile <- paste0("forecasts_samples_",
+                 params$tproj,
+                  "_",
+                 params$twindow,
+                 "_",
+                 params$n.dates.sim,
+                 ".Rds")
+predicted <- here::here("data/output",
+                        infile) %>%
+    readr::read_rds()
+
+```
+We will need to reshape the forecasts so that we can use the functions
+in assessR.
+
+```{r reshape}
+predicted <- bind_cols(predicted)
+pred <- select(predicted, starts_with(params$place)) %>%
+    as.matrix
+obs <- pull(observed, params$place)
+```
+
+Calculate performance along the four metrics we have selected.
+
+```{r}
+rmse <- assessR::rel_mse(obs, pred)
+avg_res <- assessR::avg_residual(obs, pred)
+sness <- assessR::sharpness(pred)
+bs <- assessR::bias(obs, pred)
+
+```
+
+Finally, we save the output for later analysis and visualisation.
+
+```{r save}
+df <- data.frame(date = observed$date,
+                 rmse = rmse,
+                 avg_res = avg_res,
+                 sharpness = sness,
+                 bias = bs)
+
+outfile <- paste0(params$place, 
+                  "_daily_metrics_",
+                  params$tproj,
+                  "_",
+                  params$twindow,
+                  "_",
+                  params$n.dates.sim,
+                  ".csv")
+here::here("data/output",
+           outfile) %>%
+    readr::write_csv(x = df,
+                     path = .)
+
+```
+
+Also save the averages while we are at it.
+
+```{r}
+weekly <- mRIIDS:::daily.to.weekly(df)
+df_weekly <- mutate_if(weekly, is.numeric, funs(. / 7))
+
+outfile <- paste0(params$place, 
+                  "_weekly_metrics_",
+                  params$tproj,
+                  "_",
+                  params$twindow,
+                  "_",
+                  params$n.dates.sim,
+                  ".csv")
+here::here("data/output",
+           outfile) %>%
+    readr::write_csv(x = df_weekly,
+                     path = .)
+
+```
 
 ```{r}
 devtools::session_info()
