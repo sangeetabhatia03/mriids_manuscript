@@ -8,39 +8,34 @@ Poisson process following the renewal equation
   I_{j, t} \sim 
   Pois
   \left( 
-    R_t \sum_{s = 1}^{t}{I_{t - s}\omega_s}.
-  \right)
+    R_t \sum_{s = 1}^{t}{I_{t - s}\omega_s}
+  \right).
 \]
 
 Here \(R_t\) is the reproduction number at time \(t\) and \(\omega\)
 is the distribution of the serial interval. 
 
-We build on this model to incorporate the spatial spread of the outbreak. 
+We build on this model to incorporate the spatial spread of the
+outbreak. 
+Let \(1, 2, \dots, n\) be \( n \) different locations.
 The number of cases at a location \(j\) at time \(t\) is given by the equation
 \[
   I_{j, t} \sim 
   Pois\left( 
   \sum_{i = 1}^{n} 
   {\left( p_{i \rightarrow j}
-  R_{t, i} \sum_{s = 1}^{t}{I_{i, t - s} w_{s}}
+  R_{i, t} \sum_{s = 1}^{t}{I_{i, t - s} w_{s}}
   \right)} 
   \right),
 \]
 
-where \(R_{t, i}\) is the reproduction number at location \(i\) at time
+where \(R_{i, t}\) is the reproduction number at location \(i\) at time
 \(t\) and \(p_{i \rightarrow j}\) is the probability of moving from
-location \(i\) to location \(j\). The quantity $R_{t, i}$ is the
-reproduction number at time $t$ at location $i$. $R_{t, i}$ is
+location \(i\) to location \(j\). $R_{t, i}$ is
 affected by a number of other factors e.g., the intrinsic
 transmissibility of a pathogen, the health care capacity at location
-$i$ etc. 
-<!-- Its dependence on these factors is formalized as -->
-<!-- \[ R_{t, i} := f(haq_i, R_0, t),\] -->
-<!-- where $haq_i$ is an index/score quantifying the health care 
-capacity at location  -->
-<!-- $i$, $f$ denotes a function, $R_0$ is the basic reproduction -->
-<!-- number 
-(data stream 2) and $t$ is time.. -->
+$i$ etc. The model can be easily extended to incorporate the
+dependence of the reproduction number on these factors. 
 
 The probability of moving between locations is derived from the
 relative flow of populations.

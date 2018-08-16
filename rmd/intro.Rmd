@@ -1,7 +1,5 @@
 # Introduction
-Pandemics and emerging diseases cause catastrophic morbidity, 
-mortality, and economic hardship
-and may occur at any time. Increasing globalization of 
+Increasing globalization of 
 commerce, finance, production, and services
 has fostered rapid global movement of people, animals, plants, 
 food, and feed. With the transportation
