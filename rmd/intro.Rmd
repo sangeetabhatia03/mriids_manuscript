@@ -13,25 +13,16 @@ away with dangerous, global consequences.
 Early detection of infectious disease outbreaks has 
 the potential to limit the size of an outbreak and
 prevent an outbreak from becoming a pandemic. Digital 
-surveillance tools have the potential to play a significant role 
-in this. They can be used to complement the traditional public
+surveillance tools can play a significant role 
+in the rapid recognition of public health emergencies. 
+They can be used to complement the traditional public
 health infrastructure, particularly in resource-poor settings. 
-One of the earliest entrants in the field of digital surveillance 
-is The Program for Monitoring Emerging Diseases (ProMED). ProMED 
-was founded in 1994 with the goal of detecting emerging infectious 
-or toxin-mediated diseases through emails from clinicians, experts 
-and freely dissemiate contextualsied and curated information.
-
-HealthMap is another key player in the field of internet based 
-surveillance. In addition to using curated ProMED reports, 
-Healthmap utilises other informal sources such as online news 
-and eyewitness reports.
 
 However, gathering timely data, while critical, is but the first 
 step in the disease surveillance process. Compiling the data, 
 conducting analysis, and generating actionable reports that are 
 easily understood are equally important. While there has been a
-proliferation of digital surveillance tools as well as  
+growth in the number of digital surveillance tools as well as  
 epidemiological studies using data from these 
 tools [@chowell2016elucidating], there is as yet a dearth of a
 framework that can automatically combine various streams of  

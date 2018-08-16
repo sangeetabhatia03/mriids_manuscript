@@ -14,7 +14,7 @@
   of such data in incidence forecasting.
   We infer incidence trends at finer spatial scales from
   aggregated data. Our work shows how the data from
-  event based surveillance systems (EBS) can complement the data
+  digital surveillance systems can complement the data
   collected from traditional public health infrastructure. During an
   ongoing crisis, combining data from different sources gives
   stakeholders a more complete picture.

@@ -49,8 +49,7 @@ are raised to some power.
 \[
   \phi_{i \rightarrow j} :=  \frac{N_i^{\alpha}N_j^{\beta}}{d_{i, j}^{\gamma}}.
 \]
-In practice, \( \alpha \) and \( \beta \) are assumed to be $1$. The
-exponent \( \gamma \) modulates the effects distance on the flow of
+ The exponent \( \gamma \) modulates the effect of distance on the flow of
 populations. A large value of \( \gamma \) indicates that the
 distances travelled by populations tend to be short.
 
