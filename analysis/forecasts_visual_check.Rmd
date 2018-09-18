@@ -20,18 +20,25 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : !r c(98, 245)
-  twindow : 7
+  tproj : !r seq(from = 84, by = 28, to = 300)
+  twindow : 42
   incid : healthmap_wide_from_july.csv
   n.dates.sim : 28
-  place: Sierra Leone
+  place: Liberia
 ---
 
 ```{r setup, eval = TRUE}
 library(dplyr)
 library(purrr)
 library(ggplot2)
+library(RColorBrewer)
 ```
+First define the color pallete to be used throughout.
+
+```{r}
+mypalette <- brewer.pal(length(params$tproj), "Dark2")
+```
+
 Read in the projections output.
 
 ```{r forecasts}

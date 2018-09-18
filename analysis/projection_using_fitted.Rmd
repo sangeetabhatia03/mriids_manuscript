@@ -20,8 +20,8 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : 245
-  twindow : 7
+  tproj : 112
+  twindow : 28
   n.dates.sim : 28
   mobility: !r list(K = 1, pow_N_from = 1, pow_N_to = 1)
   incid: healthmap_wide_from_july.csv

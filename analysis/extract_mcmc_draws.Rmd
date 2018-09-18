@@ -20,8 +20,8 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj: 245
-  twindow: 49
+  tproj: 112
+  twindow: 28
   N: 3
   incid: healthmap_wide_from_july.csv
 ---

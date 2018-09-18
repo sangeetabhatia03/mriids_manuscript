@@ -1,5 +1,5 @@
   In our increasingly interconnected world, it is crucial to
-  understand the risk of an outbreak originating in one country/region
+  understand the risk of an outbreak originating in one country or region
   and  spreading to the rest of the world. Digital disease surveillance
   tools such as ProMed and HealthMap have the potential to serve as
   important early warning systems as well as complement the field
@@ -12,7 +12,7 @@
   HealthMap during the 2014-2016 West African Ebola outbreak,
   we provide a realistic appraisal of the strengths and limitations
   of such data in incidence forecasting.
-  We infer incidence trends at finer spatial scales from
+  We also infer incidence trends at finer spatial scales from
   aggregated data. Our work shows how the data from
   digital surveillance systems can complement the data
   collected from traditional public health infrastructure. During an

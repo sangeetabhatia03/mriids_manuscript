@@ -59,7 +59,7 @@ is thus the population flow into location \(j\) from location \(i\).
 \[
   r_{i \rightarrow j}^{spread} = \frac{\phi_{i \rightarrow
   j}}{\sum_{x}{\phi_{i \rightarrow
-  j}}}.
+  x}}}.
 \]
 
 The probability of movement from location \(i\) to location \(j\) is given by
@@ -70,59 +70,73 @@ where \(p_{stay}^i\) is the probability of staying at location
 can capture the dynamics of population flow across spatial units. For
 instance, if \(p_{stay}^i\) is large, then the flow out of location
 \(i\) would be small. Thus, if this parameter is geographically
-heterogeneous, we obtain imbalanced flow of population (i.e. a source-sink dynamics). 
+heterogeneous, we obtain imbalanced flow of population (i.e. source-sink dynamics). 
 
 \subsection{Statistical inference of model parameters}
 
-The parameters of the full model as presented in Section~\ref{sec:model} are: 
-\begin{itemize}
-\item $R_{t, i}$, the reproduction at time $t$,
-\item $p_{stay}$, the probability of staying in location $i$, and 
-\item $\gamma$, the exponent of the distance in the gravity model. 
-\end{itemize}
+The parameters of the full model as presented are: 
 
-The parameters can be estimated using maximum likelihood
-estimation or estimating the posterior distribution of the parameters using
+1.  \(R_{i, t}\), the reproduction number at time \(t\) in location \(i\),
+2.  \(p_{stay}^i\), the probability of staying in location \(i\), and 
+3.  \(\gamma\), the exponent of the distance in the gravity model. 
+
+We assumed the exponents \(\alpha \) and \(\beta\) on the
+populations to be 1.
+
+The posterior distribution of each parameter are estimated using
 MCMC. Let the observed incidence time series at locations \(1\)
 through \(n\) and time \(1, 2 \dots t\) be
 \[
 I = \begin{bmatrix}
     o_{1,1}       & o_{1,2}  & \dots & o_{1,n} \\
-    o_{2,1}       & o_{2,2}  & \dots & o_{2,n} \\
-    \hdotsfor{4} \\
-    o_{t,1}       & o_{t,2}  & \dots & o_{t,n}
+	o_{2,1}       & o_{2,2}  & \dots & o_{2,n} \\
+	\cdots \\
+	o_{t,1}       & o_{t,2}  & \dots & o_{t,n} \\
 \end{bmatrix}
 \]
-where \(o_{i, j}\) is the observed incidence at time \(i\) at location
-\(j\).
-Then the likelihood of the model parameters given the
+where \(o_{k, j}\) is the observed incidence at time \(k\) at location
+\(j\). Then the likelihood of the model parameters given the
 observations is proportional to the probability of the data given
-model parameters.  The probability of $o_{j, t}$ given
+model parameters.  The probability of $o_{k, j}$ given
 the model parameters is:
-\[ P(o_{j, t} \mid p_{stay}^i, \gamma, R_{i, t}) = e^{-\lambda_{j, t}}
+\[ P(o_{k, j} \mid p_{stay}, \gamma, R_{1, t}, R_{2, t}, \dots , R_{n,
+t}) = 
+e^{-\lambda_{j, t}}
   \frac{o_{j, t}^{\lambda_{j, t}}}{\lambda_{j, t} !}, \]
 where $\lambda_{j, t}$ is given by
-\[
-  \lambda_{j, t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i, t} \sum_{s
+\[\lambda_{j, t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i, t} \sum_{s
         = 1}^t{I_{i, s}w_{t - s}} \right)}.\]
 
-Thus assuming that each observation is independent, the likelihood of the parameters is proportional to
-\[
-\mathcal{L} = P(\{o_{j, t}\} \mid \{p_{stay}^i\}, \gamma, \{R_{i, t}\}) = 
- \prod_{t = 1}^{t}{e^{-\lambda_{i, t}} \frac{o_{i, t}^{\lambda_{i, t}}}{\lambda_{i, t} !}}.
-\]
-In practice, we estimate $R_{t, i}$ as an average over the past 2 or 3 week with sliding time windows.
+Thus assuming that each observation is independent, the likelihood of 
+the parameters is proportional to
+\[\mathcal{L} = P(\{o_{j, t}\} \mid p_{stay}, \gamma, \{R_{i, t}\}) = 
+ \prod_{t = 1}^{t}{e^{-\lambda_{i, t}} 
+ \frac{o_{i, t}^{\lambda_{i, t}}}{\lambda_{i, t} !}}.\]
 
-Given this likelihood, we can write the joint posterior distribution of the parameter given the observed data as:
+Given this likelihood, we can write the joint posterior distribution
+of the parameter given the observed data as:
 
-\[
-P( \{p_{stay}^i\}, \gamma, \{R_{i, t}\} \mid \{o_{j, t}\}) \propto  
-  \mathcal{L} \times P(\{R_{i,0}\}) P(\{p_{stay}^i\}) P(\gamma).
-\]
+\[P(\{p_{stay}^i\}, \gamma, \{R_{i, t}\} 
+   \mid 
+   \{o_{j, t}\}) 
+   \propto  
+   \mathcal{L} \times P(\{R_{i,0}\}) P(\{p_{stay}^i\}) P(\gamma).\]
 
-Here, $P(\{R_{i,0}\})$ represents the prior distribution of the basic reproduction number. This prior distribution is 
-influenced by data-stream 2 and the health capacity of the location $i$, as described above.
+\(P(\{p_{stay}^i\})\),  \(P(\gamma)\), and \(P(\{R_{i,0}\})\) 
+represent the prior distributions on the parameters. The influence of
+factors such as healthcare capacity of a location can be incorporated
+into the model through the prior distributions. Similarly, the prior
+	distributions on the probability of staying at a location and the
+exponent on distance can be informed by additional data sources 
+such as prior information derived from flight data. 
 
-The other prior distributions,  $P(\{p_{stay}^i\})$ and $P(\gamma)$, could in principle reflect the influence of 
-additional data sources such as prior information derived from flight data. 
+In practice, we have assumed a single \(p_{stay}\) for all three
+countries in the analysis (Liberia, Guinea and Sierra Leone). For
+estimating the time-varying reproduction number for each country, we
+divided the time from the start of the outbreak upto to the time at
+which we start projection into intervals and estimate a single
+reproduction number for each time window. We varied the length of this
+time window to obtain different models. A short time window increases
+the number of parameters in the model and a comparison of the
+different models is presented in Section \@ref(results).
 

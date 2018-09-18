@@ -78,8 +78,8 @@ obs <- pull(observed, params$place)
 Calculate performance along the four metrics we have selected.
 
 ```{r}
-rmse <- assessR::rel_mse(obs, pred)
-avg_res <- assessR::avg_residual(obs, pred)
+rmae <- assessR::rel_mae(obs, pred)
+## avg_res <- assessR::avg_residual(obs, pred)
 sness <- assessR::sharpness(pred)
 bs <- assessR::bias(obs, pred)
 
@@ -89,8 +89,7 @@ Finally, we save the output for later analysis and visualisation.
 
 ```{r save}
 df <- data.frame(date = observed$date,
-                 rmse = rmse,
-                 avg_res = avg_res,
+                 rmae = rmae,
                  sharpness = sness,
                  bias = bs)
 
@@ -102,7 +101,7 @@ outfile <- paste0(params$place,
                   "_",
                   params$n.dates.sim,
                   ".csv")
-here::here("data/output",
+here::here("data/output/metrics/daily",
            outfile) %>%
     readr::write_csv(x = df,
                      path = .)
@@ -123,7 +122,7 @@ outfile <- paste0(params$place,
                   "_",
                   params$n.dates.sim,
                   ".csv")
-here::here("data/output",
+here::here("data/output/metrics/weekly",
            outfile) %>%
     readr::write_csv(x = df_weekly,
                      path = .)
