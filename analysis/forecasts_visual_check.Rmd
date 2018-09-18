@@ -21,22 +21,22 @@ biblio-style: apsr
 endnote: no
 params:
   tproj : !r seq(from = 84, by = 28, to = 300)
-  twindow : 42
+  twindow : 14
   incid : healthmap_wide_from_july.csv
   n.dates.sim : 28
-  place: Liberia
+  place: Guinea
 ---
 
 ```{r setup, eval = TRUE}
 library(dplyr)
 library(purrr)
 library(ggplot2)
-library(RColorBrewer)
+library(randomcoloR)
 ```
-First define the color pallete to be used throughout.
+First define the color palette to be used throughout.
 
 ```{r}
-mypalette <- brewer.pal(length(params$tproj), "Dark2")
+mypalette <- distinctColorPalette(length(params$tproj))
 ```
 
 Read in the projections output.
@@ -81,6 +81,9 @@ names(infiles) <-  paste0(params$tproj,
                           
 
 restim <- map_dfr(infiles, readRDS, .id = "parameters")
+rused <- map_dfr(infiles, 
+                 ~ readRDS(.x) %>% tail(1), 
+                 .id = "parameters")
 ```
 
 Read in the incidence. Chop it off at a little more than the max of 
@@ -118,7 +121,8 @@ p <- p + geom_line(data = forecasts,
                      aes(x = date,
                          y = y,
                          col = parameters))
-
+p <- p + scale_colour_manual(values = mypalette, 
+                                 aesthetics = c("colour", "fill"))  
 p <-  p + theme_classic()
 p <- p + xlab("") + ylab("Weekly Incidence")
 
@@ -126,7 +130,7 @@ p <- p + xlab("") + ylab("Weekly Incidence")
 Also highlight the part of the incidence curve used to estimate the R
 used.
 
-```{r}
+```{r eval=FALSE}
 used_from <- incid$date[(params$tproj - params$twindow) / 7]
 used_to <- incid$date[(params$tproj) / 7]
 p <- p + geom_vline(xintercept = as.numeric(c(used_from, used_to)),
@@ -149,6 +153,17 @@ p2 <- p2 + geom_ribbon(data = restim,
                            ymax = `97.5%`,
                            fill = parameters),
                        alpha = 0.3)
+p2 <- p2 + geom_segment(data = rused,
+                        aes(x = date,
+                            xend = date + 28,
+                            y = `50%`,
+                            yend = `50%`,
+                            col = parameters),
+                        linetype = "dashed")
+p2 <- p2 + scale_colour_manual(values = mypalette, 
+                               aesthetics = c("colour", "fill"))  
+p2 <- p2 + geom_hline(yintercept = 1,
+                      linetype = "dashed")
 p2 <- p2 + theme_classic()
 p2 <- p2 + xlab("") + ylab("R")
 ```
@@ -171,7 +186,8 @@ ggpubr::ggarrange(p,
                   p2,
                   ncol = 1,
                   nrow = 2,
+                  heights = c(2, 1),
                   common.legend = TRUE,
-                  legend="bottom") %>%
+                  legend="none") %>%
     ggpubr::ggexport(filename = outfile)
 ```
