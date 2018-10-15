@@ -61,6 +61,13 @@ promed$`Issue Date` <- paste0(month(promed$`Issue Date`),
                               ":", minute(promed$`Issue Date`))
 ```
 
+There is one row with country name "Libera". Rename it to Liberia.
+
+```{r}
+idx <- which(promed$Country == "Libera")
+promed$Country[idx] <- "Liberia"
+
+```
 ```{r}
 readr::write_csv(x = promed,
                  path = here::here("data/raw",
