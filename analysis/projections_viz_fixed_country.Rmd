@@ -1,0 +1,208 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Visualization of forecasts
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  tproj : !r c(119, 147) 
+  twindow : 42
+  incid : data/processed/promed_loglinear_wide_from_march.csv
+  n.dates.sim : 28
+  place: LBR
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+library(randomcoloR)
+```
+First define the color palette to be used throughout.
+
+```{r palette}
+mypalette <- distinctColorPalette(length(params$tproj),
+                                  altCol = FALSE,
+                                  runTsne = FALSE)
+```
+
+Read in the projections output.
+
+```{r forecasts}
+
+infiles <- paste0("forecasts_",
+                    params$tproj,
+                    "_",
+                    params$twindow,
+                    "_",
+                    params$n.dates.sim,
+                    ".csv")
+names(infiles) <- paste0(params$tproj,
+                           "_",
+                           params$twindow,
+                           "_",
+                           params$n.dates.sim
+                           )
+forecasts <- map_dfr(infiles,
+                     ~ readr::read_csv(here::here("data/output",
+                                                  .x)),
+                     .id = "parameters") %>%
+    filter(country %in% params$place)
+
+
+```
+
+Read in R estimates.
+
+```{r restim, eval = TRUE}
+
+infiles <- here::here("data/stanfits",
+                      paste0(params$place,
+                             "_rquantiles_",
+                              params$tproj,
+                             "_",
+                             params$twindow,
+                             ".rds"))
+
+names(infiles) <-  paste0(params$tproj,
+                          "_",
+                          params$twindow)
+                          
+rused <- map_dfr(infiles, 
+                 ~ readRDS(.x) %>% tail(1), 
+                 .id = "parameters")
+
+infiles <- here::here("data/stanfits",
+                      paste0(params$place,
+                             "_rquantiles_",
+                              max(params$tproj),
+                             "_",
+                             params$twindow,
+                             ".rds"))
+restim <- readr::read_rds(infiles)
+
+```
+
+Read in the incidence. Chop it off at a little more than the max of 
+the times at which we are projecting.
+
+```{r incid}
+cutoff <- max(params$tproj) + (1 * params$n.dates.sim)
+incid <- incid <- here::here(params$incid) %>%
+    readr::read_csv(n_max = cutoff) %>%
+    select(date, params$place) %>%
+    mRIIDS:::daily.to.weekly(.)
+
+
+incid <- rename(incid,
+                "incidence" = params$place)
+
+incid$date <- as.Date(incid$date)
+```
+
+Finally plot everything.
+
+```{r forecastsplot}
+p <- ggplot()
+p <- p + geom_point(data = incid,
+                    aes(date, incidence),
+                    col = "blue")
+## plot projections on top
+p <- p + geom_ribbon(data = forecasts,
+                     aes(x = date,
+                         ymin = ymin,
+                         ymax = ymax,
+                         fill = parameters),
+                     alpha = 0.3)
+p <- p + geom_line(data = forecasts,
+                     aes(x = date,
+                         y = y,
+                         col = parameters))
+p <- p + scale_colour_manual(values = mypalette, 
+                             aesthetics = c("colour", "fill"))  
+p <-  p + theme_classic()
+p <- p + xlab("") + ylab("Weekly Incidence")
+
+```
+Also highlight the part of the incidence curve used to estimate the R
+used.
+
+```{r eval = FALSE}
+used_from <- incid$date[(params$tproj - params$twindow) / 7]
+used_to <- incid$date[(params$tproj) / 7]
+p <- p + geom_vline(xintercept = as.numeric(c(used_from, used_to)),
+                    linetype = "dotted")
+
+```
+
+Plot 2. 
+
+```{r rplot, eval = TRUE}
+p2 <- ggplot()
+p2 <- p2 + geom_line(data = restim,
+                     aes(x = date,
+                         y = `50%`
+                         ))
+
+p2 <- p2 + geom_ribbon(data = restim,
+                       aes(x = date,
+                           ymin = `2.5%`,
+                           ymax = `97.5%`
+                           ),
+                       alpha = 0.3)
+p2 <- p2 + geom_segment(data = rused,
+                        aes(x = date,
+                            xend = date + params$n.dates.sim,
+                            y = `50%`,
+                            yend = `50%`,
+                            col = parameters),
+                        linetype = "dashed")
+p2 <- p2 + scale_colour_manual(values = mypalette, 
+                               aesthetics = c("colour", "fill"))  
+p2 <- p2 + geom_hline(yintercept = 1,
+                      linetype = "dashed")
+p2 <- p2 + theme_classic()
+p2 <- p2 + xlab("") + ylab("R")
+```
+
+Finally, write it out with a common legend.
+
+```{r save, eval = TRUE}
+prefix <- paste0(params$tproj,
+                 collapse = "_")
+outfile <- here::here("data/output/figures",
+                      paste0(params$place,
+                             "_",
+                             prefix,
+                             "_",
+                             params$twindow,
+                             "_",
+                             params$n.dates.sim,
+                             ".png"))
+ggpubr::ggarrange(p,
+                  p2,
+                  ncol = 1,
+                  nrow = 2,
+                  heights = c(2, 1),
+                  common.legend = TRUE,
+                  legend="none") %>%
+    ggpubr::ggexport(filename = outfile,
+                     res = 144,
+                     width = 960,
+                     height = 960)
+```

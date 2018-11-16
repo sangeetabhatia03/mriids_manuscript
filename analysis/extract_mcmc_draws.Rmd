@@ -20,10 +20,10 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj: 112
-  twindow: 28
-  N: 3
-  incid: healthmap_wide_from_july.csv
+  tproj: 77
+  twindow: 14
+  N: 55
+  incid: data/processed/promed_loglinear_wide_from_july.csv
 ---
 
 ```{r setup, eval = TRUE}
@@ -38,7 +38,7 @@ The order of columns as the same as the order of columns in the input
 to Stan. Hence read the incidence data to get this order.
 
 ```{r incid}
-incid <- here::here("data/processed", params$incid) %>%
+incid <- here::here(params$incid) %>%
     readr::read_csv(n_max = params$tproj)
 trng_date <- incid$date[seq_len(params$tproj)]
 ```
@@ -51,6 +51,30 @@ later use.
 ```{r fit}
 suffix <- paste0(params$tproj, "_", params$twindow, ".rds")
 fit1 <- readRDS(here::here("data/stanfits", suffix))
+```
+## Check for convergence
+
+If the convergence tests fail, stop right here.
+
+```{r test}
+flagged_fits <- here::here("data/stanfits",
+                           "poorfits.csv")
+rhats <- bayesplot::rhat(fit1)
+ratios_cp <- bayesplot::neff_ratio(fit1)
+rhats_check <- "pass"
+neff_check <- "pass"
+if (any(rhats > 1.1)) rhats_check <- "fail"
+if (any(ratios_cp < 0.2)) neff_check <- "fail"
+if (rhats_check == "fail" | neff_check == "fail") {
+    data.frame(twindwow = params$twindow,
+               tproj = params$tproj,
+               rhats = rhats_check,
+               neff = neff_check) %>%
+        readr::write_csv(path = flagged_fits,
+                         append = TRUE)
+}    
+    
+    
 ```
 
 ## Extract draws for each parameter

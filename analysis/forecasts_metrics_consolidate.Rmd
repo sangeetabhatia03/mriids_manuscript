@@ -1,0 +1,90 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Consolidate forecasts performance metrics
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  twindow : 42
+  tproj : !r seq(from = 49, to = 392, by = 7)
+  incid : data/processed/promed_loglinear_wide_from_march.csv
+  n.dates.sim : 28
+  place: SLE
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+```
+Read in the weekly metrics for given parameters.
+
+```{r metrics}
+infiles <- paste0(params$place,
+                  "_weekly_metrics_",
+                  params$tproj,
+                  "_",
+                  params$twindow,
+                  "_",
+                  params$n.dates.sim,
+                  ".csv")
+names(infiles) <- paste0(params$tproj,
+                           "_",
+                           params$twindow,
+                           "_",
+                           params$n.dates.sim
+                           )
+metrics <- map_dfr(infiles,
+                   ~ readr::read_csv(here::here("data/output/metrics/weekly",
+                                                .x)),
+                     .id = "parameters") 
+
+
+```
+
+Add a week column.
+
+```{r}
+metrics <- tidyr::separate(metrics,
+                           parameters,
+                           into = c("tproj", "twindow", "ndates"),
+                           sep = "_",
+                           remove = TRUE
+                           )
+
+metrics$week_of_projection <- rep(1:4, nrow(metrics) / 4)
+
+metrics <- mutate_if(metrics, is.character, factor)
+metrics$country <- params$place
+
+```
+
+Write out the metrics for further 
+
+```{r}
+outfile <- paste0(params$place,
+                  "_weekly_",
+                  params$twindow,
+                  "_",
+                  params$n.dates.sim,
+                  ".csv")
+
+readr::write_csv(x = metrics,
+                 path = here::here("data/output/metrics/weekly",
+                                   outfile))
+```

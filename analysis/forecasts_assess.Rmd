@@ -20,11 +20,11 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : 14
-  twindow : 7
+  tproj : 49
+  twindow : 42
   n.dates.sim : 28
-  incid: healthmap_wide_from_july.csv
-  place: Liberia
+  incid: data/processed/promed_loglinear_wide_from_march.csv
+  place: LBR
 ---
 
 ```{r setup, eval = TRUE}
@@ -41,7 +41,7 @@ devtools::install_github("sangeetabhatia03/assessR")
 Read in the forecasts and the observed incidence.
 
 ```{r incid}
-incid <- here::here("data/processed", params$incid) %>%
+incid <- here::here(params$incid) %>%
     readr::read_csv()
 
 idx <- seq(from = params$tproj + 1,
@@ -85,7 +85,30 @@ bs <- assessR::bias(obs, pred)
 
 ```
 
-Finally, we save the output for later analysis and visualisation.
+And the proportion of observed values in 50% CI.
+
+```{r propinci}
+minmax <- apply(pred, 1, quantile, c(0.25, 0.75))
+minmax <- t(minmax)
+propinci <- assessR:::prop_in_ci(obs,
+                                 min = minmax[, 1],
+                                 max = minmax[, 2])
+df <- data.frame(tproj = params$tproj,
+                 twindow = params$twindow,
+                 propinci = propinci
+                 )
+outfile <- paste0(params$place, 
+                 "_prop_in_ci.csv")
+
+here::here("data/output/metrics/daily",
+           outfile) %>%
+    readr::write_csv(x = df,
+                     path = .,
+                     append = TRUE)
+
+```
+
+Finally,  save the output for later analysis and visualisation.
 
 ```{r save}
 df <- data.frame(date = observed$date,

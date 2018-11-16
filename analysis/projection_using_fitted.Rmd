@@ -41,7 +41,7 @@ library(mRIIDS)
 ## Read incidence data
 
 ```{r incid}
-incid <- here::here("data/processed", params$incid) %>%
+incid <- here::here(params$incid) %>%
     readr::read_csv()
 trng <- incid[seq_len(params$tproj), ]
 trng_dates <- pull(trng, date)
@@ -59,11 +59,10 @@ countries <- colnames(select(incid, -date))
 Read in populations and arrange then in the same order as in the
 incidence data.
 	
-```{r}
-centroids <- here::here("data/processed",
-                        "centroids.csv") %>%
-    read.csv()
-centroids <- centroids %>% slice(match(countries, country))
+```{r metadata}
+centroids <- here::here(params$centroids) %>%
+    readr::read_csv()
+## centroids <- centroids %>% slice(match(countries, country))
 distances <- geosphere::distm(cbind(centroids$lon,
                                     centroids$lat))
 distances <- as.matrix(distances) 
@@ -88,7 +87,7 @@ si <- here::here("data/stanfits",
                  si) %>%
     readRDS()
 ```
-## Test model fit
+## Samples from posterior distribution
 
 The fitted model has draws from the posterior distribution.
 We can use these samples to project forward thus doing either
@@ -97,7 +96,7 @@ goodness-of-fit test or predictive modeling.
 ```{r test_fit, eval = TRUE}
 
 
-countries <- colnames(select(incid, -date))
+
 r_samples <- purrr::map(countries,
                        ~ readRDS(here::here("data/stanfits",
                                             paste0(.x,
@@ -116,7 +115,7 @@ We want to use the estimate of R in the window right before we start
 projecting as the R for the window over which we project. So we will
 just pick out the relevant row from the samples.
 
-```{r}
+```{r rpred}
 last_window <- tail(trng_dates, 1)
 r_pred <- purrr::map_dfr(r_samples, ~ filter(.x,
                                              date == last_window))
@@ -138,23 +137,51 @@ daily_projections <- lapply(index, function(row){
                                                            ncol = ncol(I0),
                                                            nrow = 1)
                                      mobility$pow_dist <- gamma
-                                     flowmat <- mRIIDS:::flow_matrix(distvec,
-                                                            n_from,
-                                                            n_to,
-                                                            place_names = centroids$country,
-                                                            model = "gravity",
-                                                            mobility)
+                                     ## flowmat <- mRIIDS:::flow_matrix(distvec,
+                                     ##                        n_from,
+                                     ##                        n_to,
+                                     ##                        place_names = centroids$country,
+                                     ##                        model = "gravity",
+                                     ##                        mobility)
 
 
+                                     flowmat  <-
+                                         matrix(NA,
+                                                length(centroids$country),
+                                                length(centroids$country))
+                                     rownames(flowmat) <- centroids$country
+                                     colnames(flowmat) <- centroids$country
+                                     ## fill in the matrix from the vectors
+                                     flow_from_to <- mRIIDS:::flow_vector(n_from,
+                                                                          n_to,
+                                                                          distvec,
+                                                                          model = "gravity",
+                                                                          mobility)
+
+                                     flowmat[lower.tri(flowmat)] <- flow_from_to
+                                     ## fill out the upper triangle
+                                     flowmat <- t(flowmat)
+
+                                     flow_to_from <- mRIIDS:::flow_vector(n_to,
+                                                                          n_from,
+                                                                          distvec,
+                                                                          model = "gravity",
+                                                                          mobility)
+
+                                     ## fill out the lower triangle
+                                     flowmat[lower.tri(flowmat)] <-
+                                         flow_to_from
                                      ## Relative risk
-                                     rel_risk <- flowmat / rowSums(flowmat, na.rm=TRUE)
+                                     rel_risk <- flowmat / rowSums(flowmat,
+                                                                   na.rm = TRUE)
 
                                      ## matrix characterising the population
                                      ## movement between geographical units
 
                                      pij <- mRIIDS:::probability_movement(rel_risk,
                                                                           pstay)
-                                     
+
+
                                      out <- mRIIDS:::project(I0,
                                                              R_posterior,
                                                              si,
@@ -180,7 +207,7 @@ projections_distr <- mRIIDS:::projection_quantiles(weekly_projections)
 
 ## Aggregate projections for West African Region
 
-```{r agg, eval = TRUE}
+```{r agg, eval = FALSE}
 
 countries <- select(incid, -date) %>% colnames
 wafrica_all <- purrr::map_dfr(countries, function(x) {

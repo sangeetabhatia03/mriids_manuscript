@@ -12,7 +12,7 @@ twindow <- 42
 ##                                   time_window = tw))
 ## }
 t_proj <- seq(from = 49,
-              to = 245,
+              to = 392,
               by = 7)
 pars <- expand.grid(t_proj = t_proj,
                     time_window = twindow)
@@ -34,107 +34,58 @@ apply(pars, 1, function(row) {
     params2 = list(
         tproj = tproj,
         twindow = twindow,
-        incid = incidfile,
-        N = 55
+        incid = incidfile
+    ##    N = 55
     )
-    rmarkdown::render(
-                   "analysis/extract_mcmc_draws.Rmd",
-                   params = params2
-               )
+    ## rmarkdown::render(
+    ##                "analysis/extract_mcmc_draws.Rmd",
+    ##                params = params2
+    ##            )
     params2$n.dates.sim <- 28
-    params2$centroids <- metadatafile
+    ## params2$centroids <- metadatafile
+    ## rmarkdown::render(
+    ##                "analysis/projection_using_fitted.Rmd",
+    ##                params = params2
+    ##            )
+
+    places <- c("LBR", "GIN", "SLE")
+    params3 <- params2
+    params3$place <- places
+
     rmarkdown::render(
-                   "analysis/projection_using_fitted.Rmd",
-                   params = params2
+                   "analysis/forecasts_visual_check2.Rmd",
+                   params = params3
                )
+
+    ## for (place in places) {
+    ## params2 = list(
+    ##     tproj = tproj,
+    ##     twindow = twindow,
+    ##     incid = incidfile
+    ##   )
+    ## params2$n.dates.sim <- 28
+    ## params2$place <- place
+    ## rmarkdown::render(
+    ##                "analysis/forecasts_visual_check.Rmd",
+    ##                params = params2
+    ##            )
+
+    ## rmarkdown::render(
+    ##                "analysis/forecasts_assess.Rmd",
+    ##                params = params2
+    ##            )
+
+
+    ## } ## end of for
+
 
 })
 
-apply(pars, 1, function(row) {
-    tproj <- row[1]
-    twindow <- row[2]
-    params2 = list(
-        tproj = tproj,
-        twindow = twindow,
-        incid = "data/processed/promed_wide allcountries_from_01july.csv"
-      )
-    params2$n.dates.sim <- 28
-    params2$place <- "GIN"
-    rmarkdown::render(
-                   "analysis/forecasts_visual_check.Rmd",
-                   params = params2
-               )
-
-})
 
 
 
-## Now get the assessment metrics
-
-pars <- data.frame(t_proj = c(),
-                   time_window = c(),
-                   place = c())
-for (tw in twindow) {
-  t_proj = seq(from = 2 * tw,
-               to = 567,
-               by = tw)
-  pars <- rbind(pars,
-                expand.grid(
-                  t_proj = t_proj,
-                  time_window = tw,
-                  place = places
-                ))
-}
-
-for (i in 1:nrow(pars)) {
-  row <- pars[i,]
-  message("Working on row ", row)
-
-  tproj <- row$t_proj
-  twindow <- row$time_window
-  place <- as.character(row$place)
-
-  rmarkdown::render(
-    "analysis/forecasts_assess.Rmd",
-    params = list(
-      tproj = tproj,
-      twindow = twindow,
-      n.dates.sim = 28,
-      incid = "healthmap_wide_from_july.csv",
-      place = place
-    )
-  )
-}
 
 
-
-for (tw in twindow) {
-  tproj <- seq(from = 2 * tw,
-               to = 567,
-               by = tw)
-  for (place in places) {
-      rmarkdown::render(
-                     "analysis/forecasts_visual_check.Rmd",
-                     params = list(
-                         tproj = tproj,
-                         twindow = tw,
-                         n.dates.sim = 28,
-                         incid = "healthmap_wide_from_july.csv",
-                         place = place
-                     )
-                 )
-  }
-  ## rmarkdown::render(
-  ##   "analysis/forecasts_assess_viz.Rmd",
-  ##   params = list(
-  ##     tproj = tproj,
-  ##     twindow = tw,
-  ##     n.dates.sim = 28,
-  ##     incid = "healthmap_wide_from_july.csv",
-  ##     place = "Guinea"
-  ##   )
-  ## )
-}
 
 
 apply (pars, 1 , function(row) {

@@ -29,7 +29,7 @@ library(ggplot2)
 library(ggthemes)
 library(dplyr)
 library(EpiEstim)
-devtools::load_all()
+
 
 ```
 
@@ -44,7 +44,7 @@ CV_SI       <- 9.6 / 14.2
 SItrunc     <- 40
 SI_Distr    <- sapply(0:SItrunc, function(e) EpiEstim::DiscrSI(e, mean_SI, mean_SI * CV_SI))
 SI_Distr    <- SI_Distr / sum(SI_Distr)
-time_window <- 7 * 7
+time_window <- 7 * 6
 
 ```
 
@@ -224,6 +224,7 @@ p <- p + ggtitle("Mean R estimated from incidence data") +
          theme(plot.title = element_text(hjust = 0.5))
 p <- p + theme_classic()
 p
+
 ```
 
 The graphs show that the estimates from the three different sources

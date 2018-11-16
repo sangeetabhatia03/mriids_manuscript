@@ -20,8 +20,8 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  infile: data/raw/promed_2014-2016-renamed.csv
-  outfile: promed_loglinear
+  infile: data/raw/HealthMap_Ebola_GNE_WHO.csv
+  outfile: healthmap_confirmed
   ofinterest: data/processed/all_african_centroids.csv
 ---
 
@@ -33,18 +33,12 @@ knitr::opts_chunk$set(fig.width = 12, fig.height = 6, echo = FALSE,
 
 ```
 
-Pull the latest changes from the package.
 
-```{r}
-devtools::install_github("annecori/mRIIDSprocessData")
-```
 ```{r setup}
 library(ggplot2)
 library(ggthemes)
 library(scales)
 library(dplyr)
-
-
 library(mRIIDS)
 ```
 
@@ -54,7 +48,13 @@ library(mRIIDS)
 species   <- "Humans"
 disease   <- "Ebola"
 case.type <- "scc"
-wafrica <- c("Sierra Leone", "Liberia", "Guinea")
+wafrica <- c("Sierra Leone",
+             "Liberia",
+             "Guinea")
+             ## "Senegal",
+             ## "Ghana",
+             ## "Mali",
+             ## "Nigeria")
 ```
 
 
@@ -65,8 +65,7 @@ Visualising the raw data.
 
 ```{r}
 
-feed <- here::here("data/raw",
-                        params$infile) %>%
+feed <- here::here(params$infile) %>%
              read.csv(stringsAsFactors = FALSE) %>%
     filter(Species == species &
            Disease == disease &
@@ -79,11 +78,11 @@ feed <- janitor::clean_names(feed)
 Strip the date of the time stamp
 ```{r}
 feed <- tidyr::separate(feed,
-                             issue_date,
-                             sep = " ",
-                             into = c("issue_date", "time"),
-                             remove = TRUE
-                             )
+                        issue_date,
+                        sep = " ",
+                        into = c("issue_date", "time"),
+                        remove = TRUE
+                        )
 ```
 
 
@@ -128,9 +127,12 @@ raw_p <- purrr::map(by.location, function(x) {
 
 ```{r hmraw}
 ggpubr::ggarrange(plotlist = raw_p, common.legend = TRUE) %>%
-    ggpubr::ggexport(filename = here::here("figures",
+    ggpubr::ggexport(filename = here::here("data/output/figures",
                                            paste0(params$outfile,
-                                                  "_raw.png")))
+                                                  "_raw.png")),
+                     res = 144,
+                     width = 960,
+                     height = 540)
 ```
 # Data clean-up
 
@@ -175,9 +177,13 @@ k_sd       <- mRIIDS:::interval_width_for_p(use_last,
 no_outliers <- purrr::map(no_dups, function(df) {
     df <- arrange(df, date)
     df <- filter(df, !is.na(cases)) %>% select(date, cases)
-    df <- mRIIDS:::remove_last_outliers(df,
-                                        use_last = use_last,
-                                        k_sd = k_sd)
+    if (nrow(df) == 0) {
+        return(NULL)
+    } else {
+        df <- mRIIDS:::remove_last_outliers(df,
+                                            use_last = use_last,
+                                            k_sd = k_sd)
+    }     
     message(df$country[1])
     df
 })    
@@ -186,6 +192,7 @@ no_outliers <- purrr::map(no_dups, function(df) {
 
 ## Make monotonically increasing.
 ```{r inc}
+
 mono_inc <- purrr::map(no_outliers,
                        ~ mRIIDS:::make_monotonically_increasing(.x))
 
@@ -195,7 +202,9 @@ mono_inc <- purrr::map(no_outliers,
 Finally, interpolate missing data.
 
 ```{r interp}
-interpolated <- purrr::map(mono_inc, mRIIDS:::interpolate_missing_data)
+interpolated <- purrr::map(mono_inc,
+                           ~ mRIIDS:::interpolate_missing_data(.x,
+                                                               method = "linear"))
     
   
 ```
@@ -225,19 +234,19 @@ total_p <- purrr::map(cum_cases, cases_ts)
 
 ## Remove duplicate alerts
 
-```{r}
+```{r viz2}
 nodups_p <- purrr::map(no_dups, cases_ts) 
 ```
 
 ## Remove outliers 
 
-```{r}
+```{r viz3}
 nooutss_p <- purrr::map(no_outliers, cases_ts)
 ```
 
 ## Make increasing
 
-```{r}
+```{r viz4}
 monoinc_p <- purrr::map(mono_inc, cases_ts)
 ```
 
@@ -245,7 +254,7 @@ monoinc_p <- purrr::map(mono_inc, cases_ts)
 
 This needs a slightly different viz.
 
-```{r}
+```{r vizinterp, eval = TRUE}
 interp_p <- purrr::map(interpolated, function(x) {
     x$src <- "Raw"
     idx <- which(is.na(x$cases))
@@ -280,22 +289,32 @@ graphs <- list(raw_p,
 purrr::map(countries, function(c){
     cspecific <- purrr::map(graphs, ~ .x[[c]])
     p <- ggpubr::ggarrange(plotlist = cspecific, nrow = 3, ncol = 2)
-    ggpubr::ggexport(p, filename = here::here("figures",
-                                              paste0(params$outfile,
-                                                     "_",
-                                                     c,
-                                                     ".png")))
+    ggpubr::ggexport(p,
+                     filename = here::here("data/output/figures",
+                                           paste0(params$outfile,
+                                                 "_",
+                                                 c,
+                                                 ".png")),
+                     res = 72,
+                     width = 960,
+                     height = 540)
 })
 
 ```
 
 ## Derive incidence time series from interpolated cumulative cases
 
+Stan is not going to like real numbers for a Poisson process.
+So first we cast the cumulative case counts as integers and then 
+take the difference.
+
+
 ```{r tall}
 incid_tall <- purrr::map_dfr(interpolated, function(x) {
     x <- select(x,
                 date = interpolated_date,
                 cases = interpolated_cases)
+    x$cases <- as.integer(x$cases)
     x$incid <- c(0, diff(x$cases))
     x <- select(x, date, incid)
     x
@@ -308,6 +327,45 @@ And reshape
 incid_wide <- tidyr::spread(incid_tall, country, incid, fill = 0)
 ```
 
+Replace country names with ISO3 codes for ease.
+
+```{r iso3c}
+colnames(incid_wide)[-1] <-
+    countrycode::countrycode(colnames(incid_wide)[-1],
+                             "country.name",
+                             "iso3c")
+```
+## Add 0 incidence for other countries
+
+Finally, we add 0 incidence for all countries other than ones for
+which we already have data. 
+
+```{r}
+ofinterest <- readr::read_csv(here::here(params$ofinterest)) %>%
+    filter(include == "TRUE")
+
+nodata <- setdiff(ofinterest$ISO3,
+                  countrycode::countrycode(wafrica,
+                                           'country.name',
+                                           'iso3c'))
+df <- matrix(0,
+             nrow = nrow(incid_wide),
+             ncol = length(nodata))
+colnames(df) <- nodata
+df <- data.frame(df)
+incid_wide_all <- cbind(incid_wide, df)
+```
+
+Finally ensure that the order of countries in centroids and incid 
+files is the same.
+
+```{r eval = TRUE}
+inorder <- ofinterest$ISO3
+incid_wide_all <- select(incid_wide_all,
+                         date,
+                         inorder)
+```
+
 
 ## Write the output
 
@@ -315,10 +373,8 @@ incid_wide <- tidyr::spread(incid_tall, country, incid, fill = 0)
 
 outfile <- paste0(params$outfile, "_wide.csv")
 here::here("data/processed", outfile) %>%
-    readr::write_csv(x = incid_wide, path = .)
-
-outfile <- paste0(params$outfile, "_tall.csv")
-here::here("data/processed", outfile) %>%
-    readr::write_csv(x = incid_tall, path = .)
+    readr::write_csv(x = incid_wide_all,
+                     path = .)
 
 ```
+ 
