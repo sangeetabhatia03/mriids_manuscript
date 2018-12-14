@@ -20,11 +20,11 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : 77
-  twindow : 14
+  tproj : 105
+  twindow : 42
   n.dates.sim : 28
   mobility: !r list(K = 1, pow_N_from = 1, pow_N_to = 1)
-  incid: data/processed/promed_loglinear_wide_from_july.csv
+  day0: 2014-03-21
   nsamples: 1000
   centroids: data/processed/all_african_centroids.csv
   N: 55

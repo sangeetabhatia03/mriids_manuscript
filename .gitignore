@@ -9,3 +9,5 @@ _book/*.pdf
 _book/*.tex
 _book/*.tex
 _book/*.pdf
+*.pdf
+*.tex

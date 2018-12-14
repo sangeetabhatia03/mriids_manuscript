@@ -20,8 +20,8 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : 147
-  twindow : 42
+  tproj : 21
+  twindow : 14
   incid : data/processed/promed_loglinear_wide_from_march.csv
   n.dates.sim : 28
   place: !r c("LBR", "GIN", "SLE")

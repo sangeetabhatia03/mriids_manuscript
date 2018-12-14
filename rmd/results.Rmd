@@ -22,6 +22,10 @@ knitr::include_graphics("figures/promed_Guinea.png")
 
 
 ## Comparison of incidence trends from different sources
+In addition to the data made available by ProMED and HealthMap, we
+also used data collated by WHO during this outbreak to validate the
+model, made available by [@garske20160308]. Throughout the rest of this document, 
+we refer to this data set as WHO data in the interest of brevity.
 
 We compare incidence trends derived from ProMED and HealthMap as well
 as data from WHO. The results are shown in Figure \@ref(fig:incidcompare)
@@ -31,8 +35,9 @@ knitr::include_graphics("figures/who_promed_hm_incid.png")
 ```
 
 Figure \@ref(fig:rcompare) compares the reproduction number estimated 
-from the respective incidence series. As expected, the estimated
-reproduction number are highly correlated.
+from the respective incidence series. The instantaneous reproduction
+number was estimated in R using the package EpiEstim [@cori2013new]. 
+As expected, the estimated reproduction numbers are highly correlated.
 
 
 ```{r rcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
@@ -52,17 +57,17 @@ projections done at two points - one in the increasing and one in the
 declining phase of the epidemic. 
 
 
-```{r guinea49, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+```{r guinea49, echo = FALSE, fig.cap = "Weekly incidence curve and 4 weeks predicted incidence in Guinea at two different points in the outbreak. The reproduction number was estimated for each 7 week interval upto the point at which projection is done.", fig.align = "center"}
 knitr::include_graphics("figures/Guinea_98_245_49_28.png")
 ```
 
 
-```{r liberia49, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+```{r liberia49, echo = FALSE, fig.cap = "Weekly incidence curve and 4 weeks predicted incidence in Liberia at two different points in the outbreak. The reproduction number was estimated for each 7 week interval upto the point at which projection is done.", fig.align = "center"}
 knitr::include_graphics("figures/Liberia_98_245_49_28.png")
 ```
 
 
-```{r sl49, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+```{r sl49, echo = FALSE, fig.cap = "Weekly incidence curve and 4 weeks predicted incidence in Sierra Leone at two different points in the outbreak. The reproduction number was estimated for each 7 week interval upto the point at which projection is done.", fig.align = "center"}
 knitr::include_graphics("figures/SierraLeone_98_245_49_28.png")
 ```
 
@@ -73,16 +78,38 @@ the time points for a time window of 1 week.
 
 
 
-```{r guinea7, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+```{r guinea7, echo = FALSE, fig.cap = "Weekly projections for Guinea when the reproduction number is estimated for each 1 week interval upto the point of projection. ", fig.align = "center"}
 knitr::include_graphics("figures/Guinea_98_245_7_28.png")
 ```
 
 
-```{r liberia7, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+```{r liberia7, echo = FALSE, fig.cap = "Weekly projections for Liberia  when the reproduction number is estimated for each 1 week interval upto the point of projection.", fig.align = "center"}
 knitr::include_graphics("figures/Liberia_98_245_7_28.png")
 ```
 
 
-```{r sl7, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
+```{r sl7, echo = FALSE, fig.cap = "Weekly projections for Sierra Leone when the reproduction number is estimated for each 1 week interval upto the point of projection.", fig.align = "center"}
 knitr::include_graphics("figures/SierraLeone_98_245_7_28.png")
+```
+
+## Evaluation of the model performance
+
+Figure \@ref(fig:guineaassess) shows the three metrics (bias,
+sharpness and relative mean absolute error) discussed in 
+Section \@ref{assess} for the 4 week projections in Guinea at various
+points during the epidemic using a 5-week window to estimate
+reproduction number. Each metric was first computed using the daily
+observed and predicted series and then averaged for each week of
+projections.
+
+Across all three metrics, there is a strong trend of decreased model
+performance as the forecast horizon increases. The bias in forecasts
+at week 1 is closer to 0 at every time point. Similarly the forecasts
+at week 1 are more sharp (sharpness close to 0) than at week 4.
+
+
+
+
+```{r guineaassess, echo = FALSE, fig.cap = "Metrics for evaluating model performance.", fig.align = "center"}
+knitr::include_graphics("figures/Guinea_weekly_metrics_35_28_2.png")
 ```
