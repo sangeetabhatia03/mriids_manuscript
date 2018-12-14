@@ -20,12 +20,12 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : 105
+  tproj : 98
   twindow : 42
   n.dates.sim : 28
   mobility: !r list(K = 1, pow_N_from = 1, pow_N_to = 1)
   day0: 2014-03-21
-  nsamples: 1000
+  nsamples: 900
   centroids: data/processed/all_african_centroids.csv
   N: 55
 ---
