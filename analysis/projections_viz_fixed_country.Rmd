@@ -20,30 +20,40 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : !r seq(35, 656 - 14, by = 28)
+  tproj : !r c(21, 49, 77, 105, 133, 161, 189, 217, 245, 273, 301, 329, 357, 385, 413)
   twindow : 14
-  incid : data/processed/promed_loglinear_wide_from_march.csv
+  incid : data/processed/20122018_promed_loglinear_weekly.csv
   n.dates.sim : 28
   place: GIN
+  maxtproj: 637
 ---
 
 ```{r setup, eval = TRUE}
 library(dplyr)
 library(purrr)
 library(ggplot2)
-library(randomcoloR)
-```
-First define the color palette to be used throughout.
+library(scales)
 
-```{r palette}
-mypalette <- distinctColorPalette(length(params$tproj),
-                                  altCol = FALSE,
-                                  runTsne = FALSE)
+```
+
+## Observed and projected incidence
+
+Read in the weekly incidence in tall form. 
+
+```{r projections-viz-fixed-country-5 }
+
+incid <- here::here(params$incid) %>%
+    readr::read_csv() %>%
+    filter(country == params$place)
+
+incid <- filter(incid,
+                date <= max(rused$date) + 14)
+
 ```
 
 Read in the projections output.
 
-```{r forecasts}
+```{r projections-viz-fixed-country-2 }
 
 infiles <- paste0("forecasts_",
                     params$tproj,

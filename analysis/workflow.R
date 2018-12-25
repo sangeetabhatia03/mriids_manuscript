@@ -16,24 +16,28 @@ for (fit in fitfiles) {
   }
 }
 
+## Input parameters
+incidfile <- "data/processed/promed_loglinear_wide_from_march_ghana_fixed.csv"
+metadatafile <- "data/processed/all_african_centroids.csv"
+places <- c("LBR", "GIN", "SLE")
+day0 <- readr::read_csv(incidfile,
+                        n_max = 1) %>%
+    pull(date)
+twindows <- c(14, 28, 42)
+n.dates.sim <- 28
 ## From main dir. Extract tproj and twindow from the
 ## name of the fit object.
-
 ## Work on latest files only.
+
 fitfiles <- list.files(
   path = "./data/stanfits/",
   pattern = "^[0-9]*_[0-9]*.rds",
 )
 
-## mtime <- purrr::map(fitfiles, ~ file.mtime(paste0("data/stanfits/", .x)))
-## latest <- which(mtime >= as.POSIXct("2018-11-26"))
-
 fitfiles <- fitfiles %>%
   stringr::str_replace(".rds", "")
 
-incidfile <- "data/processed/promed_loglinear_wide_from_march_ghana_fixed.csv"
-metadatafile <- "data/processed/all_african_centroids.csv"
-places <- c("LBR", "GIN", "SLE")
+
 for (fit in fitfiles) {
   message("###############################")
   message("Working on ", fit)
