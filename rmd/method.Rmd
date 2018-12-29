@@ -16,8 +16,7 @@ Here \(R_t\) is the reproduction number at time \(t\) and \(\omega\)
 is the distribution of the serial interval. 
 
 We build on this model to incorporate the spatial spread of the
-outbreak. 
-Let \(1, 2, \dots, n\) be \( n \) different locations.
+outbreak between  \( n \) different locations.
 The number of cases at a location \(j\) at time \(t\) is given by the equation
 \[
   I_{j, t} \sim 
@@ -84,17 +83,7 @@ We assumed the exponents \(\alpha \) and \(\beta\) on the
 populations to be 1.
 
 The posterior distribution of each parameter are estimated using
-MCMC. Let the observed incidence time series at locations \(1\)
-through \(n\) and time \(1, 2 \dots t\) be
-\[
-I = \begin{bmatrix}
-    o_{1,1}       & o_{1,2}  & \dots & o_{1,n} \\
-	o_{2,1}       & o_{2,2}  & \dots & o_{2,n} \\
-	\cdots \\
-	o_{t,1}       & o_{t,2}  & \dots & o_{t,n} \\
-\end{bmatrix}
-\]
-where \(o_{k, j}\) is the observed incidence at time \(k\) at location
+MCMC. Let \( o_{k, j} \) be the observed incidence at time \(k\) at location
 \(j\). Then the likelihood of the model parameters given the
 observations is proportional to the probability of the data given
 model parameters.  The probability of $o_{k, j}$ given
@@ -126,16 +115,17 @@ of the parameter given the observed data as:
 represent the prior distributions on the parameters. The influence of
 factors such as healthcare capacity of a location can be incorporated
 into the model through the prior distributions. Similarly, the prior
-	distributions on the probability of staying at a location and the
+distributions on the probability of staying at a location and the
 exponent on distance can be informed by additional data sources 
 such as prior information derived from flight data. 
 
-In practice, we have assumed a single \(p_{stay}\) for all three
-countries in the analysis (Liberia, Guinea and Sierra Leone). For
-estimating the time-varying reproduction number for each country, we
-divided the time from the start of the outbreak upto to the time at
-which we start projection into intervals and estimate a single
-reproduction number for each time window. We varied the length of this
+In practice, we have assumed a single \(p_{stay}\) for all 
+countries on African mainland. For estimating the time-varying
+reproduction number for each country, we split the duration of the
+total outbreak into intervals of equal width. We assume that
+transmissibility stays constant within each time window and thus,
+within a time window, we estimated  a single reproduction number for
+each location. We varied the length of this
 time window to obtain different models. A short time window increases
 the number of parameters in the model and a comparison of the
 different models is presented in Section \@ref(results).

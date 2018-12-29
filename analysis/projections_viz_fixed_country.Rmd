@@ -35,6 +35,44 @@ library(ggplot2)
 library(scales)
 
 ```
+## Real-time R estimates
+
+Read in R estimates.
+
+```{r projections-viz-fixed-country-3, eval = TRUE}
+
+infiles <- here::here("data/stanfits",
+                      paste0(params$place,
+                             "_rquantiles_",
+                              params$tproj,
+                             "_",
+                             params$twindow,
+                             ".rds"))
+
+names(infiles) <-  paste0(params$tproj,
+                          "_",
+                          params$twindow)
+                          
+rused <- map(infiles, ~ readRDS(.x))
+## Repeat the last row over the projection window.
+rused <- map(rused,
+             ~ slice(.x,
+                     rep(n(),
+                         each = params$n.dates.sim)))
+
+## Fix the dates.
+rused <- map(rused,
+             ~ mutate(.x,
+                      date = seq(from = .x$date[1],
+                                 by = "1 day",
+                                 length.out = params$n.dates.sim)))
+## And now put them back together.
+rused <- bind_rows(rused, .id = "parameters")
+
+## Make sure date is actually date
+rused$date <- lubridate::ymd(rused$date)
+
+```
 
 ## Observed and projected incidence
 
@@ -73,126 +111,117 @@ forecasts <- map_dfr(infiles,
                                                   .x)),
                      .id = "parameters") %>%
     filter(country %in% params$place)
+ 
 
-
-```
-
-Read in R estimates.
-
-```{r restim, eval = TRUE}
-
-infiles <- here::here("data/stanfits",
-                      paste0(params$place,
-                             "_rquantiles_",
-                              params$tproj,
-                             "_",
-                             params$twindow,
-                             ".rds"))
-
-names(infiles) <-  paste0(params$tproj,
-                          "_",
-                          params$twindow)
-                          
-rused <- map_dfr(infiles, 
-                 ~ readRDS(.x) %>% tail(1), 
-                 .id = "parameters")
-
-infiles <- here::here("data/stanfits",
-                      paste0(params$place,
-                             "_rquantiles_",
-                              max(params$tproj),
-                             "_",
-                             params$twindow,
-                             ".rds"))
-restim <- readr::read_rds(infiles)
-
-```
-
-Read in the incidence. Chop it off at a little more than the max of 
-the times at which we are projecting.
-
-```{r incid}
-cutoff <- max(params$tproj) + (1 * params$n.dates.sim)
-incid <- incid <- here::here(params$incid) %>%
-    readr::read_csv(n_max = cutoff) %>%
-    select(date, params$place) %>%
-    mRIIDS:::daily.to.weekly(.)
-
-
-incid <- rename(incid,
-                "incidence" = params$place)
-
-incid$date <- as.Date(incid$date)
 ```
 
 Finally plot everything.
 
-```{r forecastsplot}
+```{r projections-viz-fixed-country-6 }
 p <- ggplot()
 p <- p + geom_point(data = incid,
-                    aes(date, incidence),
-                    col = "blue")
+                    aes(date,
+                        incid,
+                        col = interpolated))
+##                    col = "blue")
 ## plot projections on top
 p <- p + geom_ribbon(data = forecasts,
                      aes(x = date,
                          ymin = ymin,
                          ymax = ymax,
-                         fill = parameters),
+                         group = parameters
+                         ),
+                     fill = "gray45",
                      alpha = 0.3)
 p <- p + geom_line(data = forecasts,
                      aes(x = date,
                          y = y,
-                         col = parameters))
-p <- p + scale_colour_manual(values = mypalette, 
-                             aesthetics = c("colour", "fill"))  
-p <-  p + theme_classic()
+                         group = parameters),
+                         col = "gray3")
+
+p <- p + theme_classic()
 p <- p + xlab("") + ylab("Weekly Incidence")
+p <- p +
+    scale_x_date(date_breaks = "3 month",
+                 labels = date_format("%b %Y"))
 
 ```
-Also highlight the part of the incidence curve used to estimate the R
-used.
 
-```{r eval = FALSE}
-used_from <- incid$date[(params$tproj - params$twindow) / 7]
-used_to <- incid$date[(params$tproj) / 7]
-p <- p + geom_vline(xintercept = as.numeric(c(used_from, used_to)),
-                    linetype = "dotted")
 
-```
 
 Plot 2. 
 
-```{r rplot, eval = TRUE}
-p2 <- ggplot()
-p2 <- p2 + geom_line(data = restim,
-                     aes(x = date,
-                         y = `50%`
-                         ))
-
-p2 <- p2 + geom_ribbon(data = restim,
-                       aes(x = date,
-                           ymin = `2.5%`,
-                           ymax = `97.5%`
-                           ),
-                       alpha = 0.3)
-p2 <- p2 + geom_segment(data = rused,
+```{r projections-viz-fixed-country-4, eval = TRUE}
+preal <- ggplot()
+preal <- preal + geom_line(data = rused,
                         aes(x = date,
-                            xend = date + params$n.dates.sim,
                             y = `50%`,
-                            yend = `50%`,
-                            col = parameters),
-                        linetype = "dashed")
-p2 <- p2 + scale_colour_manual(values = mypalette, 
-                               aesthetics = c("colour", "fill"))  
-p2 <- p2 + geom_hline(yintercept = 1,
-                      linetype = "dashed")
-p2 <- p2 + theme_classic()
-p2 <- p2 + xlab("") + ylab("R")
+                            group = parameters),
+                            col = "gray")
+preal <- preal + geom_ribbon(data = rused,
+                             aes(x = date,
+                                 ymin = `2.5%`,
+                                 ymax = `97.5%`,
+                                 group = parameters
+                                 ),
+                             alpha = 0.3)
+preal <- preal + geom_hline(yintercept = 1,
+                            linetype = "dashed")
+preal <- preal + theme_classic()
+preal <- preal + xlab("") + ylab("R")
+preal <- preal +
+    scale_x_date(date_breaks = "3 month",
+                 labels = date_format("%b %Y"))
+## Force x-axis to begin from the time we have incidence date
+## so that maps are better aligned.
+preal <- preal + expand_limits(x = min(incid$date))
 ```
+
+
+## Retrospective R
+
+
+```{r projections-viz-fixed-country-7}
+rretro <- here::here("data/stanfits",
+                      paste0(params$place,
+                             "_rquantiles_",
+                              params$maxtproj,
+                             "_",
+                             params$twindow,
+                             ".rds")) %>%
+    readr::read_rds()
+
+rretro$date <- lubridate::ymd(rretro$date)
+
+```
+
+
+```{r projections-viz-fixed-country-8, eval = TRUE}
+pretro <- ggplot()
+pretro <- pretro + geom_line(data = rretro,
+                             aes(x = date,
+                                 y = `50%`),
+                             col = "gray")
+pretro <- pretro + geom_ribbon(data = rretro,
+                               aes(x = date,
+                                   ymin = `2.5%`,
+                                   ymax = `97.5%`
+                                   ),
+                               alpha = 0.3)
+pretro <- pretro + geom_hline(yintercept = 1,
+                              linetype = "dashed")
+pretro <- pretro + theme_classic()
+pretro <- pretro + xlab("") + ylab("R")
+pretro <- pretro +
+        scale_x_date(date_breaks = "3 month",
+                 labels = date_format("%b %Y"))
+
+```
+
 
 Finally, write it out with a common legend.
 
-```{r save, eval = TRUE}
+```{r projections-viz-fixed-country-9, eval = TRUE}
 prefix <- paste0(params$tproj,
                  collapse = "_")
 outfile <- here::here("data/output/figures",
@@ -205,12 +234,14 @@ outfile <- here::here("data/output/figures",
                              params$n.dates.sim,
                              ".png"))
 ggpubr::ggarrange(p,
-                  p2,
+                  preal,
+                  pretro,
+                  labels = "AUTO",
                   ncol = 1,
-                  nrow = 2,
-                  heights = c(2, 1),
-                  common.legend = TRUE,
-                  legend="none") %>%
+                  nrow = 3,
+                  widths = c(1, 1, 1),
+                  heights = c(2, 1, 1),
+                  common.legend = TRUE) %>%
     ggpubr::ggexport(filename = outfile,
                      res = 144,
                      width = 960,

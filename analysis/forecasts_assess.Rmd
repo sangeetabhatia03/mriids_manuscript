@@ -82,12 +82,12 @@ rmae <- assessR::rel_mae(obs, pred)
 ## avg_res <- assessR::avg_residual(obs, pred)
 sness <- assessR::sharpness(pred)
 bs <- assessR::bias(obs, pred)
-
+logratio <- assessR:::log_accuracy_ratio(obs, pred)
 ```
 
 And the proportion of observed values in 50% CI.
 
-```{r propinci}
+```{r propinci, eval = FALSE}
 minmax <- apply(pred, 1, quantile, c(0.25, 0.75))
 minmax <- t(minmax)
 propinci <- assessR:::prop_in_ci(obs,
@@ -114,7 +114,8 @@ Finally,  save the output for later analysis and visualisation.
 df <- data.frame(date = observed$date,
                  rmae = rmae,
                  sharpness = sness,
-                 bias = bs)
+                 bias = bs,
+                 logaccuracy = logratio)
 
 outfile <- paste0(params$place, 
                   "_daily_metrics_",

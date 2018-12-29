@@ -21,7 +21,7 @@ biblio-style: apsr
 endnote: no
 params:
   infile: data/raw/promed_2014-2016-renamed.csv
-  outfile: promed_loglinear
+  outfile: 20122018_promed_loglinear
   ofinterest: data/processed/all_african_centroids.csv
 ---
 
@@ -43,18 +43,20 @@ library(mRIIDS)
 ```
 
 
-```{r ds1_params}
+```{r data-cleanup-2 }
 
 species   <- "Humans"
 disease   <- "Ebola"
 case.type <- "scc"
 wafrica <- c("Sierra Leone",
-             "Liberia",
-             "Guinea")
-             ## "Senegal",
-             ## "Ghana",
-             ## "Mali",
-             ## "Nigeria")
+              "Liberia",
+              "Guinea",
+             "Senegal",
+             "Ghana",
+             "Mali",
+             "Nigeria")
+
+
 ```
 
 
@@ -63,7 +65,7 @@ Visualising the raw data.
 
 
 
-```{r}
+```{r data-cleanup-3}
 
 feed <- here::here(params$infile) %>%
              read.csv(stringsAsFactors = FALSE) %>%
@@ -72,11 +74,15 @@ feed <- here::here(params$infile) %>%
            Country %in% wafrica)
 
 feed <- janitor::clean_names(feed)
+## Janitor renames healthmap to health_map. Fix.
+feed <- dplyr::rename(feed,
+                      healthmap_alert_id = health_map_alert_id)
+
 
 ```
 
 Strip the date of the time stamp
-```{r}
+```{r data-cleanup-4}
 feed <- tidyr::separate(feed,
                         issue_date,
                         sep = " ",
@@ -89,7 +95,7 @@ feed <- tidyr::separate(feed,
 
 Split the data by country.
 
-```{r split}
+```{r data-cleanup-5 }
 by.location <- feed %>%
     split(.$country) 
 
@@ -97,7 +103,7 @@ by.location <- feed %>%
 
 ### Raw data by case category
 
-```{r rawviz}
+```{r data-cleanup-6 }
 raw_p <- purrr::map(by.location, function(x) {
     x <- select(x, issue_date, sc, sd, cc, cd, country) %>%
         tidyr::gather(case_type,
@@ -125,7 +131,7 @@ raw_p <- purrr::map(by.location, function(x) {
 
 ## 
 
-```{r hmraw}
+```{r data-cleanup-7 }
 ggpubr::ggarrange(plotlist = raw_p, common.legend = TRUE) %>%
     ggpubr::ggexport(filename = here::here("data/output/figures",
                                            paste0(params$outfile,
@@ -140,7 +146,7 @@ Extract the total case count as a sum of suspected and
 confirmed cases.
 
 
-```{r cumcases}
+```{r data-cleanup-8 }
 
 cum_cases <- purrr::map(by.location, function(df) {
     mRIIDS:::update_cases_column(df, case.type) 
@@ -150,7 +156,7 @@ cum_cases <- purrr::map(by.location, function(df) {
 
 ## Merge duplicate alerts
 
-```{r cols}
+```{r data-cleanup-9 }
 cols.to.keep <- c("location", "country", "disease", "species",
                   "healthmap_alert_id", "headline", "url",
                   "alert_tag", "feed_name", "lon", "lat")
@@ -158,7 +164,7 @@ cols.to.keep <- c("location", "country", "disease", "species",
 cols.to.keep <- c(cols.to.keep, "date", "cases") 
 ```
 
-```{r nodups}
+```{r data-cleanup-10 }
 no_dups <- purrr::map(cum_cases, function(df) {
     mRIIDS:::merge_duplicates(df, cols.to.keep)
 })    
@@ -166,7 +172,7 @@ no_dups <- purrr::map(cum_cases, function(df) {
 
 ## Remove outliers. 
 
-```{r noout}
+```{r data-cleanup-11 }
 use_last   <- 20
 p.within.k <- 0.50
 k_sd       <- mRIIDS:::interval_width_for_p(use_last,
@@ -191,7 +197,7 @@ no_outliers <- purrr::map(no_dups, function(df) {
 ```
 
 ## Make monotonically increasing.
-```{r inc}
+```{r data-cleanup-12 }
 
 mono_inc <- purrr::map(no_outliers,
                        ~ mRIIDS:::make_monotonically_increasing(.x))
@@ -201,10 +207,10 @@ mono_inc <- purrr::map(no_outliers,
 ## Interpolate missing data
 Finally, interpolate missing data.
 
-```{r interp}
+```{r data-cleanup-13 }
 interpolated <- purrr::map(mono_inc,
                            ~ mRIIDS:::interpolate_missing_data(.x,
-                                                               method = "linear"))
+                                                               method = "loglinear"))
     
   
 ```
@@ -212,10 +218,11 @@ interpolated <- purrr::map(mono_inc,
 ## Plot
 
 
-## Total cases as sum of sc and cc.
+### Total cases as sum of sc and cc.
+
 Common plotting logic. x must have a date and a cases column.
 
-```{r}
+```{r data-cleanup-14}
 cases_ts <- function(x) {
     p <- ggplot(x, aes(date, cases)) + geom_point()
     p <- p + theme_classic() 
@@ -228,33 +235,33 @@ cases_ts <- function(x) {
 
 ```
 
-```{r viz1}
+```{r data-cleanup-15 }
 total_p <- purrr::map(cum_cases, cases_ts)
 ```
 
-## Remove duplicate alerts
+### Remove duplicate alerts
 
-```{r viz2}
+```{r data-cleanup-16 }
 nodups_p <- purrr::map(no_dups, cases_ts) 
 ```
 
 ## Remove outliers 
 
-```{r viz3}
+```{r data-cleanup-17 }
 nooutss_p <- purrr::map(no_outliers, cases_ts)
 ```
 
-## Make increasing
+### Make increasing
 
-```{r viz4}
+```{r data-cleanup-18 }
 monoinc_p <- purrr::map(mono_inc, cases_ts)
 ```
 
-## Interpolated data
+### Interpolated data
 
 This needs a slightly different viz.
 
-```{r vizinterp, eval = TRUE}
+```{r data-cleanup-19, eval = TRUE}
 interp_p <- purrr::map(interpolated, function(x) {
     x$src <- "Raw"
     idx <- which(is.na(x$cases))
@@ -277,7 +284,7 @@ interp_p <- purrr::map(interpolated, function(x) {
 
 Putting them together.
 
-```{r incid_tall, eval = TRUE}
+```{r data-cleanup-20, eval = TRUE}
 
 countries <- names(by.location)
 graphs <- list(raw_p,
@@ -309,7 +316,7 @@ So first we cast the cumulative case counts as integers and then
 take the difference.
 
 
-```{r tall}
+```{r data-cleanup-21 }
 incid_tall <- purrr::map_dfr(interpolated, function(x) {
     x <- select(x,
                 date = interpolated_date,
@@ -321,26 +328,42 @@ incid_tall <- purrr::map_dfr(interpolated, function(x) {
 }, .id = "country")                 
 ```
 
-And reshape
+## Manually fix Ghana 
 
-```{r wide}
+Manually fix the erroneous entry for Ghana on 2014-04-08
+
+
+```{r ghana-fix}
+incid_tall$country <- countrycode::countrycode(incid_tall$country,
+                                               'country.name',
+                                               'iso3c')
+
+fix <- which(incid_tall$date == "2014-04-08" &
+             incid_tall$country == "GHA")
+incid_tall$incid[fix] <- 0
+```
+
+Also, get rid of the first row of all 0s to get Stan started.
+
+```{r all-zeros}
+
+incid_tall <- filter(incid_tall,
+                     date != "2014-03-21")
+
+```
+And reshape.
+
+```{r data-cleanup-22 }
 incid_wide <- tidyr::spread(incid_tall, country, incid, fill = 0)
 ```
 
-Replace country names with ISO3 codes for ease.
 
-```{r iso3c}
-colnames(incid_wide)[-1] <-
-    countrycode::countrycode(colnames(incid_wide)[-1],
-                             "country.name",
-                             "iso3c")
-```
 ## Add 0 incidence for other countries
 
 Finally, we add 0 incidence for all countries other than ones for
 which we already have data. 
 
-```{r}
+```{r data-cleanup-24}
 ofinterest <- readr::read_csv(here::here(params$ofinterest)) %>%
     filter(include == "TRUE")
 
@@ -359,7 +382,7 @@ incid_wide_all <- cbind(incid_wide, df)
 Finally ensure that the order of countries in centroids and incid 
 files is the same.
 
-```{r eval = TRUE}
+```{r data-cleanup-25, eval = TRUE}
 inorder <- ofinterest$ISO3
 incid_wide_all <- select(incid_wide_all,
                          date,
@@ -369,7 +392,7 @@ incid_wide_all <- select(incid_wide_all,
 
 ## Write the output
 
-```{r write}
+```{r data-cleanup-26 }
 
 outfile <- paste0(params$outfile, "_wide.csv")
 here::here("data/processed", outfile) %>%
@@ -378,3 +401,84 @@ here::here("data/processed", outfile) %>%
 
 ```
  
+## Also make note of what points were interpolated.
+
+```{r data-cleanup-27 }
+incid_extracols <- purrr::map_dfr(interpolated, function(x) {
+    idx <- which(is.na(x$cases))
+    x$interpolated <- "FALSE"
+    x$interpolated[idx] <- "TRUE"
+
+    x <- select(x,
+                date,
+                interpolated)
+},
+.id = "country")
+
+incid_extracols$country <- countrycode::countrycode(incid_extracols$country,
+                                                    'country.name',
+                                                    'iso3c')
+
+```
+
+Add the data that was affixed later.
+
+```{r other-countries-tall}
+df <- cbind(date = incid_wide_all$date, df)
+df_tall <- tidyr::gather(df,
+                         country,
+                         incid,
+                         -date)
+
+incid_tall <- rbind(incid_tall,
+                    df_tall)
+```
+
+```{r incidtall2}
+incid_extracols <- left_join(incid_tall,
+                             incid_extracols,
+                             by = c("date",
+                                    "country"))
+
+outfile <- paste0(params$outfile, "_tall.csv")
+
+here::here("data/processed", outfile) %>%
+    readr::write_csv(x = incid_extracols,
+                     path = .)
+
+```
+
+## Weekly series
+
+Add a flag to indicate if all points in the week were reconstructed.
+
+```{r data-cleanup-28 }
+extra <- as.numeric(max(incid_extracols$date) -
+                    min(incid_extracols$date)) %% 7
+
+dates <- sort(incid_extracols$date) %>%
+    unique
+
+remove <- tail(dates, extra)
+
+daily <- filter(incid_extracols,
+                ! date %in% remove)
+daily$interpolated <- as.logical(daily$interpolated)
+weeks <- cut(daily$date, breaks = "7 days")
+weekly <- split(daily, weeks) %>%
+    purrr::map_dfr( ~ dplyr::group_by(.x,
+                                      country) %>%
+                        summarise(incid = sum(incid),
+                                  interpolated = all(interpolated)),
+                   .id = "date")
+
+outfile <- paste0(params$outfile, "_weekly.csv")
+readr::write_csv(x = weekly,
+                 path = here::here("data/processed",
+                                   outfile))
+
+
+
+
+
+```

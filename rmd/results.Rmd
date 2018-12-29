@@ -1,37 +1,44 @@
 # Results
 
-## Cleaning ProMED/HealthMap data feeds
+## Cleaning ProMED/HealthMap data feed
+A set of curated ProMED and HealthMap records on the human cases of 
+Ebola in West Africa from ProMED were provided to the modeling
+team. The dates in the feed ranged from March 2014 to October 2016.
+The data set recorded the cumulative number of suspected/confirmed
+cases and suspected/confirmed deaths in this period. 
 The raw data from ProMED is shown in Figure \@ref(fig:hmraw)
 
 ```{r hmraw, echo = FALSE, fig.cap = "Raw data from ProMED", fig.align = "center"}
-knitr::include_graphics("figures/promed_raw.png")
+knitr::include_graphics("ms-figures/promed_raw.png")
 ```
-The data cleaning consists of the following steps : extracting the
-total case counts as a sum of different case categories, merging
-duplicate alerts, removing data that made the cumulative case counts 
-inconsistent and finally, fill in the missing data using
+We derived the daily and weekly incidence series from these data after 
+data cleaning and pre-processing. We first extracted the total case
+counts as a sum of suspected and confirmed cases. Each unique record 
+in ProMED/HealthMap data is associated with a unique alert id.  Where
+multiple records were associated with the same alert id, we merged
+them by assigning the median of the case numbers to the record. In
+some instances, cumulative case count was inconsistent in that it
+failed to be monotonically increasing. These records were further 
+removed.  Finally, missing data was filled in using linear or log-linear
 interpolation. Results at each step pre-processing workflow for Guinea
-are shown in Figure \@ref(fig:hmclean).
+are shown in Figure \@ref(fig:hmclean). Further details of each step
+are presented in the supplementary text.
 
 
 ```{r hmclean, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
 knitr::include_graphics("figures/promed_Guinea.png")
 ```
 
-
-
-
 ## Comparison of incidence trends from different sources
-In addition to the data made available by ProMED and HealthMap, we
-also used data collated by WHO during this outbreak to validate the
-model, made available by [@garske20160308]. Throughout the rest of this document, 
-we refer to this data set as WHO data in the interest of brevity.
 
-We compare incidence trends derived from ProMED and HealthMap as well
-as data from WHO. The results are shown in Figure \@ref(fig:incidcompare)
+We compared the incidence series derived from ProMED and HealthMap
+data with the, data collated by WHO during this outbreak made
+available by [@garske20160308]. Throughout the rest of this document, 
+we refer to this data set as WHO data in the interest of brevity.
+The results are shown in Figure \@ref(fig:incidcompare)
 
 ```{r incidcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
-knitr::include_graphics("figures/who_promed_hm_incid.png")
+knitr::include_graphics("ms-figures/who_promed_hm_incid.png")
 ```
 
 Figure \@ref(fig:rcompare) compares the reproduction number estimated 
@@ -41,57 +48,80 @@ As expected, the estimated reproduction numbers are highly correlated.
 
 
 ```{r rcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
-knitr::include_graphics("figures/who_promed_hm_r.png")
+knitr::include_graphics("ms-figures/who_promed_hm_r.png")
 ```
 
 
 ## Short term projections
 
-Figures \@(fig:guinea49, fig:liberia49, fig:sl49) show the weekly forecasts
-for 4 weeks from the point of projection. Reproduction number is
-estimated for each 7 week window upto the point of projection. The 
-reproduction number in the window immediately preceding the point of
-projection is used for forecasting and is assumed to be constant
-during the forecasting window. Each figure shows
-projections done at two points - one in the increasing and one in the
-declining phase of the epidemic. 
+We assumed a Gamma distributed serial interval with mean 14.2 
+days and standard deviation 9.6 days [@team2015west]. 
+For the reproduction number, we used a Gamma prior with mean 
+3.3 and variance 1.5. This was informed by a review of 
+estimates of the reproduction number for Ebola Zaire in 
+outbreaks preceding the West African Ebola outbreak which 
+reported estimates ranging from 1.4 to 4.7 [@van2015review]. 
+The mean prior 3.3 was chosen as the midpoint of this interval, 
+and the variance 1.5, was chosen so the 95% prior probability
+interval contains the extremes of this interval.
+
+For gravity model parameters \(p_stay\) and \( \gamma\), we choose
+uninformative uniform priors. Since \(p_stay\) is a probability
+the prior was a uniform distribution on the interval \([0, 1]\).
+\( \gamma \) was allowed to vary between 1 and 3.
+
+Model fitting was done in a Bayesian framework using MCMC
+methods as implemented in the software Stan [@carpenter2017stan] 
+and its R interface rstan [@rstan]. For projecting the incidence
+beginning at day \(T\), we fitted the model to the daily
+incidence series derived from ProMED/HealthMap data up to day
+\( T - 1\). Transmissibility was assumed to stay constant in the
+time frame over which we were projecting. Samples from the 
+posterior distribution for the effective reproduction
+number estimated in the last time window before the point of
+projection were used for projections. Similarly samples from the
+posterior distribution for \( \gamma \) and \( p_{stay} \) were
+used to estimate the relative flow.
+
+Figures \@(fig:guinea49, fig:liberia49, fig:sl49) show the
+non-overlapping weekly forecasts for 4 weeks from the point of 
+projection where effective 
+reproduction number is being estimated for each 4 week window 
+up to the point of projection. Results from the model using
+1 week and 3 weeks time window are presented in the supplementary 
+text. In each figure, panel (A) shows the projected weekly 
+incidence overlaid on the observed weekly incidence. The middle 
+panel shows the posterior distribution of the reproduction
+number used for projection in the corresponding time frame. This
+estimate uses only data available up to the point at which we
+begin projecting forward. The last panel (C) in each figure 
+shows the reproduction number estimated using all available data.
 
 
-```{r guinea49, echo = FALSE, fig.cap = "Weekly incidence curve and 4 weeks predicted incidence in Guinea at two different points in the outbreak. The reproduction number was estimated for each 7 week interval upto the point at which projection is done.", fig.align = "center"}
-knitr::include_graphics("figures/Guinea_98_245_49_28.png")
+```{r guinea49, echo = FALSE, fig.cap = "(A) Weekly observed and predicted incidence in Guinea at different points during the outbreak. The reproduction number was estimated for each 4 week interval up to the point at which projection is done. (B) Effective reproduction number estimated in real-time using (C) Effective reproduction number estimated retrospectively.", fig.align = "center"}
+knitr::include_graphics("ms-figures/GIN_21_637_14_28.png")
 ```
 
 
-```{r liberia49, echo = FALSE, fig.cap = "Weekly incidence curve and 4 weeks predicted incidence in Liberia at two different points in the outbreak. The reproduction number was estimated for each 7 week interval upto the point at which projection is done.", fig.align = "center"}
-knitr::include_graphics("figures/Liberia_98_245_49_28.png")
+```{r liberia49, echo = FALSE, fig.cap = "Weekly observed and predicted incidence in Liberia at different points during the outbreak. The reproduction number was estimated for each 4 week interval up to the point at which projection is done. (B) Effective reproduction number estimated in real-time using (C) Effective reproduction number estimated retrospectively.", fig.align = "center"}
+knitr::include_graphics("ms-figures/LBR_21_637_14_28.png")
 ```
 
 
-```{r sl49, echo = FALSE, fig.cap = "Weekly incidence curve and 4 weeks predicted incidence in Sierra Leone at two different points in the outbreak. The reproduction number was estimated for each 7 week interval upto the point at which projection is done.", fig.align = "center"}
-knitr::include_graphics("figures/SierraLeone_98_245_49_28.png")
+```{r sl49, echo = FALSE, fig.cap = "Weekly observed and predicted incidence in Sierra Leone at different points during the outbreak. The reproduction number was estimated for each 4 week interval up to the point at which projection is done. (B) Effective reproduction number estimated in real-time using (C) Effective reproduction number estimated retrospectively.", fig.align = "center"}
+knitr::include_graphics("ms-figures/SLE_21_637_14_28.png")
 ```
 
+Figure \@(fig:pstayandgamma) shows how the estimated values of 
+the parameters of the mobility model changed over the course of
+the outbreak. Both these parameters were assumed to be constant
+for the time frame over which model was fitted. It is interesting
+to note that the change in estimated indicates decreased probability
+of travel across national borders.
 
-We experimented with different window lengths for estimating R. 
-Figures \@(fig:guinea7, fig:liberia7, fig:sl7) show the forecasts for 
-the time points for a time window of 1 week. 
-
-
-
-```{r guinea7, echo = FALSE, fig.cap = "Weekly projections for Guinea when the reproduction number is estimated for each 1 week interval upto the point of projection. ", fig.align = "center"}
-knitr::include_graphics("figures/Guinea_98_245_7_28.png")
+```{r pstayandgamma, echo = FALSE, fig.cap = "Estimates of mobility parameters at different points during the outbreak. The circle represents the central estimate and the horizontal bars reflect the 2.5 and 97.5 percentiles."}
+knitr::include_graphics("ms-figures/gamma_pstay_over_tproj.png")
 ```
-
-
-```{r liberia7, echo = FALSE, fig.cap = "Weekly projections for Liberia  when the reproduction number is estimated for each 1 week interval upto the point of projection.", fig.align = "center"}
-knitr::include_graphics("figures/Liberia_98_245_7_28.png")
-```
-
-
-```{r sl7, echo = FALSE, fig.cap = "Weekly projections for Sierra Leone when the reproduction number is estimated for each 1 week interval upto the point of projection.", fig.align = "center"}
-knitr::include_graphics("figures/SierraLeone_98_245_7_28.png")
-```
-
 ## Evaluation of the model performance
 
 Figure \@ref(fig:guineaassess) shows the three metrics (bias,

@@ -44,11 +44,11 @@ infiles <- paste0(params$place,
                   params$n.dates.sim,
                   ".csv")
 names(infiles) <- paste0(params$tproj,
-                           "_",
-                           params$twindow,
-                           "_",
-                           params$n.dates.sim
-                           )
+                         "_",
+                         params$twindow,
+                         "_",
+                         params$n.dates.sim
+                         )
 metrics <- map_dfr(infiles,
                    ~ readr::read_csv(here::here("data/output/metrics/weekly",
                                                 .x)),
@@ -67,7 +67,8 @@ metrics <- tidyr::separate(metrics,
                            remove = TRUE
                            )
 
-metrics$week_of_projection <- rep(1:4, nrow(metrics) / 4)
+metrics$week_of_projection <- rep(1:4,
+                                  ceiling(nrow(metrics) / 4))[seq_len(nrow(metrics))]
 
 metrics <- mutate_if(metrics, is.character, factor)
 metrics$country <- params$place

@@ -5,9 +5,13 @@ author: "Sangeeta Bhatia,  John Brownstein, Emily Cohn, Anne Cori,
 Mark Herringer, Moritz Kraemer, Britta Lassmann, Larry Madoff, Pierre Nouvellet"
 site: bookdown::bookdown_site
 documentclass: article
-output: word_document
+output:
+  bookdown::word_document2:
+  fig_caption: yes
 biblio-style: apalike
 bibliography: [bib/mriids.bib]
+header-includes:
+  - \usepackage{amsmath}
 link-citations: yes
 colorlinks: no
 toc: no
