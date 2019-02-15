@@ -5,16 +5,13 @@
   important early warning systems as well as complement the field
   surveillance data during an ongoing outbreak. Here we present a 
   flexible statistical model that uses data produced from digital
-  surveillance tools (ProMED and HealthMap) and other publicly available 
-  data (such as mobility data) for
-  short-term incidence trend forecasting.  
-  In validating the model using data collected by ProMED and
-  HealthMap during the 2014-2016 West African Ebola outbreak,
-  we provide a realistic appraisal of the strengths and limitations
-  of such data in incidence forecasting.
-  We also infer incidence trends at finer spatial scales from
-  aggregated data. Our work shows how the data from
-  digital surveillance systems can complement the data
-  collected from traditional public health infrastructure. During an
-  ongoing crisis, combining data from different sources gives
-  stakeholders a more complete picture.
+  surveillance tools (ProMED and HealthMap) to forecast short term 
+  incidence trend in a spatially explicit manner.The model was  
+  validated using data collected by ProMED and
+  HealthMap during the 2014-2016 West African Ebola epidemic
+  providing a realistic appraisal of the strengths and limitations
+  of using such data for incidence forecasting. Our approach 
+  should allow to forecast the risk of spatial spread of 
+  future outbreaks in near real-time, based on publicly available 
+  data. 
+  

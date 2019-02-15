@@ -6,24 +6,24 @@ food, and feed [@morse2001factors]. With the transportation
 of people and goods comes the widespread dispersion of pathogens 
 that cause infectious diseases and
 the vectors that may spread them. Outbreaks that 
-begin in the most remote parts of the world now
-spread swiftly to urban centers in countries far 
+begin in the most remote parts of the world can now
+spread swiftly to urban centers and to countries far 
 away with dangerous, global consequences[@ex1995communicable]. 
 A powerful example of the rapid spread of outbreaks 
-was the s evere acute respiratory syndrome (SARS) epidemic of 
+was the severe acute respiratory syndrome (SARS) epidemic of 
 2002-2004 that originated 
 in Guangdong province in China and reached as far 
 as Toronoto, Canada, primarily through travellers [@whosars].
-A more recent example is the current yellow outbreak fever in 
-Angola. Infected travellers from Angola are arriving in China  
+A more recent example is the 2016 Yellow Fever outbreak in 
+Angola. Infected travellers from Angola reached China  
 representing the first ever reported cases of yellow fever in Asia
 [@wasserman2016yellow].
 
 
 Early detection of infectious disease outbreaks can help public 
-health officials to initiate intervention such as 
+health officials to initiate interventions such as 
 removing contaminated food sources, isolating affected 
-individuals or vaccination campaigns. Thus early identification 
+individuals or launching vaccination campaigns. Thus early identification 
 of an outbreak can potentially limit its size and
 prevent an outbreak from becoming a pandemic. Digital 
 surveillance tools can play a significant role 
@@ -33,9 +33,14 @@ in the rapid recognition of public health emergencies
 The Program for Monitoring Emerging Diseases 
 (ProMED, www.promedmail.org) was 
 one of the first entrants in the field of digital 
-disease detection. ProMED was started in 1994 as a surveillance
+disease detection. ProMED was created in 1994 as a surveillance
 network to provide early warning of familiar as well as emerging 
-infections [@morse2012public]. ProMED now provides free email 
+infections [@morse2012public]. Sources of information include
+media reports, official reports, local observers, and a network
+of clinicians throughout the world. The reports generated through
+bottom-up surveillance are reviewed by a team of subject matter
+experts before being posted to ProMED network.ProMED now provides 
+free email 
 based reports on outbreaks to over 70,000 subscribers in at 
 least 185 countries. 
 
@@ -46,59 +51,61 @@ aggregators, eyewitness reports and other formal and informal
 sources of information and allows for visualisation of alerts 
 on a map. 
 
-With the dizzying growth of the internet, there have been a 
-corresponding growth in tools for internet based digital 
+With the dizzying growth of the internet, there has been a 
+corresponding increase in the tools for internet based digital 
 disease detection. Examples include 
 MediSys (http://medisys.newsbrief.eu/), H5N1 Google Earth mashup
 (www.nature.com/avianflu/google-earth), Emerging Infections 
-Network (http://ein.idsociety.org) and others.
+Network (http://ein.idsociety.org) and others. These digital 
+surveillance tools provide a unique opportunity to rapidly 
+detect new outbreaks and follow their evolution in near 
+real-time. 
 
-However, gathering timely data, while critical, is but the first 
+However, collating timely data, while critical, is only the first 
 step in the disease surveillance process. Compiling the data, 
-conducting analysis, and generating actionable reports that are 
+conducting analysis, and generating reports that are 
 easily understood are equally important. For instance, the 
-spread of Zika to the Americas was predicted and reported on 
+spread of Zika to the Americas was reported 
 in March 2014 by one of the subject matter experts at the 
 Program on Monitoring Emerging Diseases (ProMED) [@promedzika], 
 well before the
 epidemic surfaced in South America in February 2015.
-However, lacking an easy to use and openly accessible 
-visualization of the risk, this information did not have any 
+However, lacking an easy to use and openly accessible tool 
+to visualize the risk, this information did not have any 
 significant impact on public health resource allocation and 
 decision making.
 While there has been a
-growth in the number of digital surveillance tools as well as  
-epidemiological studies using data from these 
+growth in the number of 
+epidemiological studies using data from digital surveillance 
 tools [@chowell2016elucidating], there is as yet a dearth of a
-framework that can automatically combine various streams of  
-information to produce actionable reports, particularly in real time 
+framework that can automatically combine such data with other 
+streams of  
+information analyse them in a statistically robust manner, 
+and produce actionable reports, particularly in real time 
 during an outbreak where such information would be most useful.
-
-other tools that do similar stuff - EpiDMS [@liu2016epidms]
-
 
 
 To address this gap, we have developed 
 a system to estimate and visualize risks posed by
-outbreak events. At the heart of the system is a simple methodological
+outbreak events. It relies on a simple methodological
 framework that integrates multiple data streams to
-quantify spatial heterogeneity in the risk of disease spread and
+quantify spatial heterogeneity in the risk of disease spread 
+and
 estimate, for a given country, where the risk comes from. 
 In this paper, we present the model implemented in this system and as
-a case study, we report the analysis of  ProMED/HealthMap data for the 2014 West 
-African Ebola outbreak.
+a case study, we report the analysis of  ProMED/HealthMap data
+for the 2014-16 West 
+African Ebola epidemic.
 
-Our work makes two key contributions. First, in using only  
-data available through ProMED/HealthMap to analyse this outbreak, we 
-provide a realistic appraisal of their strengths and weaknesses,
-especially if used in near real-time forecasting. Second, we 
-suggest a method to combine ground and digital surveillance 
-data to estimate a relatively more complete picture of the 
-spread of an outbreak. As other authors have emphasised, digital
+In using only data available through ProMED/HealthMap to analyse 
+this outbreak, we provide a realistic appraisal of their 
+strengths and weaknesses, especially if used in near real-time 
+forecasting. As other authors have emphasised, digital
 disease detection is not a replacement for, but complementary to
-public health infrastructure. Our work underscores how the two 
-can be used in conjunction with each other to better inform 
-stakeholders.
+public health infrastructure.We propose a method to use the 
+two in conjunction with each other to provide a more timely 
+and accurate assessment of the risk of epidemic spread, and 
+therefore better inform stakeholders.
 
 
 

@@ -1,6 +1,7 @@
 ---
-title: "Big Brother Is Watching : Using Digital Surveillance Tools for 
-Near Real-Time Mapping of the Risk of International Infectious Disease Spread"
+title: "Using Digital Surveillance Tools for 
+Near Real-Time Mapping of the Risk of International Infectious Disease
+Spread: A Case Study"
 author: "Sangeeta Bhatia,  John Brownstein, Emily Cohn, Anne Cori,
 Mark Herringer, Moritz Kraemer, Britta Lassmann, Larry Madoff, Pierre Nouvellet"
 site: bookdown::bookdown_site

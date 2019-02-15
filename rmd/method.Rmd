@@ -1,52 +1,59 @@
-# Methodology
-The underlying model relies on a well-established and simple framework 
+# Material and methods
+## Statistical model
+Our model relies on a well-established and simple framework 
 that assumes the daily incidence, \(𝐼_t \) , can be approximated with a
 Poisson process following the renewal equation
 [@fraser2007estimating]. 
 
 \[
-  I_{j, t} \sim 
+  I_{t} \sim 
   Pois
   \left( 
     R_t \sum_{s = 1}^{t}{I_{t - s}\omega_s}
   \right).
 \]
 
-Here \(R_t\) is the reproduction number at time \(t\) and \(\omega\)
-is the distribution of the serial interval. 
+Here \(R_t\) is the reproduction number at time \(t\) (the average 
+number of secondary cases per infected individual) and \(\omega\)
+is the distribution of the serial interval (the time between onset of 
+symptoms in a case and their infector).
 
-We build on this model to incorporate the spatial spread of the
+We extend this model to incorporate the spatial spread of the
 outbreak between  \( n \) different locations.
-The number of cases at a location \(j\) at time \(t\) is given by the equation
-\[
+The number of incident cases at a location \(j\) at time \(t\) is
+given 
+by the equation
+\begin{align}
   I_{j, t} \sim 
   Pois\left( 
   \sum_{i = 1}^{n} 
   {\left( p_{i \rightarrow j}
-  R_{i, t} \sum_{s = 1}^{t}{I_{i, t - s} w_{s}}
+  R_{i, t} \sum_{s = 1}^{t}{I_{i, t - s} \omega_{s}}
   \right)} 
   \right),
-\]
+  (\#eq:likelihood)
+\end{align}
 
 where \(R_{i, t}\) is the reproduction number at location \(i\) at time
 \(t\) and \(p_{i \rightarrow j}\) is the probability of moving from
-location \(i\) to location \(j\). $R_{t, i}$ is
-affected by a number of other factors e.g., the intrinsic
-transmissibility of a pathogen, the health care capacity at location
-$i$ etc. The model can be easily extended to incorporate the
+location \(i\) to location \(j\). $R_{i, t}$ is
+affected by a number of factors e.g., the intrinsic
+transmissibility of a pathogen or the health care capacity at location
+$i$ (which could influence the capacity to isolate cases). 
+The model can be easily extended to explicitly incorporate the
 dependence of the reproduction number on these factors. 
 
 The probability of moving between locations is derived from the
-relative flow of populations.
-This latter quantity is estimated using a population flow
-model such as a gravity model \citep{GROSCHE2007175}. 
+relative flow of populations between locations.
+This latter quantity can be estimated using a population flow
+model; here we used a gravity model \citep{GROSCHE2007175}. 
 Under a gravity model, the flow of individuals from area \(i\) to area \(j\),
 \(\phi_{i \rightarrow j}\), is proportional to the product of the
-populations of the two areas, \(N_i\) and \(N_j\) and inversely
+populations of the two locations, \(N_i\) and \(N_j\) and inversely
 proportional to the distance between them \(d_{i, j}\), all quantities
 are raised to some power.
 \[
-  \phi_{i \rightarrow j} :=  \frac{N_i^{\alpha}N_j^{\beta}}{d_{i, j}^{\gamma}}.
+  \phi_{i \rightarrow j} =  \frac{N_i^{\alpha}N_j^{\beta}}{d_{i, j}^{\gamma}}.
 \]
  The exponent \( \gamma \) modulates the effect of distance on the flow of
 populations. A large value of \( \gamma \) indicates that the
@@ -61,72 +68,84 @@ is thus the population flow into location \(j\) from location \(i\).
   x}}}.
 \]
 
-The probability of movement from location \(i\) to location \(j\) is given by
+The probability of movement from location \(i\) to location \(j\) is 
+then given by
 \[  p_{i \rightarrow j} = (1 - p_{stay}^i) r_{i \rightarrow j}^{spread},\]
 
 where \(p_{stay}^i\) is the probability of staying at location
-\(i\). As the above equation indicates, by varying $p_{stay}^i$, we
-can capture the dynamics of population flow across spatial units. For
-instance, if \(p_{stay}^i\) is large, then the flow out of location
-\(i\) would be small. Thus, if this parameter is geographically
-heterogeneous, we obtain imbalanced flow of population (i.e. source-sink dynamics). 
+\(i\). 
 
 \subsection{Statistical inference of model parameters}
 
-The parameters of the full model as presented are: 
+The parameters of the full model are: 
 
 1.  \(R_{i, t}\), the reproduction number at time \(t\) in location \(i\),
 2.  \(p_{stay}^i\), the probability of staying in location \(i\), and 
 3.  \(\gamma\), the exponent of the distance in the gravity model. 
 
-We assumed the exponents \(\alpha \) and \(\beta\) on the
-populations to be 1.
+For simplicity, and in the absence of data to inform these, 
+we assumed the exponents \(\alpha \) and \(\beta\) on the
+populations to be 1. The serial interval was assumed to be gamma 
+distributed with parameters taken from the literature [@team2015west].
 
-The posterior distribution of each parameter are estimated using
-MCMC. Let \( o_{k, j} \) be the observed incidence at time \(k\) at location
-\(j\). Then the likelihood of the model parameters given the
-observations is proportional to the probability of the data given
-model parameters.  The probability of $o_{k, j}$ given
-the model parameters is:
-\[ P(o_{k, j} \mid p_{stay}, \gamma, R_{1, t}, R_{2, t}, \dots , R_{n,
-t}) = 
+We used a Bayesian approach, and sampled from the joint posterior
+distribution of all parameters  using Markov Chain Monte Carlo
+(MCMC). The likelihood of the
+incidence at time \(t\) in location \(j\) given past incidence across all 
+locations and model parameters is, as in equation \@ref(#eq:likelihood): 
+
+\begin{equation}
+\begin{aligned} 
+P(I_{j, t} \mid & p_{stay}, \gamma, \omega \\
+& R_{1, t}, R_{2, t}, \dots , R_{n,t}, \\ 
+& I_{1, 1}, I_{1, 2} \dots I_{1, t}, \\
+& I_{2, 1}, I_{2, 2} \dots I_{2, t}, \\
+& I_{n, 1}, I_{n, 2} \dots I_{n, t}) = 
 e^{-\lambda_{j, t}}
-  \frac{o_{j, t}^{\lambda_{j, t}}}{\lambda_{j, t} !}, \]
+  \frac{I_{j, t}^{\lambda_{j, t}}}{\lambda_{j, t} !}, 
+\end{aligned}    
+\end{equation}
+
 where $\lambda_{j, t}$ is given by
 \[\lambda_{j, t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i, t} \sum_{s
-        = 1}^t{I_{i, s}w_{t - s}} \right)}.\]
+        = 1}^t{I_{i, s} \omega_{t - s}} \right)}.\]
 
-Thus assuming that each observation is independent, the likelihood of 
-the parameters is proportional to
-\[\mathcal{L} = P(\{o_{j, t}\} \mid p_{stay}, \gamma, \{R_{i, t}\}) = 
+Thus the likelihood of the parameters is proportional to
+
+\[\mathcal{L} = P(\{I_{j, t}\} \mid p_{stay}, \gamma, \{R_{i, t}\}) = 
  \prod_{t = 1}^{t}{e^{-\lambda_{i, t}} 
- \frac{o_{i, t}^{\lambda_{i, t}}}{\lambda_{i, t} !}}.\]
+ \frac{I_{i, t}^{\lambda_{i, t}}}{\lambda_{i, t} !}}.\]
 
-Given this likelihood, we can write the joint posterior distribution
-of the parameter given the observed data as:
+Therefore the joint posterior distribution of the model parameters 
+given the observed data is:
 
 \[P(\{p_{stay}^i\}, \gamma, \{R_{i, t}\} 
    \mid 
-   \{o_{j, t}\}) 
+   \{I_{j, t}\}) 
    \propto  
-   \mathcal{L} \times P(\{R_{i,0}\}) P(\{p_{stay}^i\}) P(\gamma).\]
+   \mathcal{L} \times P(\{R_{i,t}\}) P(\{p_{stay}^i\}) P(\gamma).\]
 
-\(P(\{p_{stay}^i\})\),  \(P(\gamma)\), and \(P(\{R_{i,0}\})\) 
+\(P(\{p_{stay}^i\})\),  \(P(\gamma)\), and \(P(\{R_{i, t}\})\) 
 represent the prior distributions on the parameters. The influence of
 factors such as healthcare capacity of a location can be incorporated
-into the model through the prior distributions. Similarly, the prior
+into the model through the prior distribution of the reproduction
+numbers. 
+Similarly, the prior
 distributions on the probability of staying at a location and the
-exponent on distance can be informed by additional data sources 
-such as prior information derived from flight data. 
+exponent on distance could be informed by additional data sources 
+such as prior information derived from human migration data (e.g., 
+census data). 
 
-In practice, we have assumed a single \(p_{stay}\) for all 
+Here, we have assumed a single \(p_{stay}\) for all 
 countries on African mainland. For estimating the time-varying
 reproduction number for each country, we split the duration of the
 total outbreak into intervals of equal width. We assume that
-transmissibility stays constant within each time window and thus,
+transmissibility in each location stays constant within each time 
+window and thus,
 within a time window, we estimated  a single reproduction number for
 each location. We varied the length of this
-time window to obtain different models. A short time window increases
-the number of parameters in the model and a comparison of the
+time window to obtain different models, with short time windows 
+increasing
+the number of parameters in the model; a comparison of the
 different models is presented in Section \@ref(results).
 

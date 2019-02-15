@@ -19,6 +19,8 @@ fontsize: 11pt
 bibliography: 
 biblio-style: apsr
 endnote: no
+params:
+  ofinterest: !r c("GIN", "LBR", "SLE")
 ---
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.width=12, fig.height=6, echo=FALSE, warning=FALSE, message=FALSE, fig.path = "figures/")
@@ -29,7 +31,7 @@ library(ggplot2)
 library(ggthemes)
 library(dplyr)
 library(EpiEstim)
-
+library(purrr)
 
 ```
 
@@ -44,7 +46,7 @@ CV_SI       <- 9.6 / 14.2
 SItrunc     <- 40
 SI_Distr    <- sapply(0:SItrunc, function(e) EpiEstim::DiscrSI(e, mean_SI, mean_SI * CV_SI))
 SI_Distr    <- SI_Distr / sum(SI_Distr)
-time_window <- 7 * 6
+time_window <- 7 * 2
 
 ```
 
@@ -61,8 +63,9 @@ cumulative data.
 
 ```{r hmread, echo = FALSE}
 healthmap <- here::here("data/processed",
-                        "healthmap_wide.csv") %>%
-               readr::read_csv() 
+                        "04022019_healthmap_loglinear_wide.csv") %>%
+    readr::read_csv() %>%
+    select(date, params$ofinterest)
 
 
 
@@ -78,8 +81,9 @@ categories of suspected and confirmed cases for ProMED.
 ```{r pmread, echo=FALSE}
 
 promed <- here::here("data/processed",
-                     "promed_wide.csv") %>%
-    readr::read_csv()
+                     "20122018_promed_loglinear_wide.csv") %>%
+    readr::read_csv() %>%
+    select(date, params$ofinterest)    
 
 
 promed_weekly <- mRIIDS:::daily.to.weekly(promed)
@@ -93,8 +97,12 @@ promed_weekly$date <- as.Date(promed_weekly$date)
 
 who_bycountry <- here::here("data/processed",
                             "who_bycountry.csv") %>%
-    readr::read_csv()
-
+    readr::read_csv() 
+    
+colnames(who_bycountry) <- c("date",
+                             "GIN",
+                             "LBR",
+                             "SLE")
 who_weekly <- mRIIDS:::daily.to.weekly(who_bycountry)   
 who_weekly$date <- as.Date(who_weekly$date)
 
@@ -165,17 +173,6 @@ M <- Hmisc::rcorr(as.matrix(hm_who_pm_incid), type = "pearson")
 
 ## Estimating Reproduction number from WHO and Healthmap Data
 
-```{r ebparams}
-mean_SI     <- 14.2
-CV_SI       <- 9.6 / 14.2
-SItrunc     <- 40
-SI_Distr    <- sapply(0:SItrunc, function(e) EpiEstim::DiscrSI(e,
-                                                               mean_SI,
-                                                               mean_SI * CV_SI))
-SI_Distr    <- SI_Distr / sum(SI_Distr)
-time_window <- 7 * 7
-```
-
 
 ```{r restim}
 all_R <- split(all_weekly, list(all_weekly$Source,
@@ -212,14 +209,24 @@ all_R <- tidyr::separate(all_R,
 
 ```{r restimviz}
 
-p <- ggplot(all_R,
-            aes(date, `Mean(R)`,
-                color = Source)) +
-    geom_line() +
-    facet_grid(country ~., scale = "free_y")
+p <- ggplot()
+p <- p + geom_ribbon(data = all_R,
+                     aes(x = date,
+                         ymin = `Quantile.0.025(R)`,
+                         ymax = `Quantile.0.975(R)`,
+                         fill = Source),
+                     alpha = 0.3)
+p <- p + geom_line(data = all_R,
+                   aes(
+                       x = date,
+                       y = `Mean(R)`,
+                       color = Source))
+p <- p + facet_grid(country ~., scale = "free_y")
 p <- p + theme(legend.title = element_blank())
 p <- p + xlab("")
-p <- p + scale_colour_manual(values = color_scale)
+p <- p +
+    scale_colour_manual(values = color_scale) +
+    scale_fill_manual(values = color_scale) 
 p <- p + ggtitle("Mean R estimated from incidence data") +
          theme(plot.title = element_text(hjust = 0.5))
 p <- p + theme_classic()

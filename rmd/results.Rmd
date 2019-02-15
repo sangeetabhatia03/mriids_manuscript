@@ -26,7 +26,7 @@ are presented in the supplementary text.
 
 
 ```{r hmclean, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
-knitr::include_graphics("figures/promed_Guinea.png")
+knitr::include_graphics("ms-figures/promed_Guinea.png")
 ```
 
 ## Comparison of incidence trends from different sources
@@ -124,22 +124,30 @@ knitr::include_graphics("ms-figures/gamma_pstay_over_tproj.png")
 ```
 ## Evaluation of the model performance
 
-Figure \@ref(fig:guineaassess) shows the three metrics (bias,
-sharpness and relative mean absolute error) discussed in 
-Section \@ref{assess} for the 4 week projections in Guinea at various
-points during the epidemic using a 5-week window to estimate
+Figure \@ref(fig:assess) shows the metrics (bias,
+sharpness, log of relative accuracy, and relative mean absolute error) 
+discussed in Section \@ref{assess} for the 4 week projections in 
+Guinea, Sierra Leone and Liberia using a 4-week window to estimate
 reproduction number. Each metric was first computed using the daily
 observed and predicted series and then averaged for each week of
 projections.
 
-Across all three metrics, there is a strong trend of decreased model
+Across all metrics, there is a strong trend of decreased model
 performance as the forecast horizon increases. The bias in forecasts
 at week 1 is closer to 0 at every time point. Similarly the forecasts
-at week 1 are more sharp (sharpness close to 0) than at week 4.
+at week 1 are more sharp (sharpness close to 0) than at week 4. In
+general, the model performs better in the growing phase of the
+epidemic (defined as the window in which the 0.025th percentile of the
+posterior distribution is greater than 1). In this phase, the
+forecasts are generally greater than the observed incidence while in 
+the descending phase (defined similarly as the window in which the 
+0.975th percentile is less than 1), the model under-predicts. The
+length of the calibration window did not have a significant impact on 
+the model performance.
 
 
 
 
-```{r guineaassess, echo = FALSE, fig.cap = "Metrics for evaluating model performance.", fig.align = "center"}
-knitr::include_graphics("figures/Guinea_weekly_metrics_35_28_2.png")
+```{r assess, echo = FALSE, fig.cap = "Metrics for evaluating model performance.", fig.align = "center"}
+knitr::include_graphics("ms-figures/forecasts_assess_28.png")
 ```

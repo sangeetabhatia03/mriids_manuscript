@@ -162,6 +162,7 @@ p2 <- p2 + scale_colour_manual(values = mypalette,
 p2 <- p2 + geom_hline(yintercept = 1,
                       linetype = "dashed")
 p2 <- p2 + theme_classic()
+p2 <- p2 + facet_wrap(~country, nrow = 3, scale = "free_y")
 p2 <- p2 + xlab("") + ylab("R")
 ```
 
@@ -181,9 +182,8 @@ outfile <- here::here("data/output/figures",
                              ".png"))
 ggpubr::ggarrange(p,
                   p2,
-                  ncol = 1,
-                  nrow = 2,
-                  heights = c(2, 1),
+                  ncol = 2,
+                  nrow = 1,
                   common.legend = TRUE,
                   legend="none") %>%
     ggpubr::ggexport(filename = outfile,

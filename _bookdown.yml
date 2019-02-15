@@ -5,4 +5,6 @@ rmd_files: [
 "rmd/intro.Rmd",
 "rmd/method.Rmd",
 "rmd/assess.Rmd",
-"rmd/results.Rmd"]
+"rmd/results.Rmd",
+"rmd/discussion.Rmd",
+"rmd/references.Rmd"]
