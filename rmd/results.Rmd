@@ -1,41 +1,55 @@
-# Results
+# Processing ProMED/HealthMap data feed
 
-## Cleaning ProMED/HealthMap data feed
-A set of curated ProMED and HealthMap records on the human cases of 
+We used a set of curated ProMED and HealthMap records on the human 
+cases of 
 Ebola in West Africa from ProMED were provided to the modeling
-team. The dates in the feed ranged from March 2014 to October 2016.
+team. The dates in the feeds ranged from March 2014 to October 2016.
 The data set recorded the cumulative number of suspected/confirmed
-cases and suspected/confirmed deaths in this period. 
-The raw data from ProMED is shown in Figure \@ref(fig:hmraw)
+cases and suspected/confirmed deaths by country at various dates
+in this period. The data from ProMED is shown in Figure \@ref(fig:hmraw)
 
 ```{r hmraw, echo = FALSE, fig.cap = "Raw data from ProMED", fig.align = "center"}
 knitr::include_graphics("ms-figures/promed_raw.png")
 ```
-We derived the daily and weekly incidence series from these data after 
-data cleaning and pre-processing. We first extracted the total case
-counts as a sum of suspected and confirmed cases. Each unique record 
+We derived the country specific daily and weekly incidence 
+time series from these data after the following data cleaning 
+and pre-processing:
+
++ We first extracted the total case
+counts as a sum of suspected and confirmed cases. 
++ Each unique record 
 in ProMED/HealthMap data is associated with a unique alert id.  Where
 multiple records were associated with the same alert id, we merged
 them by assigning the median of the case numbers to the record. In
 some instances, cumulative case count was inconsistent in that it
-failed to be monotonically increasing. These records were further 
-removed.  Finally, missing data was filled in using linear or log-linear
-interpolation. Results at each step pre-processing workflow for Guinea
-are shown in Figure \@ref(fig:hmclean). Further details of each step
-are presented in the supplementary text.
+failed to be monotonically increasing. Any record of a 
+cumulative case number lower than a previous record was removed.
++ Finally, ●	Cumulative incidence on days with no records was
+filled in using linear or log-linear interpolation. 
+
+ Further details of 
+each step are presented in the supplementary text.
 
 
 ```{r hmclean, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
 knitr::include_graphics("ms-figures/promed_Guinea.png")
 ```
 
+## Results
+
+Result of each step the pre-processing of Promed and 
+Healthmap data for Guinea in Figure \@ref(fig:hmclean).
+
 ## Comparison of incidence trends from different sources
 
-We compared the incidence series derived from ProMED and HealthMap
-data with the, data collated by WHO during this outbreak made
-available by [@garske20160308]. Throughout the rest of this document, 
-we refer to this data set as WHO data in the interest of brevity.
-The results are shown in Figure \@ref(fig:incidcompare)
+We compared the processed country-specific incidence time 
+series derived  from ProMED and HealthMap
+data with the incidence data collated by WHO during the West 
+African Ebola epidemic  made available by [@garske20160308], 
+later referred to as ``the WHO data'' in the interest of brevity. 
+Incidence time series from these various sourcesare shown in  
+Figure \@ref(fig:incidcompare) for the three mainly affected 
+countries: Guinea, Liberia and Sierra Leone. 
 
 ```{r incidcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
 knitr::include_graphics("ms-figures/who_promed_hm_incid.png")
@@ -43,8 +57,9 @@ knitr::include_graphics("ms-figures/who_promed_hm_incid.png")
 
 Figure \@ref(fig:rcompare) compares the reproduction number estimated 
 from the respective incidence series. The instantaneous reproduction
-number was estimated in R using the package EpiEstim [@cori2013new]. 
-As expected, the estimated reproduction numbers are highly correlated.
+number was estimated independently for each country in
+using the R package EpiEstim [@cori2013new]. 
+The estimated reproduction numbers are highly correlated.
 
 
 ```{r rcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
@@ -53,35 +68,6 @@ knitr::include_graphics("ms-figures/who_promed_hm_r.png")
 
 
 ## Short term projections
-
-We assumed a Gamma distributed serial interval with mean 14.2 
-days and standard deviation 9.6 days [@team2015west]. 
-For the reproduction number, we used a Gamma prior with mean 
-3.3 and variance 1.5. This was informed by a review of 
-estimates of the reproduction number for Ebola Zaire in 
-outbreaks preceding the West African Ebola outbreak which 
-reported estimates ranging from 1.4 to 4.7 [@van2015review]. 
-The mean prior 3.3 was chosen as the midpoint of this interval, 
-and the variance 1.5, was chosen so the 95% prior probability
-interval contains the extremes of this interval.
-
-For gravity model parameters \(p_stay\) and \( \gamma\), we choose
-uninformative uniform priors. Since \(p_stay\) is a probability
-the prior was a uniform distribution on the interval \([0, 1]\).
-\( \gamma \) was allowed to vary between 1 and 3.
-
-Model fitting was done in a Bayesian framework using MCMC
-methods as implemented in the software Stan [@carpenter2017stan] 
-and its R interface rstan [@rstan]. For projecting the incidence
-beginning at day \(T\), we fitted the model to the daily
-incidence series derived from ProMED/HealthMap data up to day
-\( T - 1\). Transmissibility was assumed to stay constant in the
-time frame over which we were projecting. Samples from the 
-posterior distribution for the effective reproduction
-number estimated in the last time window before the point of
-projection were used for projections. Similarly samples from the
-posterior distribution for \( \gamma \) and \( p_{stay} \) were
-used to estimate the relative flow.
 
 Figures \@(fig:guinea49, fig:liberia49, fig:sl49) show the
 non-overlapping weekly forecasts for 4 weeks from the point of 

@@ -152,3 +152,34 @@ increasing
 the number of parameters in the model; a comparison of the
 different models is presented in Section \@ref(results).
 
+
+
+We assumed a Gamma distributed serial interval with mean 14.2 
+days and standard deviation 9.6 days [@team2015west]. 
+For the reproduction number, we used a Gamma prior with mean 
+3.3 and variance 1.5. This was informed by a review of 
+estimates of the reproduction number for Ebola Zaire in 
+outbreaks preceding the West African Ebola outbreak which 
+reported estimates ranging from 1.4 to 4.7 [@van2015review]. 
+The mean prior 3.3 was chosen as the midpoint of this interval, 
+and the variance 1.5, was chosen so the 95% prior probability
+interval contains the extremes of this interval.
+
+For gravity model parameters \(p_{stay}\) and \( \gamma\), we 
+choose uninformative uniform priors. 
+Since \(p_{stay}\) is a probability
+the prior was a uniform distribution on the interval \([0, 1]\).
+\( \gamma \) was allowed to vary between 1 and 3.
+
+Model fitting was done in a Bayesian framework using MCMC
+methods as implemented in the software Stan [@carpenter2017stan] 
+and its R interface rstan [@rstan]. For projecting the incidence
+beginning at day \(t\), we fitted the model to the daily
+incidence series derived from ProMED/HealthMap data up to day
+\( t - 1\). Transmissibility was assumed to stay constant in the
+time frame over which we were projecting. Samples from the 
+posterior distribution for the effective reproduction
+number estimated in the last time window before the point of
+projection were used for projections. Similarly samples from the
+posterior distribution for \( \gamma \) and \( p_{stay} \) were
+used to estimate the relative flow.
