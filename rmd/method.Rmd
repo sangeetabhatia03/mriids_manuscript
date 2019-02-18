@@ -21,8 +21,7 @@ symptoms in a case and their infector).
 We extend this model to incorporate the spatial spread of the
 outbreak between  \( n \) different locations.
 The number of incident cases at a location \(j\) at time \(t\) is
-given 
-by the equation
+given by the equation
 \begin{align}
   I_{j, t} \sim 
   Pois\left( 
@@ -107,8 +106,12 @@ e^{-\lambda_{j, t}}
 \end{equation}
 
 where $\lambda_{j, t}$ is given by
-\[\lambda_{j, t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i, t} \sum_{s
-        = 1}^t{I_{i, s} \omega_{t - s}} \right)}.\]
+
+\begin{equation}
+\lambda_{j, t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i, t} \sum_{s
+        = 1}^t{I_{i, s} \omega_{t - s}} \right)}.
+(\#eq:lambdajt)		
+\end{equation}
 
 Thus the likelihood of the parameters is proportional to
 

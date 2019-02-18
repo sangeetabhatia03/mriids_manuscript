@@ -1,79 +1,125 @@
-# Evaluating model predictions {#assess}
+# Model predictions {#assess}
 
-The projected incidence was validated against the 
-observed incidence and the performance of the model was evaluated
-along 3 metrics.
+To forecast incidence at time \(t\), we fitted the model using 
+incidence data up to time \(t - 1\). We then projected 
+incidence using a random sample from the posterior distribution
+of the model parameters in equation 
+\@ref(eq:likelihood) over a 2 week, 4 week and 6 week horizon.
 
+We then validated the incidence projected using our model 
+against observed incidence. In addition to the 
+accuracy of the projected incidence, the uncertainty associated 
+with the forecasts (e.g., measured by the width of the prediction
+interval) is an important indicator of model performance. A 
+narrow prediction interval that contains the observed values
+is preferable over wide prediction intervals. To asses the 
+performance of the model along both these dimensions, 
+we used three different metrics drawn from the literature.
+
+In the remainder of this paper, we use the following notation. 
+For a location \(j\), let \(I_{j, t}\) be the observed incidence 
+at time \(t\) and let 
+\(\hat{I}_{j, t}\) be the set of predictions of the model at 
+time \(t\). 
+That is, \(\hat{I}_{j, t} = 
+\{
+\hat{I}^1_{j, t}, 
+\hat{I}^2_{j, t}, 
+\dots
+\hat{I}^N_{j, t}, 
+\}\) is the set of
+\(N\) draws from the Poisson distribution with mean 
+\(\lambda_{j, t}\)  \@ref(eq:lambdajt). 
+
+ 
 ## Relative mean absolute error
-Mean absolute error (mae) is the average of the absolute errors. Let
-\(o_t\) be the observed incidence and let \(p_{i, t}\) be the \(i\)th 
-draw from the Poisson distribution, 
-where \(i = 1, 2, \dots N\) are \(N\)
-simulations. Then relative mean absolute error (rmae) is defined as:
+
+The relative mean absolute error (rmae) is a widely used 
+measure of model accuracy  [@tofallis2015better]. 
+The relative mean absolute error (rmae)
+at location \(j\) at time \(t\) is defined as:
+
 \[
-  rmae_t(o_t, p_t) = 
+  rmae_{j, t}(I_{j, t}, \hat{I}_{j, t}) = 
  \frac{
- \sum_{i = 1}^N{\lvert o_t - p_{i, t} \rvert}
+ \sum_{s = 1}^N{\lvert I_{j, t} - \hat{I}_{j, t} \rvert}
  }
- { N * \lvert (o_t + 1) \rvert}.
+ { N *  (I_{j, t} + 1)}.
  \]
-That is the mean absolute error at time \(t\) is averaged across all
-simulations and normalised by the absolute value of the observed
-vector. We add \(1\) to the observed value to prevent division by
+That is the mean absolute error at time \(t\) is averaged 
+across all
+simulated incidence trajectories and normalised by the observed
+incidence. We add \(1\) to the observed value to prevent division by
 \(0\).
-
-## Sharpness
-As its name suggests, sharpness is a measure of the spread of the
-forecasts. Following [@funk2017assessing], we used the median
-absolute deviation about the median (MADM) to evaluate sharpness.
-As before, let \(p_t = p_{1, t}, p_{2, t}, \dots p_{N, t}\) be a set of
-predicted values at time \(t\). Then, sharpness \(s_t\) at time \(t\)
-is
-\[s_t(p_t) = median(\left | p_t - median(p_t) \right |).\]
-
-A sharpness value of 0 indicates that predicted value at  time \(t\) 
-is equal to the median
-of \(p\) across all simulations. 
-The larger this value, the more spread is the forecast.
-
-## Bias
-The bias of forecasts is a measure of the tendency of a model to
-systematically under- or over-predict. Bias of a set of predictions 
-\(p = p_{1, t}, p_{2, t}, \dots p_{N, t}\) at time \(t\) is defined as
-\[b_t(o_t, p_t) = 2(mean(H(p_t - o_t)) - 0.5),\]
-
-where the mean is taken across the \(N\) draws.
-\(H(x)\) is the Heaviside step function defined as
-\[H(x) = \begin{cases} 
-0 & \text{ if } x < 0 \\ 
-1 & \text{ if } x > 0 \\
-0.5 & \text{ if } x = 0. \end{cases} \]
-
-The above formulation can better be understood by considering the
-extreme cases. If every value in \(p_t\) is greater 
-than the observed value \(o_t\), then the Heaviside function is 1
-for \(i = 1, 2, \dots N\) and \(mean(H(p_t - o_t))\) is 1. The bias
-for a model that always over-predicts is therefore 1. 
-On the other hand, if the model systematically under-predicts,
-then \(mean(H(p_t - o_t))\) is 0 and the bias score is -1. For a model
-for which the predictions match the observed values exactly, the bias
-score is 0.
-
-Section \@ref(#results) presents the evaluation of the forecasts from
-our model.
-
 
 ## Relative accuracy
 
-Relative accuracy is defined as the ratio of the predicted value
-averaged across simulations and the observed value
-[@tofallis2015better]. 
-We use log of this quantity as an assessment metric. 
+Relative accuracy is defined as the ratio of the predicted 
+value (averaged across the simulated trajectories) 
+and the observed value [@tofallis2015better]. 
+We use the log of this quantity as an assessment metric. 
 
 \[
- log(Q) = log\left(
+ log(Q_{j, t}(I_{j, t}, \hat{I}_{j, t})) = 
+ log\left(
  \frac
- {\sum_{i = 1}^N{p_{i, t}}/N}
- {o_t + 1}
+ {\sum_{i = 1}^N{\hat{I}_{j, t}}/N}
+ {I_{j, t} + 1}
  \right).
 \]
+
+## Sharpness
+
+As its name suggests, sharpness is a measure of the spread 
+(or uncertainty) of the
+forecasts. Following [@funk2017assessing], we used the median
+absolute deviation about the median (MADM) to evaluate sharpness.
+The sharpness \(s_{j, t}\) at time \(t\) at location \(j\)
+is
+\[
+s_{j, t}(\hat{I}_{j, t}) = 
+median(\left |\hat{I}_{j, t}  - median(\hat{I}_{j, t}) 
+\right |).\]
+
+A sharpness value of 0 indicates that the predicted incidence
+trajectories are identical across all simulations. 
+The larger the sharpness, the more spread there is in the 
+forecast.
+
+## Bias
+
+The bias of forecasts is a measure of the tendency of a model 
+to systematically under- or over-predict [@funk2017assessing]. 
+The bias of a set 
+of predictions \(\hat{I}_{j, t}\) 
+at time \(t\) at location \(j\) is defined as
+
+\[
+b_{j, t}(I_{j, t}, \hat{I}_{j, t}) = 
+2(mean(H(\hat{I}_{j, t} - I_{j, t})) - 0.5),\]
+
+where the mean is taken across the \(N\) draws.
+\(H(x)\) is the Heaviside step function defined as
+\[
+H(x) = \begin{cases} 
+0 & \text{ if } x < 0 \\ 
+1 & \text{ if } x > 0 \\
+0.5 & \text{ if } x = 0. 
+\end{cases} 
+\]
+
+The above formulation can better be understood by considering 
+the following extreme scenarios. If every projected value 
+\(\hat{I}_{j, t}\) is greater 
+than the observed value \(I_{j, t}\), then the Heaviside 
+function is 1 for \(i = 1, 2, \dots N\) and 
+\(mean(H(\hat{I}_{j, t} - I_{j, t}))\) is 1. The bias
+for a model that always over-predicts is therefore 1. 
+On the other hand, if the model systematically under-predicts,
+then \(mean(H(\hat{I}_{j, t} - I_{j, t}))\) is 0 and the bias 
+score is -1. For a model
+for which all predictions match the observed values exactly, 
+the bias score is 0.
+
+
+
