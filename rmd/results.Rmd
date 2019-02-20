@@ -22,18 +22,12 @@ cumulative case number lower than a previous record was removed.
 + Finally, ●	Cumulative incidence on days with no records was
 filled in using linear or log-linear interpolation. 
 
- Further details of 
-each step are presented in the supplementary text.
+Further details and result of 
+each step of the pre-processing of Promed and 
+Healthmap data are presented in the supplementary text.
 
-
-```{r hmclean, echo = FALSE, fig.cap = "Data clean-up steps", fig.align = "center"}
-knitr::include_graphics("ms-figures/promed_Guinea.png")
-```
 
 ## Results
-
-Result of each step the pre-processing of Promed and 
-Healthmap data for Guinea in Figure \@ref(fig:hmclean).
 
 ## Comparison of incidence trends from different sources
 

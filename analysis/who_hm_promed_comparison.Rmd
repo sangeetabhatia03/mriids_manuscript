@@ -35,6 +35,284 @@ library(purrr)
 
 ```
 
+# Color Scale
+
+```{r colscale}
+color_scale <- c("HealthMap" = "#000000",
+                 "WHO" = "#E69F00",
+                 "ProMED" = "#56B4E9")
+
+```
+
+# WHO data 
+
+```{r whoread}
+who_bycountry <- here::here("data/processed",
+                            "who_bycountry.csv") %>%
+    readr::read_csv() 
+    
+colnames(who_bycountry) <- c("date",
+                             "GIN",
+                             "LBR",
+                             "SLE")
+
+## Weekly Trend
+who_weekly <- mRIIDS:::daily.to.weekly(who_bycountry)    
+who_weekly <- tidyr::gather(who_weekly,
+                            country,
+                            incid,
+                            -date)
+who_weekly$interpolated <- FALSE
+who_weekly$date <- lubridate::ymd(who_weekly$date)
+
+## Cumulative
+who_cumulative <- mutate_if(who_bycountry,
+                            is.numeric,
+                            cumsum) %>%
+    tidyr::gather(country, cases, -date) %>%
+    select(country, date, cases)
+
+## For stacking with ProMED and HM data
+## that we will read in tall format
+who_tall <- tidyr::gather(who_bycountry,
+                          country,
+                          incid,
+                          -date)
+who_tall$interpolated <- FALSE
+
+
+
+```
+# Comparison of cumulative cases
+
+The cumulative cases are extracted as sum of confirmed and
+suspected cases from ProMED/HealthMap data streams.
+
+```{r cumcomp}
+
+pm_cumulative <- here::here("data/processed",
+                                "19022019_promed_loglinear_cumulative.csv") %>%
+    readr::read_csv() 
+
+pm_cumulative$country <- countrycode::countrycode(pm_cumulative$country,
+                                                      'country.name',
+                                                      'iso3c')
+
+pm_cumulative <- filter(pm_cumulative,
+                            country %in% params$ofinterest) 
+
+hm_cumulative <- here::here("data/processed",
+                                "19022019_healthmap_loglinear_cumulative.csv") %>%
+    readr::read_csv()
+
+hm_cumulative$country <- countrycode::countrycode(hm_cumulative$country,
+                                                  'country.name',
+                                                  'iso3c')
+
+hm_cumulative <- filter(hm_cumulative,
+                        country %in% params$ofinterest) 
+
+
+```
+
+
+
+```{r cum_incid_viz, eval = TRUE}
+all_cumulative <- list(WHO = who_cumulative,
+                       HealthMap = hm_cumulative,
+                       ProMED    = pm_cumulative) %>%
+    bind_rows(.id = "Source")
+
+
+p_cumulative <- 
+    ggplot(all_cumulative,
+           aes(date,
+               cases,
+               color = Source
+               )) +
+    geom_point() 
+
+p_cumulative <- p_cumulative +
+    theme_classic()
+    
+p_cumulative <- p_cumulative +    
+    facet_wrap(country ~.,
+               scales = "free_y",
+               strip.position = "top",
+               nrow = 3) +
+    scale_colour_manual(values = color_scale)
+    
+
+p_cumulative <- p_cumulative +
+    theme(legend.position = "none")
+
+p_cumulative <- p_cumulative +
+    xlab("") +
+    ylab("Cumulative Incidence")
+
+
+p_cumulative
+```
+
+
+## Comparison of daily incidence trends
+
+
+```{r hmread, echo = FALSE}
+hm_daily <- here::here("data/processed",
+                        "19022019_healthmap_loglinear_tall.csv") %>%
+    readr::read_csv() %>%
+    filter(country %in% params$ofinterest)
+
+
+pm_daily <- here::here("data/processed",
+                       "19022019_promed_loglinear_tall.csv") %>%
+    readr::read_csv() %>%
+    filter(country %in% params$ofinterest)    
+
+
+
+```
+
+
+```{r daily_incid_viz, eval = TRUE}
+all_daily <- list(WHO = who_tall,
+                   HealthMap = hm_daily,
+                   ProMED    = pm_daily) %>%
+    bind_rows(.id = "Source")
+
+
+
+p_daily <- 
+    ggplot(all_daily,
+           aes(date,
+               incid,
+               color = Source)) +
+    geom_point() 
+
+p_daily <- p_daily +
+    theme_classic()
+
+p_daily <- p_daily +
+    facet_wrap(country ~.,
+               scales = "free_y",
+               strip.position = "top",
+               nrow = 3) +
+    scale_colour_manual(values = color_scale)
+
+p_daily <- p_daily +
+    theme(legend.position = "none")
+
+p_daily <- p_daily +
+    xlab("") +
+    ylab("Daily Incidence")
+
+
+p_daily
+
+```
+
+
+## Comparison of weekly incidence trends
+
+```{r}
+hm_weekly <- here::here("data/processed",
+                        "19022019_healthmap_loglinear_weekly.csv") %>%
+    readr::read_csv() %>%
+    filter(country %in% params$ofinterest) 
+
+
+pm_weekly <- here::here("data/processed",
+                        "19022019_promed_loglinear_weekly.csv") %>%
+    readr::read_csv() %>%
+    filter(country %in% params$ofinterest) 
+
+
+
+```
+
+
+```{r weekly_incid_viz, eval = TRUE}
+
+
+all_weekly <- list(WHO = who_weekly,
+                   HealthMap = hm_weekly,
+                   ProMED    = pm_weekly) %>%
+    bind_rows(.id = "Source")
+
+p_weekly <- 
+    ggplot(all_weekly,
+           aes(date, incid, color = Source)) +
+    geom_point()
+p_weekly <- p_weekly +
+    theme_classic()
+p_weekly <- p_weekly +
+        facet_wrap(country ~.,
+               scales = "free_y",
+               strip.position = "top",
+               nrow = 3) +
+    scale_colour_manual(values = color_scale)
+
+p_weekly <- p_weekly +
+    theme(legend.position = "none")
+p_weekly <- p_weekly +
+    xlab("") +
+    ylab("Weekly Incidence")
+
+
+
+p_weekly 
+
+```
+
+
+
+
+
+## Correlation between the incidence data
+
+```{r incid_corrplot, eval = TRUE}
+library(zeallot)
+## c(who, pm, hm) %<-%  map(list(who_weekly,
+##                               pm_weekly,
+##                               hm_weekly),
+##                          ~ tidyr::gather(.x,
+##                                          country,
+##                                          incid,
+##                                          -date))
+
+## Get week of year for each date after discarding the
+## interpolated column. The goal is to get a df of
+## weekly incidence so that we can compute correlation.
+c(who_weekly$week,
+  pm_weekly$week,
+  hm_weekly$week) %<-%
+    map(list(who_weekly[, -4],
+             pm_weekly[, -4],
+             hm_weekly[, -4]),
+        ~ paste(lubridate::year(.x$date),
+                lubridate::week(.x$date),
+                sep = "-"))
+
+hm_who_pm_incid <- inner_join(who_weekly,
+                              hm_weekly,
+                              by = c("week",
+                                     "country")) %>%
+              select(country, week, incid.x, incid.y) %>%
+              rename("WHO" = `incid.x`,
+                     "HealthMap" = `incid.y`) %>%
+              inner_join(pm_weekly, by = c("week", "country")) %>%
+              rename("ProMED" = `incid`) %>%
+              select(WHO, ProMED, HealthMap)
+
+
+M <- Hmisc::rcorr(as.matrix(hm_who_pm_incid),
+                  type = "pearson")
+
+```
+
+## Estimating Reproduction number from WHO and Healthmap Data
+
 # Parameters for Ebola
 
 Culled from literature.
@@ -50,133 +328,9 @@ time_window <- 7 * 2
 
 ```
 
-
-First read in the cleaned up data from Health Map. Since these data
-are at national level, we will also aggregate the WHO data at country
-level. HealthMap collects and curates data on the cumulative number
-of cases (C) and deaths (D) stratified by status (suspected, SC/SD, or
-confirmed CC/CD). For data from the WHO, the case status could be
-confirmed, probable or suspected. The final clinical outcome (alive/dead)
-for each case is also recorded. In comparing the two data sets, we sum
-across all four categories in Healthmap and derive incidence data from
-cumulative data.
-
-```{r hmread, echo = FALSE}
-healthmap <- here::here("data/processed",
-                        "04022019_healthmap_loglinear_wide.csv") %>%
-    readr::read_csv() %>%
-    select(date, params$ofinterest)
-
-
-
-hm_weekly <- mRIIDS:::daily.to.weekly(healthmap)
-
-hm_weekly$date <- lubridate::ymd(hm_weekly$date)
-
-```
-
-ProMED data is similarly stratfied and we will sum across the
-categories of suspected and confirmed cases for ProMED.
-
-```{r pmread, echo=FALSE}
-
-promed <- here::here("data/processed",
-                     "20122018_promed_loglinear_wide.csv") %>%
-    readr::read_csv() %>%
-    select(date, params$ofinterest)    
-
-
-promed_weekly <- mRIIDS:::daily.to.weekly(promed)
-
-promed_weekly$date <- as.Date(promed_weekly$date)
-
-```
-
-
-```{r whoread, eval = TRUE}
-
-who_bycountry <- here::here("data/processed",
-                            "who_bycountry.csv") %>%
-    readr::read_csv() 
-    
-colnames(who_bycountry) <- c("date",
-                             "GIN",
-                             "LBR",
-                             "SLE")
-who_weekly <- mRIIDS:::daily.to.weekly(who_bycountry)   
-who_weekly$date <- as.Date(who_weekly$date)
-
-```
-
-
-```{r weekly_incid_viz, eval = TRUE}
-
-color_scale <- c("HealthMap" = "black",
-                 "WHO" = "green",
-                 "ProMED" = "red")
-
-all_weekly <- list(WHO = who_weekly,
-                   HealthMap = hm_weekly,
-                   ProMED    = promed_weekly) %>%
-    bind_rows(.id = "Source")
-
-all_weekly <- tidyr::gather(all_weekly,
-                            country,
-                            incid,
-                            - c(Source:date))
-p <- 
-    ggplot(all_weekly,
-           aes(date, incid, color = Source)) +
-    geom_point() +
-    facet_grid(country ~., scales = "free_y") +
-    scale_colour_manual(values = color_scale)
-
-p <- p + theme(legend.title = element_blank())
-p <- p + xlab("") + ylab("Weekly Incidence")
-p <- p + theme_classic()
-
-p
-
-```
-
-## Correlation between the incidence data
-
-```{r incid_corrplot, eval = TRUE}
-library(zeallot)
-c(who, pm, hm) %<-%  map(list(who_weekly,
-                              promed_weekly,
-                              hm_weekly),
-                         ~ tidyr::gather(.x,
-                                         country,
-                                         incid,
-                                         -date))
-
-c(who$week, pm$week, hm$week) %<-%
-    map(list(who, pm, hm),
-        ~ paste(lubridate::year(.x$date),
-                lubridate::week(.x$date),
-                sep = "-"))
-
-hm_who_pm_incid <- inner_join(who, hm,
-                              by = c("week", "country")) %>%
-              select(country, week, incid.x, incid.y) %>%
-              rename("WHO" = `incid.x`,
-                     "HealthMap" = `incid.y`) %>%
-              inner_join(pm, by = c("week", "country")) %>%
-              rename("ProMED" = `incid`) %>%
-              select(WHO, ProMED, HealthMap)
-
-
-M <- Hmisc::rcorr(as.matrix(hm_who_pm_incid), type = "pearson")
-
-```
-
-## Estimating Reproduction number from WHO and Healthmap Data
-
-
 ```{r restim}
-all_R <- split(all_weekly, list(all_weekly$Source,
-                                all_weekly$country)) %>%
+all_R <- split(all_daily, list(all_daily$Source,
+                                all_daily$country)) %>%
     map_dfr(function(x) {
         I <- x$incid
         start <- 2:(nrow(x) - time_window)
