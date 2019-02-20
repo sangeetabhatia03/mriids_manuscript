@@ -23,7 +23,7 @@ params:
   ofinterest: !r c("GIN", "LBR", "SLE")
 ---
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=12, fig.height=6, echo=FALSE, warning=FALSE, message=FALSE, fig.path = "figures/")
+knitr::opts_chunk$set(fig.width=14, fig.height=7, echo=FALSE, warning=FALSE, message=FALSE, fig.path = "figures/")
 ```
 
 ```{r setup, echo = FALSE}

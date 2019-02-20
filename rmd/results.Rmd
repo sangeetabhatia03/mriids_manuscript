@@ -6,14 +6,9 @@ Ebola in West Africa from ProMED were provided to the modeling
 team. The dates in the feeds ranged from March 2014 to October 2016.
 The data set recorded the cumulative number of suspected/confirmed
 cases and suspected/confirmed deaths by country at various dates
-in this period. The data from ProMED is shown in Figure \@ref(fig:hmraw)
-
-```{r hmraw, echo = FALSE, fig.cap = "Raw data from ProMED", fig.align = "center"}
-knitr::include_graphics("ms-figures/promed_raw.png")
-```
-We derived the country specific daily and weekly incidence 
-time series from these data after the following data cleaning 
-and pre-processing:
+in this period. We derived the country specific daily and 
+weekly incidence time series from these data after the 
+following data cleaning and pre-processing:
 
 + We first extracted the total case
 counts as a sum of suspected and confirmed cases. 
