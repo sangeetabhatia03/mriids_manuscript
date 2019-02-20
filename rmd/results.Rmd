@@ -19,7 +19,7 @@ them by assigning the median of the case numbers to the record. In
 some instances, cumulative case count was inconsistent in that it
 failed to be monotonically increasing. Any record of a 
 cumulative case number lower than a previous record was removed.
-+ Finally, ●	Cumulative incidence on days with no records was
++ Finally, cumulative incidence on days with no records was
 filled in using linear or log-linear interpolation. 
 
 Further details and result of 
@@ -36,23 +36,31 @@ series derived  from ProMED and HealthMap
 data with the incidence data collated by WHO during the West 
 African Ebola epidemic  made available by [@garske20160308], 
 later referred to as ``the WHO data'' in the interest of brevity. 
-Incidence time series from these various sourcesare shown in  
-Figure \@ref(fig:incidcompare) for the three mainly affected 
-countries: Guinea, Liberia and Sierra Leone. 
-
-```{r incidcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
-knitr::include_graphics("ms-figures/who_promed_hm_incid.png")
-```
-
-Figure \@ref(fig:rcompare) compares the reproduction number estimated 
-from the respective incidence series. The instantaneous reproduction
-number was estimated independently for each country in
+Incidence time series and the reproduction numbers estimated using the
+incidence from these various sources are shown in  
+Figure \@ref(fig:incidrcompare) for the three mainly affected 
+countries: Guinea, Liberia and Sierra Leone.  The instantaneous 
+reproduction number was estimated independently for each country in
 using the R package EpiEstim [@cori2013new]. 
-The estimated reproduction numbers are highly correlated.
 
 
-```{r rcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
-knitr::include_graphics("ms-figures/who_promed_hm_r.png")
+The incidence time series derived from ProMED and HealthMap data are 
+highly correlated with the WHO incidence data (Pearson's correlation
+coefficient 0.44 and 0.74 respectively, p value < 0.001). The digital 
+surveillance data differ significantly from the WHO data at the peak 
+of the epidemic approximately in the first few months of 2015. While 
+the reason for this discrepancy are not entirely clear, they could 
+for instance reflect the susceptibility of digital surveillance to
+biases in reporting. At the same time, it is important to remember
+that the WHO data that used here is an extensively cleaned
+version of the data collected during the epidemic [@who2014ebola, 
+@team2015west], published well after the epidemic was declared to be 
+over. The first situation Report by the WHO was published only at the
+end of August 2014 [@whositrep]. On the other hand, the first post
+on ProMED on Ebola cases in Guinea appears in March 2014 [@pmfirstebola]
+
+```{r incidrcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
+knitr::include_graphics("ms-figures/who_hm_promed_compare.png")
 ```
 
 
