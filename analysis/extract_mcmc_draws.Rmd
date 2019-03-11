@@ -20,10 +20,11 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj: 77
+  tproj: 21
   twindow: 14
   N: 55
-  incid: data/processed/promed_loglinear_wide_from_july.csv
+  day0: 2014-03-21
+  indir: data/who_stanfits
 ---
 
 ```{r setup, eval = TRUE}
@@ -38,9 +39,20 @@ The order of columns as the same as the order of columns in the input
 to Stan. Hence read the incidence data to get this order.
 
 ```{r incid}
-incid <- here::here(params$incid) %>%
-    readr::read_csv(n_max = params$tproj)
-trng_date <- incid$date[seq_len(params$tproj)]
+suffix <- paste0(params$tproj, 
+                 "_", 
+                 params$twindow, 
+                 ".rds")
+
+incid <- here::here(params$indir,
+                    paste0("incid_",
+                            suffix)) %>%
+    readr::read_rds()
+
+trng_date <- seq(from = as.Date(params$day0),
+                 by = "1 day",
+                 length.out = params$tproj)
+  ##incid$date[seq_len(params$tproj)]
 ```
 
 ## Read in fit object
@@ -49,32 +61,8 @@ Extract the samples from the fitted Stan model and write them out for
 later use. 
 
 ```{r fit}
-suffix <- paste0(params$tproj, "_", params$twindow, ".rds")
-fit1 <- readRDS(here::here("data/stanfits", suffix))
-```
-## Check for convergence
 
-If the convergence tests fail, stop right here.
-
-```{r test}
-flagged_fits <- here::here("data/stanfits",
-                           "poorfits.csv")
-rhats <- bayesplot::rhat(fit1)
-ratios_cp <- bayesplot::neff_ratio(fit1)
-rhats_check <- "pass"
-neff_check <- "pass"
-if (any(rhats > 1.1)) rhats_check <- "fail"
-if (any(ratios_cp < 0.2)) neff_check <- "fail"
-if (rhats_check == "fail" | neff_check == "fail") {
-    data.frame(twindwow = params$twindow,
-               tproj = params$tproj,
-               rhats = rhats_check,
-               neff = neff_check) %>%
-        readr::write_csv(path = flagged_fits,
-                         append = TRUE)
-}    
-    
-    
+fit1 <- readRDS(here::here(params$indir, suffix))
 ```
 
 ## Extract draws for each parameter
@@ -90,24 +78,18 @@ pstay_samples <- list_of_draws[["pstay"]]
 ## R index matrix 
 
 For R, the matrix rindex contains the mapping of variable 
-name to time window and country.
+name to time window and country. Attach dates to the rindex data frame 
+so we will know what variables 
+are for which date.
 
 ```{r rindex}
 rindex <- paste0("rindex_", suffix)
-rindex <- here::here("data/stanfits",
+rindex <- here::here(params$indir,
                      rindex) %>% readRDS()
 
 rindex_df <- as.data.frame(rindex)
-colnames(rindex_df) <- colnames(select(incid, -date))
-```
-
-Attach dates to the rindex data frame so we will know what variables 
-are for which date.
-
-
-```{r}
-rindex_df$date <- trng_date
-
+rindex_df <- cbind(trng_date, rindex_df)
+colnames(rindex_df) <- c("date", colnames(incid))
 ```
 
 Each column in r_samples is a set of draws for a variable. The column
@@ -142,7 +124,7 @@ Finally save everything.
 ```{r write}
 by_country <- split(rsamples, rsamples$country)
 purrr::imap(by_country, ~ saveRDS(.x,
-                           here::here("data/stanfits",
+                           here::here(params$indir,
                                       paste0(.y,
                                              "_rsamples_",
                                              suffix))))
@@ -150,18 +132,18 @@ purrr::imap(by_country, ~ saveRDS(.x,
 
 by_country <- split(sample_qntls, sample_qntls$country)
 purrr::imap(by_country, ~ saveRDS(.x,
-                           here::here("data/stanfits",
+                           here::here(params$indir,
                                       paste0(.y,
                                              "_rquantiles_",
                                              suffix))))
 
 saveRDS(pstay_samples,
-        here::here("data/stanfits",
+        here::here(params$indir,
                    paste0("pstay_samples_", suffix)))
 
 
 saveRDS(gamma_samples,
-        here::here("data/stanfits",
+        here::here(params$indir,
                    paste0("gamma_samples_", suffix)))
 
         

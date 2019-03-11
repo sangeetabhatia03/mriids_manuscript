@@ -151,6 +151,16 @@ confirmed cases.
 cum_cases <- purrr::map(by.location, function(df) {
     mRIIDS:::update_cases_column(df, case.type) 
 })
+
+
+outfile <- paste0(params$outfile, "_cumulative.csv")
+
+bind_rows(cum_cases) %>%
+    select(country, date, cases) %>%
+readr::write_csv(
+                 path = here::here("data/processed",
+                                   outfile))
+
     
 ```
 
@@ -384,6 +394,9 @@ files is the same.
 
 ```{r data-cleanup-25, eval = TRUE}
 inorder <- ofinterest$ISO3
+## Some of the countries of interest may not be present in
+## incid_wide_all
+inorder <- intersect(inorder, colnames(incid_wide_all))
 incid_wide_all <- select(incid_wide_all,
                          date,
                          inorder)

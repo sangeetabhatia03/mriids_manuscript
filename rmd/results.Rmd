@@ -28,8 +28,24 @@ Healthmap data are presented in the supplementary text.
 
 
 ## Results
-
+```{r echo = FALSE}
+library(captioner)
+fig_nums <- captioner(prefix = "Figure")
+```
 ## Comparison of incidence trends from different sources
+
+```{r echo = FALSE, warning = FALSE}
+incidrcite <- fig_nums(name = "incidrcompare",
+                       display = "cite")
+incidrcap <- fig_nums(name = "incidrcompare",
+                      caption = "Comparison of daily incidence
+trends derived from ProMED, HealthMap and WHO data (left) and the
+time-varying reproduction number (right) estimated using data from
+the three sources. Solid coloured
+lines in the right panel represent the median estimates for R and
+the shaded areas represent the 95% CrI.")
+
+```
 
 We compared the processed country-specific incidence time 
 series derived  from ProMED and HealthMap
@@ -38,7 +54,7 @@ African Ebola epidemic  made available by [@garske20160308],
 later referred to as ``the WHO data'' in the interest of brevity. 
 Incidence time series and the reproduction numbers estimated using the
 incidence from these various sources are shown in  
-Figure \@ref(fig:incidrcompare) for the three mainly affected 
+`r incidrcite` for the three mainly affected 
 countries: Guinea, Liberia and Sierra Leone.  The instantaneous 
 reproduction number was estimated independently for each country in
 using the R package EpiEstim [@cori2013new]. 
@@ -55,64 +71,124 @@ biases in reporting. At the same time, it is important to remember
 that the WHO data that used here is an extensively cleaned
 version of the data collected during the epidemic [@who2014ebola, 
 @team2015west], published well after the epidemic was declared to be 
-over. The first situation Report by the WHO was published only at the
+over. The first situation report by the WHO reporting on 
+cases between January and August 2014, was published only at the
 end of August 2014 [@whositrep]. On the other hand, the first post
 on ProMED on Ebola cases in Guinea appears in March 2014 [@pmfirstebola]
 
-```{r incidrcompare, echo = FALSE, fig.cap = "Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.", fig.align = "center"}
+
+```{r echo = FALSE, fig.cap = incidrcap, fig.align = "center"}
 knitr::include_graphics("ms-figures/who_hm_promed_compare.png")
 ```
 
 
 ## Short term projections
 
-Figures \@(fig:guinea49, fig:liberia49, fig:sl49) show the
-non-overlapping weekly forecasts for 4 weeks from the point of 
-projection where effective 
-reproduction number is being estimated for each 4 week window 
-up to the point of projection. Results from the model using
-1 week and 3 weeks time window are presented in the supplementary 
-text. In each figure, panel (A) shows the projected weekly 
-incidence overlaid on the observed weekly incidence. The middle 
-panel shows the posterior distribution of the reproduction
-number used for projection in the corresponding time frame. This
-estimate uses only data available up to the point at which we
-begin projecting forward. The last panel (C) in each figure 
-shows the reproduction number estimated using all available data.
+To project incidence at time \(t\), we used the incidence data up to 
+day \(t - 1\). To estimate the time-varying reproduction number for 
+each country, we divided the duration from day 1 to day \( t - 1 \) 
+into time windows of equal width. 
+Assuming that transmissibility in each location stays constant 
+within each time window, we estimated 
+a single reproduction number for each location. 
+We varied the length of this time window from 1 week to 4 weeks 
+to obtain different models. The forecast horizon was varied from
+4 weeks to 8 weeks. 
+
+```{r echo = FALSE, warning = FALSE}
+g49cite <- fig_nums(name = "guinea49",
+                    display = "cite")
+
+```
+`r g49cite` shows the
+non-overlapping weekly forecasts for 4 weeks for Guinea, Liberia and 
+Sierra Leone respectively. The length of the
+time window used for estimating reproduction number is 4 weeks.
+In each panel the top-most figure shows the projected weekly 
+incidence overlaid on the observed weekly incidence. 
+The figure in the middle shows the posterior distribution of the 
+reproduction number used for projection in the corresponding time
+frame. 
+This estimate uses only data available up to the point at which the
+projection is made. The last figure in each panel
+shows the reproduction number estimated using all available data up 
+to the end.
 
 
-```{r guinea49, echo = FALSE, fig.cap = "(A) Weekly observed and predicted incidence in Guinea at different points during the outbreak. The reproduction number was estimated for each 4 week interval up to the point at which projection is done. (B) Effective reproduction number estimated in real-time using (C) Effective reproduction number estimated retrospectively.", fig.align = "center"}
-knitr::include_graphics("ms-figures/GIN_21_637_14_28.png")
+Results from the model using other time windows and projection horizon 
+are presented in the supplementary text.
+
+```{r figcaps, echo = FALSE}
+g49cap <- fig_nums(name = "guinea49",
+                   caption = "Weekly observed and predicted
+incidence in (A) Guinea, (B) Sierra Leone and (C) Liberia at different
+points during the outbreak.The solid
+dots represent the observed weekly incidence where the blue dots show
+weeks for which at least one data point was obtained using
+interpolation. The solid line represents the median estimates for
+projected incidence while the shaded region is the 95% CrI.
+The projections are made over 4 week windows, based on the
+reproduction number estimated in the previous four weeks.
+The middle figure in each panel shows the reproduction number used to
+make projections over each 4 week projection window.
+The solid line represents the median estimate and
+the shaded region represent the 95% CrI.
+The bottom figure shows the effective reproduction number estimated
+retrospectively using the full dataset up to the end. The solid gray
+line is the median
+estimate and the shaded region represents the 95% CrI")
 ```
 
-
-```{r liberia49, echo = FALSE, fig.cap = "Weekly observed and predicted incidence in Liberia at different points during the outbreak. The reproduction number was estimated for each 4 week interval up to the point at which projection is done. (B) Effective reproduction number estimated in real-time using (C) Effective reproduction number estimated retrospectively.", fig.align = "center"}
-knitr::include_graphics("ms-figures/LBR_21_637_14_28.png")
+```{r echo = FALSE, fig.cap = g49cap, fig.align = "center"}
+knitr::include_graphics("ms-figures/gin_sle_lbr_28.png")
 ```
 
+```{r echo = FALSE, warning = FALSE}
+parscite <- fig_nums(name = "pstayandgamma",
+                     display = "cite")
 
-```{r sl49, echo = FALSE, fig.cap = "Weekly observed and predicted incidence in Sierra Leone at different points during the outbreak. The reproduction number was estimated for each 4 week interval up to the point at which projection is done. (B) Effective reproduction number estimated in real-time using (C) Effective reproduction number estimated retrospectively.", fig.align = "center"}
-knitr::include_graphics("ms-figures/SLE_21_637_14_28.png")
+parscap <- fig_nums(name = "pstayandgamma",
+                    caption = "Estimates of mobility model parameters at
+different points during the epidemic.
+The circle represents the central estimate and the horizontal bars
+represent the 2.5th and 97.5th percentiles.")
 ```
-
-Figure \@(fig:pstayandgamma) shows how the estimated values of 
+`r parscite` shows how the estimated values of 
 the parameters of the mobility model changed over the course of
 the outbreak. Both these parameters were assumed to be constant
-for the time frame over which model was fitted. It is interesting
-to note that the change in estimated indicates decreased probability
-of travel across national borders.
+for the time frame over which model was fitted and across all
+countries. 
 
-```{r pstayandgamma, echo = FALSE, fig.cap = "Estimates of mobility parameters at different points during the outbreak. The circle represents the central estimate and the horizontal bars reflect the 2.5 and 97.5 percentiles."}
+```{r echo = FALSE, fig.cap = parscap, fig.align = "center"}
 knitr::include_graphics("ms-figures/gamma_pstay_over_tproj.png")
 ```
+
+It is interesting to note that the change in estimates over the course 
+of the epidemic suggests a decreased probability of 
+travel across national borders.
+
 ## Evaluation of the model performance
 
-Figure \@ref(fig:assess) shows the metrics (bias,
+```{r echo = FALSE, warning = FALSE}
+assesscite <- fig_nums(name = "assess", display = "cite")
+assesscap <- fig_nums(name = "assess",
+                      caption = "Metrics for evaluating model
+performance where the projection horizon was 4 weeks.
+The y-axis shows (anti-clockwise from top left)
+bias, log relative accuracy, relative mean
+absolute error and sharpness scores respectively. In the forward
+projections, we assumed transmissibility to be constant over the
+projection window. be If the 97.5th percentile of the R estimate used
+was less than 1, we defined the epidemic to be in the declining phase
+during this period. Similarly, if the 2.5th percentile of R was
+greater than 1, we defined the epidemic to be in a growing phase.")
+```
+Figure `r assesscite` shows the metrics (bias,
 sharpness, log of relative accuracy, and relative mean absolute error) 
-discussed in Section \@ref{assess} for the 4 week projections in 
+discussed earlier for the 4 week projections in 
 Guinea, Sierra Leone and Liberia using a 4-week window to estimate
 reproduction number. Each metric was first computed using the daily
-observed and predicted series and then averaged for each week of
+observed and predicted series and then averaged across all weeks of
 projections.
 
 Across all metrics, there is a strong trend of decreased model
@@ -121,16 +197,18 @@ at week 1 is closer to 0 at every time point. Similarly the forecasts
 at week 1 are more sharp (sharpness close to 0) than at week 4. In
 general, the model performs better in the growing phase of the
 epidemic (defined as the window in which the 0.025th percentile of the
-posterior distribution is greater than 1). In this phase, the
+posterior distribution of the reproduction number is greater than 1). 
+In this phase, the
 forecasts are generally greater than the observed incidence while in 
-the descending phase (defined similarly as the window in which the 
-0.975th percentile is less than 1), the model under-predicts. The
+the declining phase (defined similarly as the window in which the 
+0.975th R percentile is less than 1), the model tends to 
+under-predict. The
 length of the calibration window did not have a significant impact on 
 the model performance.
 
 
 
 
-```{r assess, echo = FALSE, fig.cap = "Metrics for evaluating model performance.", fig.align = "center"}
+```{r assess, echo = FALSE, fig.cap = assesscap, fig.align = "center"}
 knitr::include_graphics("ms-figures/forecasts_assess_28.png")
 ```

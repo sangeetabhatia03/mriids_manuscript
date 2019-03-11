@@ -22,10 +22,12 @@ endnote: no
 params:
   tproj : !r c(21, 49, 77, 105, 133, 161, 189, 217, 245, 273, 301, 329, 357, 385, 413)
   twindow : 14
-  incid : data/processed/20122018_promed_loglinear_weekly.csv
+  incid : data/processed/01032019_who_bycountry_weekly.csv
   n.dates.sim : 28
   place: GIN
-  maxtproj: 637
+  maxtproj: 413
+  indir: data/who_stanfits
+  outdir: data/who_output
 ---
 
 ```{r setup, eval = TRUE}
@@ -41,7 +43,7 @@ Read in R estimates.
 
 ```{r projections-viz-fixed-country-3, eval = TRUE}
 
-infiles <- here::here("data/stanfits",
+infiles <- here::here(params$indir,
                       paste0(params$place,
                              "_rquantiles_",
                               params$tproj,
@@ -101,13 +103,13 @@ infiles <- paste0("forecasts_",
                     params$n.dates.sim,
                     ".csv")
 names(infiles) <- paste0(params$tproj,
-                           "_",
-                           params$twindow,
-                           "_",
-                           params$n.dates.sim
-                           )
+                         "_",
+                         params$twindow,
+                         "_",
+                         params$n.dates.sim
+                         )
 forecasts <- map_dfr(infiles,
-                     ~ readr::read_csv(here::here("data/output",
+                     ~ readr::read_csv(here::here(params$outdir,
                                                   .x)),
                      .id = "parameters") %>%
     filter(country %in% params$place)
@@ -139,11 +141,20 @@ p <- p + geom_line(data = forecasts,
                          group = parameters),
                          col = "gray3")
 
-p <- p + theme_classic()
-p <- p + xlab("") + ylab("Weekly Incidence")
+p <- p +
+    theme_classic() +
+    theme(legend.position = "none")
+
+p <- p +
+    xlab("") +
+    ylab("Weekly Incidence")
+
 p <- p +
     scale_x_date(date_breaks = "3 month",
                  labels = date_format("%b %Y"))
+
+p <- p +
+    theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
 ```
 
@@ -175,6 +186,8 @@ preal <- preal +
 ## Force x-axis to begin from the time we have incidence date
 ## so that maps are better aligned.
 preal <- preal + expand_limits(x = min(incid$date))
+preal <- preal +
+    theme(axis.text.x = element_text(angle = 90, hjust = 0))
 ```
 
 
@@ -182,13 +195,13 @@ preal <- preal + expand_limits(x = min(incid$date))
 
 
 ```{r projections-viz-fixed-country-7}
-rretro <- here::here("data/stanfits",
-                      paste0(params$place,
-                             "_rquantiles_",
-                              params$maxtproj,
-                             "_",
-                             params$twindow,
-                             ".rds")) %>%
+rretro <- here::here(params$indir,
+                     paste0(params$place,
+                            "_rquantiles_",
+                            params$maxtproj,
+                            "_",
+                            params$twindow,
+                            ".rds")) %>%
     readr::read_rds()
 
 rretro$date <- lubridate::ymd(rretro$date)
@@ -214,7 +227,9 @@ pretro <- pretro + theme_classic()
 pretro <- pretro + xlab("") + ylab("R")
 pretro <- pretro +
         scale_x_date(date_breaks = "3 month",
-                 labels = date_format("%b %Y"))
+                     labels = date_format("%b %Y"))
+pretro <- pretro +
+    theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
 ```
 
@@ -224,8 +239,9 @@ Finally, write it out with a common legend.
 ```{r projections-viz-fixed-country-9, eval = TRUE}
 prefix <- paste0(params$tproj,
                  collapse = "_")
-outfile <- here::here("data/output/figures",
-                      paste0(params$place,
+outfile <- here::here(params$outdir, 
+                      paste0("figures/",
+                             params$place,
                              "_",
                              prefix,
                              "_",
@@ -233,17 +249,25 @@ outfile <- here::here("data/output/figures",
                              "_",
                              params$n.dates.sim,
                              ".png"))
-ggpubr::ggarrange(p,
-                  preal,
-                  pretro,
-                  labels = "AUTO",
-                  ncol = 1,
-                  nrow = 3,
-                  widths = c(1, 1, 1),
-                  heights = c(2, 1, 1),
-                  common.legend = TRUE) %>%
-    ggpubr::ggexport(filename = outfile,
-                     res = 144,
-                     width = 960,
-                     height = 960)
+pall <- ggpubr::ggarrange(p,
+                          preal,
+                          pretro,
+                          ##labels = "AUTO",
+                          ncol = 1,
+                          nrow = 3,
+                          align = "hv",
+                          widths = c(1, 1, 1),
+                          heights = c(2, 1, 1),
+                          common.legend = FALSE) 
+
+ggpubr::ggexport(pall,
+                 filename = outfile,
+                 res = 144,
+                 width = 960,
+                 height = 960)
+
+## Also save as RDS file for later manipulation.
+outfile <- stringr::str_replace(outfile, ".png", ".rds")
+readr::write_rds(x = pall,
+                 path = outfile)
 ```

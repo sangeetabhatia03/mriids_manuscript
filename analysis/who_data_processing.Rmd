@@ -19,17 +19,20 @@ fontsize: 11pt
 bibliography: 
 biblio-style: apsr
 endnote: no
+params:
+  infile: data/raw/rstb20160308supp1.csv
+  outfile: data/processed/01032019_who_bycountry.csv
+  ofinterest: data/processed/all_african_centroids.csv
 ---
-```{r global_options, include=FALSE}
+```{r who-data-processing-1, include=FALSE}
 knitr::opts_chunk$set(fig.width=12, fig.height=6, echo=FALSE, warning=FALSE, message=FALSE, fig.path = "figures/")
 ```
 
 ```{r setup, echo = FALSE}
-library(magrittr)
 library(ggplot2)
 library(ggthemes)
 library(dplyr)
-devtools::load_all()
+library(purrr)
 
 ```
 
@@ -50,10 +53,10 @@ The columns we use are : Country, EpiCaseDef (probably),
 DateOnsetInferred and CL_DistrictRes. 
 
 
-```{r rawdata, eval = TRUE}
+```{r who-data-processing-2, eval = TRUE}
 
 
-who_raw <- here::here("data/raw", "rstb20160308supp1.csv") %>%
+who_raw <- here::here(params$infile) %>%
            read.csv(colClasses = c(Country = "factor",
                                    EpiCaseDef = "character",
                                    DateOnsetInferred = "Date",
@@ -66,7 +69,7 @@ who_raw <- here::here("data/raw", "rstb20160308supp1.csv") %>%
 
 This can be easily accomplished using the `incidence` package.
 
-```{r ll}
+```{r who-data-processing-3 }
 incid <- split(who_raw, who_raw$Country) %>%
     map_dfr(~ incidence::incidence(.x$DateOnsetInferred) %>%
                 as.data.frame,
@@ -77,7 +80,48 @@ incid <- tidyr::spread(incid, country, counts, fill = 0)
 incid <- rename(incid, "date" = "dates")
 ```
 
-```{r save}
-outfile <- here::here("data/processed", "who_bycountry.csv")
-readr::write_csv(x = incid, path = outfile)
+
+## Add 0 incidence for other countries
+
+Finally, we add 0 incidence for all countries other than ones for
+which we already have data. 
+
+```{r who-data-processing-4 }
+
+ofinterest <- readr::read_csv(here::here(params$ofinterest)) %>%
+    filter(include == "TRUE")
+
+wafrica <- select(incid, -date) %>% colnames
+colnames(incid)[-1] <-  countrycode::countrycode(wafrica,
+                                                 'country.name',
+                                                 'iso3c')
+nodata <- setdiff(ofinterest$ISO3,
+                  colnames(incid)[-1])
+df <- matrix(0,
+             nrow = nrow(incid),
+             ncol = length(nodata))
+
+colnames(df) <- nodata
+df <- data.frame(df)
+incid_wide_all <- cbind(incid, df)
+
+```
+
+Finally ensure that the order of countries in centroids and incid 
+files is the same.
+
+```{r who-data-processing-5, eval = TRUE}
+inorder <- ofinterest$ISO3
+## Some of the countries of interest may not be present in
+## incid_wide_all
+inorder <- intersect(inorder, colnames(incid_wide_all))
+incid_wide_all <- select(incid_wide_all,
+                         date,
+                         inorder)
+```
+
+```{r who-data-processing-6 }
+outfile <- here::here(params$outfile)
+readr::write_csv(x = incid_wide_all,
+                 path = outfile)
 ```

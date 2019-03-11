@@ -54,8 +54,8 @@ are raised to some power.
 \[
   \phi_{i \rightarrow j} =  \frac{N_i^{\alpha}N_j^{\beta}}{d_{i, j}^{\gamma}}.
 \]
- The exponent \( \gamma \) modulates the effect of distance on the flow of
-populations. A large value of \( \gamma \) indicates that the
+ The exponent $\gamma$ modulates the effect of distance on the flow of
+populations. A large value of $\gamma$ indicates that the
 distances travelled by populations tend to be short.
 
 The relative risk of spread at a location \(j\) from a location \(i\)
@@ -71,7 +71,7 @@ The probability of movement from location \(i\) to location \(j\) is
 then given by
 \[  p_{i \rightarrow j} = (1 - p_{stay}^i) r_{i \rightarrow j}^{spread},\]
 
-where \(p_{stay}^i\) is the probability of staying at location
+where $p_{stay}^i$ is the probability of staying at location
 \(i\). 
 
 \subsection{Statistical inference of model parameters}
@@ -109,7 +109,7 @@ where $\lambda_{j, t}$ is given by
 
 \begin{equation}
 \lambda_{j, t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i, t} \sum_{s
-        = 1}^t{I_{i, s} \omega_{t - s}} \right)}.
+        = 1}^t{I_{i, t - s} \omega_{s}} \right)}.
 (\#eq:lambdajt)		
 \end{equation}
 
@@ -149,9 +149,7 @@ within a time window, we estimated  a single reproduction number for
 each location. We varied the length of this
 time window to obtain different models, with short time windows 
 increasing
-the number of parameters in the model; a comparison of the
-different models is presented in Section \@ref(results).
-
+the number of parameters in the model.
 
 
 We assumed a Gamma distributed serial interval with mean 14.2 
@@ -165,11 +163,11 @@ The mean prior 3.3 was chosen as the midpoint of this interval,
 and the variance 1.5, was chosen so the 95% prior probability
 interval contains the extremes of this interval.
 
-For gravity model parameters \(p_{stay}\) and \( \gamma\), we 
+For gravity model parameters $p_{stay}$ and $\gamma$, we 
 choose uninformative uniform priors. 
-Since \(p_{stay}\) is a probability
+Since $p_{stay}$ is a probability
 the prior was a uniform distribution on the interval \([0, 1]\).
-\( \gamma \) was allowed to vary between 1 and 3.
+$\gamma$ was allowed to vary between 1 and 3.
 
 Model fitting was done in a Bayesian framework using MCMC
 methods as implemented in the software Stan [@carpenter2017stan] 
@@ -181,5 +179,5 @@ time frame over which we were projecting. Samples from the
 posterior distribution for the effective reproduction
 number estimated in the last time window before the point of
 projection were used for projections. Similarly samples from the
-posterior distribution for \( \gamma \) and \( p_{stay} \) were
+posterior distribution for $ \gamma $ and $ p_{stay} $ were
 used to estimate the relative flow.

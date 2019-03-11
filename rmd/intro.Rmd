@@ -8,24 +8,31 @@ that cause infectious diseases and
 the vectors that may spread them. Outbreaks that 
 begin in the most remote parts of the world can now
 spread swiftly to urban centers and to countries far 
-away with dangerous, global consequences[@ex1995communicable]. 
-A powerful example of the rapid spread of outbreaks 
-was the severe acute respiratory syndrome (SARS) epidemic of 
-2002-2004 that originated 
-in Guangdong province in China and reached as far 
-as Toronoto, Canada, primarily through travellers [@whosars].
+away with dangerous, global consequences [@ex1995communicable]. 
+For instance, population mobility across borders played a critical
+role in the spread of Ebola in West Africa during the 
+2013-2016 Ebola epidemic [@ebfactors].
 A more recent example is the 2016 Yellow Fever outbreak in 
 Angola. Infected travellers from Angola reached China  
 representing the first ever reported cases of yellow fever in Asia
 [@wasserman2016yellow].
 
-
 Early detection of infectious disease outbreaks can help public 
 health officials to initiate interventions such as 
 removing contaminated food sources, isolating affected 
-individuals or launching vaccination campaigns. Thus early identification 
-of an outbreak can potentially limit its size and
-prevent an outbreak from becoming a pandemic. Digital 
+individuals or launching vaccination campaigns. However, 
+any data collection method involves trade-offs between
+speed, accuracy and costs. Data collected through
+conventional surveillance such as through public health infrastructure,
+generally quite reliable. However, there is an (understandable)
+delay from the point of data collection to the point at which 
+they are available in a usable form to the stakeholders.
+
+Digital disease surveillance consists of monitoring 
+various online information sources to collate relevant 
+information about diseases. The sources of information 
+could be formal such as advisories posted by a ministery of 
+health, or informal such as blogs or tweets. Digital 
 surveillance tools can play a significant role 
 in the rapid recognition of public health emergencies
 [@grein2000rumors, @anema2014digital]. 
@@ -49,10 +56,10 @@ tool for disease outbreak monitoring.
 In addition to ProMED alerts, HealthMap utilises online news 
 aggregators, eyewitness reports and other formal and informal
 sources of information and allows for visualisation of alerts 
-on a map. 
+on a map [@freifeld2008healthmap]. 
 
-With the dizzying growth of the internet, there has been a 
-corresponding increase in the tools for internet based digital 
+With the rapid growth of the internet, there has been a 
+corresponding increase in tools for internet based digital 
 disease detection. Examples include 
 MediSys (http://medisys.newsbrief.eu/), H5N1 Google Earth mashup
 (www.nature.com/avianflu/google-earth), Emerging Infections 
@@ -61,7 +68,7 @@ surveillance tools provide a unique opportunity to rapidly
 detect new outbreaks and follow their evolution in near 
 real-time. 
 
-However, collating timely data, while critical, is only the first 
+Collating timely data, while critical, is only the first 
 step in the disease surveillance process. Compiling the data, 
 conducting analysis, and generating reports that are 
 easily understood are equally important. For instance, the 
@@ -85,7 +92,7 @@ and produce actionable reports, particularly in real time
 during an outbreak where such information would be most useful.
 
 
-To address this gap, we have developed 
+We have developed 
 a system to estimate and visualize risks posed by
 outbreak events. It relies on a simple methodological
 framework that integrates multiple data streams to
@@ -94,18 +101,20 @@ and
 estimate, for a given country, where the risk comes from. 
 In this paper, we present the model implemented in this system and as
 a case study, we report the analysis of  ProMED/HealthMap data
-for the 2014-16 West 
-African Ebola epidemic.
+for the 2014-16 West African Ebola epidemic.  
+To assess the robustness of the digital surveillance data, 
+we also applied the framework to the data 
+collated by the WHO and made available at the end of the
+epidemic. We present a comparison of the ProMED/HealthMap 
+data with the retrospective WHO data and the results of 
+the spatiotemporal analysis carried out on the two data sources.
 
 In using only data available through ProMED/HealthMap to analyse 
 this outbreak, we provide a realistic appraisal of their 
 strengths and weaknesses, especially if used in near real-time 
 forecasting. As other authors have emphasised, digital
 disease detection is not a replacement for, but complementary to
-public health infrastructure.We propose a method to use the 
-two in conjunction with each other to provide a more timely 
-and accurate assessment of the risk of epidemic spread, and 
-therefore better inform stakeholders.
+public health infrastructure. 
 
 
 

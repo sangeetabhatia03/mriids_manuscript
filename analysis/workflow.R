@@ -17,7 +17,7 @@ for (fit in fitfiles) {
 }
 
 ## Input parameters
-incidfile <- "data/processed/20122018_promed_loglinear_wide.csv"
+incidfile <- "data/processed/01032019_who_bycountry.csv"
 metadatafile <- "data/processed/all_african_centroids.csv"
 places <- c("LBR", "GIN", "SLE")
 day0 <- readr::read_csv(incidfile,
@@ -25,23 +25,25 @@ day0 <- readr::read_csv(incidfile,
     pull(date)
 twindows <- c(14, 28, 42)
 n.dates.sim <- 28
+indir <- "data/who_stanfits"
+outdir <- "data/who_output"
 
 ## From main dir. Extract tproj and twindow from the
 ## name of the fit object.
 
 
 fitfiles <- list.files(
-  path = "./data/stanfits/",
+  path = "./data/who_stanfits/",
   pattern = "^[0-9]*_[0-9]*.rds",
 )
 
 ## Work on latest files only.
-mtimes <- purrr::map(fitfiles,
-                     ~ file.mtime(here::here("data/stanfits",
-                                             .x)) %>% as.Date)
+## mtimes <- purrr::map(fitfiles,
+##                      ~ file.mtime(here::here("data/stanfits",
+##                                              .x)) %>% as.Date)
 
-idx <- purrr::map(mtimes, ~ .x >= as.Date("2018-12-28"))
-fitfiles <- fitfiles[unlist(idx)]
+## idx <- purrr::map(mtimes, ~ .x >= as.Date("2018-12-28"))
+## fitfiles <- fitfiles[unlist(idx)]
 
 fitfiles <- stringr::str_replace(fitfiles,
                                  ".rds",
@@ -58,19 +60,22 @@ for (fit in fitfiles) {
       as.numeric()
   message("working on ", tproj, "_", twindow)
 
-  ## rmarkdown::render(
-  ##   "analysis/extract_mcmc_draws.Rmd",
-  ##   params = list(tproj = tproj,
-  ##                 twindow = twindow,
-  ##                 day0 = day0)
-  ##   )
+  rmarkdown::render(
+    "analysis/extract_mcmc_draws.Rmd",
+    params = list(tproj = tproj,
+                  twindow = twindow,
+                  day0 = day0,
+                  indir = indir)
+    )
 
   rmarkdown::render(
     "analysis/projection_using_fitted.Rmd",
     params = list(tproj = tproj,
                   twindow = twindow,
                   n.dates.sim = n.dates.sim,
-                  day0 = day0)
+                  day0 = day0,
+                  indir = indir,
+                  outdir = outdir)
   )
 
   ## rmarkdown::render(
@@ -97,7 +102,9 @@ for (fit in fitfiles) {
                                    twindow = twindow,
                                    incid = incidfile,
                                    n.dates.sim = n.dates.sim,
-                                   place = place)
+                                   place = place,
+                                   outdir = outdir,
+                                   indir = outdir)
                      )
 
   } ## end of for
@@ -284,4 +291,39 @@ file.copy(from = paste0("data/stanfits.25122018/flow_matrices/",
           to = "data/stanfits/flow_matrices/")
 
 
+
+
+
+rmarkdown::render(
+    "analysis/projections_viz_fixed_country.Rmd",
+    params = list(place = "GIN"))
+
+
+rmarkdown::render(
+    "analysis/projections_viz_fixed_country.Rmd",
+    params = list(place = "SLE"))
+
+
+rmarkdown::render(
+    "analysis/projections_viz_fixed_country.Rmd",
+    params = list(place = "LBR"))
+
+
+
+
+pgin <- readr::read_rds("data/output/figures/GIN_21_49_77_105_133_161_189_217_245_273_301_329_357_385_413_14_28.rds")
+psle <- readr::read_rds("data/output/figures/SLE_21_49_77_105_133_161_189_217_245_273_301_329_357_385_413_14_28.rds")
+plbr <- readr::read_rds("data/output/figures/LBR_21_49_77_105_133_161_189_217_245_273_301_329_357_385_413_14_28.rds")
+pall <- ggpubr::ggarrange(pgin,
+                          psle,
+                          plbr,
+                          labels = "AUTO",
+                          nrow = 1,
+                          ncol = 3)
+
+ggpubr::ggexport(pall,
+                 filename = here::here("data/output/figures/gin_sle_lbr_28.png"),
+                 res = 144,
+                 width = 960,
+                 height = 960)
 

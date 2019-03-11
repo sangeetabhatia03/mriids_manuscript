@@ -1,0 +1,56 @@
+# Discussion
+
+In the context of increasing threat of inadvertent movement of
+diseases between various regions of the world due to increased global 
+connectivity, innovative disease surveillance  solutions are urgently 
+needed. We compared the West African Ebola outbreak of 
+2014-2016 digital surveillance data from 
+ProMED/HealthMap curated by the moderators at ProMED/HealthMap with
+the data collated by the WHO and made available at the end of the 
+epidemic.
+
+In general, we found the data from ProMED and HealthMap to be in good 
+agreement with the data collated by WHO through traditional 
+surveillance methods. However, in spite of the manual curation of the 
+data carried out by subject matter experts at ProMED and HealthMap, 
+significant data 
+quality issues remained in the data feeds. Dealing with issues such as 
+missing data and inconsistent data records was a key challenge
+in using these data. 
+
+In spite of these challenges, we 
+argue that digital surveillance tools can play a very important role
+in early detection of outbreaks. Particularly in an evolving outbreak 
+scenario, when information
+from traditional surveillance is limited and available with a 
+significant delay, digital surveillance data can be used to
+complement the information gap. Development of tools that can
+be plugged into the current digital surveillance ecosystem should
+therefore be an area of focus. At the same time, since the West
+African Ebola outbreak was unprecedented in extent and scope, it is 
+important to further investigate the reliability of digital
+surveillance methods and data using other outbreaks.
+
+We used the ProMED/HealthMap data to perform a spatiotemporal analysis 
+of the spread of the outbreak. We fitted a spatially 
+explicit branching process model to the daily incidence data derived 
+from  ProMED/HealthMap feeds. The estimated parameters were used to 
+simulate the outbreak trajectory over 4, 6 and 8 weeks. 
+The model performs well
+at short projection horizon. At longer time scale (more than 2 weeks 
+in this instance), the model performance begins to deteriorate.
+A possible explanation for this could be that we assume that the
+transmissibility remains constant over
+the entire projection window. This assumption may not hold as we move 
+project over longer horizons for instance, due to interventions being
+implemented. 
+
+For this outbreak, ProMED and HealthMap data were 
+available at a coarse spatial scale with the district level
+information for cases missing in most of the records. This 
+limited our analysis to the spread of the outbreak across 
+national borders only, although our model implementation allows
+for consumption of data at any spatial scale. It would be 
+interesting to explore ways of integrating spatially coarse 
+but timely data from ProMED and HealthMap with spatially resolved 
+but delayed data from ground surveillance.

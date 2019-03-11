@@ -26,6 +26,8 @@ params:
   day0: 2014-03-22
   nsamples: 900
   N: 55
+  indir: data/who_stanfits
+  outdir: data/who_output
 ---
 
 
@@ -44,7 +46,7 @@ suffix <- paste0(params$tproj,
                  params$twindow, 
                  ".rds")
 
-trng <- here::here("data/stanfits",
+trng <- here::here(params$indir,
                     paste0("incid_",
                             suffix)) %>%
     readr::read_rds()
@@ -67,9 +69,9 @@ countries <- colnames(trng)
 ```{r ebpars}
 suffix <- paste0(params$tproj, "_", params$twindow, ".rds")
 si <- paste0("si_", suffix)
-si <- here::here("data/stanfits",
+si <- here::here(params$indir,
                  si) %>%
-    readRDS()
+    readr::read_rds()
 ```
 ## Samples from posterior distribution
 
@@ -79,7 +81,7 @@ goodness-of-fit test or predictive modeling.
 
 ```{r test_fit, eval = TRUE}
 r_samples <- purrr::map(countries,
-                       ~ readRDS(here::here("data/stanfits",
+                       ~ readRDS(here::here(params$indir,
                                             paste0(.x,
                                                    "_rsamples_",
                                                    suffix))))
@@ -111,8 +113,8 @@ To get around this problem, we will name each item using the random integers dra
 and use this name to use the matrix.
 
 ```{r}
-flow_mats <- here::here("data/stanfits/flow_matrices",
-                         paste0("flow_",
+flow_mats <- here::here(params$indir,
+                         paste0("flow_matrices/flow_",
                                 seq_len(params$nsamples),
                                 "_",
                                 suffix)) %>%
@@ -203,7 +205,7 @@ outfile <- paste0("forecasts_",
                   "_",
                   params$n.dates.sim,
                   ".csv")
-here::here("data/output",
+here::here(params$outdir,
            outfile) %>%
     readr::write_csv(x = projections_distr,
                      path = .)
@@ -222,7 +224,7 @@ outfile <- paste0("forecasts_samples_",
                   "_",
                   params$n.dates.sim,
                   ".Rds")
-here::here("data/output",
+here::here(params$outdir,
            outfile) %>%
     readr::write_rds(x = daily_projections,
                      path = .)

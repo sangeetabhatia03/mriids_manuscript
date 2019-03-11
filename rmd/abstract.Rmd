@@ -1,12 +1,12 @@
   In our increasingly interconnected world, it is crucial to
   understand the risk of an outbreak originating in one country or region
   and  spreading to the rest of the world. Digital disease surveillance
-  tools such as ProMed and HealthMap have the potential to serve as
+  tools such as ProMED and HealthMap have the potential to serve as
   important early warning systems as well as complement the field
   surveillance data during an ongoing outbreak. Here we present a 
   flexible statistical model that uses data produced from digital
   surveillance tools (ProMED and HealthMap) to forecast short term 
-  incidence trend in a spatially explicit manner.The model was  
+  incidence trend in a spatially explicit manner. The model was  
   validated using data collected by ProMED and
   HealthMap during the 2014-2016 West African Ebola epidemic
   providing a realistic appraisal of the strengths and limitations

@@ -373,17 +373,22 @@ p <- p + geom_ribbon(data = all_R,
 p <- p + geom_line(data = all_R,
                    aes(
                        x = date,
-                       y = `Mean(R)`,
+                       y = `Median(R)`,
                        color = Source))
-p <- p + facet_grid(country ~., scale = "free_y")
-p <- p + theme(legend.title = element_blank())
+p <- p + theme_classic()
+p <- p + facet_wrap(country ~.,
+                    scale = "free_y",
+                    strip.position = "top",
+                    nrow = 3)
+p <- p + theme(legend.position = "none")
 p <- p + xlab("")
 p <- p +
     scale_colour_manual(values = color_scale) +
     scale_fill_manual(values = color_scale) 
-p <- p + ggtitle("Mean R estimated from incidence data") +
-         theme(plot.title = element_text(hjust = 0.5))
-p <- p + theme_classic()
+p <- p +
+    geom_hline(yintercept = 1,
+               linetype = "dashed")
+
 p
 
 ```
@@ -394,3 +399,18 @@ As the above graphs indicates, estimates of the reproduction number
 from ProMed, HealthMap and WHO data are highly correlated (correlation
 coefficient = 0.76, 95% CI = (0.74, 0.78)).
 
+```{r all6}
+library(ggpubr)
+p_all <- ggarrange(p_daily,
+                   p,
+                   nrow = 1,
+                   ncol = 2,
+                   labels = "AUTO",
+                   legend = "bottom",
+                   common.legend = TRUE)
+
+ggexport(p_all,
+         filename = "figures/who_hm_promed_compare.png"
+         )
+
+```

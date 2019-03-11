@@ -25,6 +25,8 @@ params:
   n.dates.sim : 28
   incid: data/processed/promed_loglinear_wide_from_march.csv
   place: LBR
+  outdir: data/who_output
+  indir: data/who_output
 ---
 
 ```{r setup, eval = TRUE}
@@ -60,7 +62,7 @@ infile <- paste0("forecasts_samples_",
                  "_",
                  params$n.dates.sim,
                  ".Rds")
-predicted <- here::here("data/output",
+predicted <- here::here(params$indir,
                         infile) %>%
     readr::read_rds()
 
@@ -87,7 +89,7 @@ logratio <- assessR:::log_accuracy_ratio(obs, pred)
 
 And the proportion of observed values in 50% CI.
 
-```{r propinci, eval = FALSE}
+```{r propinci, eval = TRUE}
 minmax <- apply(pred, 1, quantile, c(0.25, 0.75))
 minmax <- t(minmax)
 propinci <- assessR:::prop_in_ci(obs,
@@ -100,7 +102,8 @@ df <- data.frame(tproj = params$tproj,
 outfile <- paste0(params$place, 
                  "_prop_in_ci.csv")
 
-here::here("data/output/metrics/daily",
+here::here(paste0(params$outdir,
+                  "/metrics/daily"),
            outfile) %>%
     readr::write_csv(x = df,
                      path = .,
@@ -125,7 +128,8 @@ outfile <- paste0(params$place,
                   "_",
                   params$n.dates.sim,
                   ".csv")
-here::here("data/output/metrics/daily",
+here::here(paste0(params$outdir,
+                  "/metrics/daily"),
            outfile) %>%
     readr::write_csv(x = df,
                      path = .)
@@ -146,7 +150,8 @@ outfile <- paste0(params$place,
                   "_",
                   params$n.dates.sim,
                   ".csv")
-here::here("data/output/metrics/weekly",
+here::here(paste0(params$outdir,
+                  "/metrics/weekly"),
            outfile) %>%
     readr::write_csv(x = df_weekly,
                      path = .)
