@@ -1,9 +1,15 @@
+# Results {#results}
+
+```{r echo = FALSE}
+library(captioner)
+fig_nums <- captioner(prefix = "Figure")
+```
+
 # Processing ProMED/HealthMap data feed
 
 We used a set of curated ProMED and HealthMap records on the human 
-cases of 
-Ebola in West Africa from ProMED were provided to the modeling
-team. The dates in the feeds ranged from March 2014 to October 2016.
+cases of Ebola in West Africa. 
+The dates in the feeds ranged from March 2014 to October 2016.
 The data set recorded the cumulative number of suspected/confirmed
 cases and suspected/confirmed deaths by country at various dates
 in this period. We derived the country specific daily and 
@@ -27,11 +33,7 @@ each step of the pre-processing of Promed and
 Healthmap data are presented in the supplementary text.
 
 
-## Results
-```{r echo = FALSE}
-library(captioner)
-fig_nums <- captioner(prefix = "Figure")
-```
+
 ## Comparison of incidence trends from different sources
 
 ```{r echo = FALSE, warning = FALSE}
@@ -39,11 +41,14 @@ incidrcite <- fig_nums(name = "incidrcompare",
                        display = "cite")
 incidrcap <- fig_nums(name = "incidrcompare",
                       caption = "Comparison of daily incidence
-trends derived from ProMED, HealthMap and WHO data (left) and the
-time-varying reproduction number (right) estimated using data from
-the three sources. Solid coloured
-lines in the right panel represent the median estimates for R and
-the shaded areas represent the 95% CrI.")
+trends and R estimates from ProMED, HealthMap and WHO data (A) Daily
+incidence series derived from ProMED, HealthMap and WHO data. The
+WHO data were aggergated to country level. (B) The mean
+time-varying reproduction number estimated using the WHO data are shown
+on the x-axis and the corresponding estimates from ProMED (blue) and
+HealthMap (black) data are on the y-axis. A time window of 42 days for
+estimating R was used here. The dashed line depicts the
+identity function.")
 
 ```
 
@@ -57,28 +62,56 @@ incidence from these various sources are shown in
 `r incidrcite` for the three mainly affected 
 countries: Guinea, Liberia and Sierra Leone.  The instantaneous 
 reproduction number was estimated independently for each country in
-using the R package EpiEstim [@cori2013new]. 
+using the R package EpiEstim [@cori2013new] with a time window of 
+6 weeks.
 
 
-The incidence time series derived from ProMED and HealthMap data are 
+The weekly incidence time series derived from ProMED and HealthMap data are 
 highly correlated with the WHO incidence data (Pearson's correlation
 coefficient 0.44 and 0.74 respectively, p value < 0.001). The digital 
 surveillance data differ significantly from the WHO data at the peak 
 of the epidemic approximately in the first few months of 2015. While 
-the reason for this discrepancy are not entirely clear, they could 
+the reasons for this discrepancy are not entirely clear, they could 
 for instance reflect the susceptibility of digital surveillance to
 biases in reporting. At the same time, it is important to remember
-that the WHO data that used here is an extensively cleaned
+that the WHO data used here are an extensively cleaned
 version of the data collected during the epidemic [@who2014ebola, 
 @team2015west], published well after the epidemic was declared to be 
-over. The first situation report by the WHO reporting on 
-cases between January and August 2014, was published only at the
-end of August 2014 [@whositrep]. On the other hand, the first post
-on ProMED on Ebola cases in Guinea appears in March 2014 [@pmfirstebola]
+over. During the epidemic, the first situation report by the WHO 
+was published only at the
+end of August 2014 [@whositrep], reporting on cases between January 
+and August 2014. On the other hand, the first post
+on ProMED on Ebola cases in Guinea appeared in March 2014
+[@pmfirstebola]
 
 
 ```{r echo = FALSE, fig.cap = incidrcap, fig.align = "center"}
 knitr::include_graphics("ms-figures/who_hm_promed_compare.png")
+```
+
+
+```{r echo = FALSE, warning = FALSE}
+rcorrcite <- fig_nums(name = "rcorr",
+                       display = "cite")
+rcorrcap <- fig_nums(name = "rcorr",
+                     caption = "R estimates from ProMED,
+HealthMap and WHO data when using different time windows. (Top) Time
+ window of 14 days. (Bottom) Time window of 42 days.
+The orange line depicts the identity function.")
+
+```
+
+The estimates of the reproduction number are strongly influenced by
+the choice of the time window (`r rcorrcite`). 
+The correlation between mean R
+estimates from ProMED or HealthMap data with the estimates from WHO
+data varied from weak (0.13, time window of 2 weeks) to very strong 
+(0.90, time window of 6 weeks).
+
+
+
+```{r echo = FALSE, fig.cap = rcorrcap, fig.align = "center"}
+knitr::include_graphics("ms-figures/r_corr_time_window.png")
 ```
 
 
@@ -96,15 +129,20 @@ to obtain different models. The forecast horizon was varied from
 4 weeks to 8 weeks. 
 
 ```{r echo = FALSE, warning = FALSE}
-g49cite <- fig_nums(name = "guinea49",
+g28cite <- fig_nums(name = "promed28",
                     display = "cite")
 
+who28cite <- fig_nums(name = "who28",
+                      display = "cite")
+
 ```
-`r g49cite` shows the
-non-overlapping weekly forecasts for 4 weeks for Guinea, Liberia and 
+`r g28cite` shows the
+non-overlapping weekly forecasts from ProMED data 
+for 4 weeks for Guinea, Liberia and 
 Sierra Leone respectively. The length of the
 time window used for estimating reproduction number is 4 weeks.
-In each panel the top-most figure shows the projected weekly 
+The forecasts using WHO data are shown in `r who28cite`.
+In both the figures, the top panel shows the projected weekly 
 incidence overlaid on the observed weekly incidence. 
 The figure in the middle shows the posterior distribution of the 
 reproduction number used for projection in the corresponding time
@@ -114,22 +152,24 @@ projection is made. The last figure in each panel
 shows the reproduction number estimated using all available data up 
 to the end.
 
-
 Results from the model using other time windows and projection horizon 
 are presented in the supplementary text.
 
 ```{r figcaps, echo = FALSE}
-g49cap <- fig_nums(name = "guinea49",
-                   caption = "Weekly observed and predicted
-incidence in (A) Guinea, (B) Sierra Leone and (C) Liberia at different
-points during the outbreak.The solid
-dots represent the observed weekly incidence where the blue dots show
+g28cap <- fig_nums(name = "promed28",
+                   caption = "Observed and predicted
+incidence, and reproduction number estimates from ProMED data.
+The top panel shows the weekly incidence derived from ProMED
+data and the 4 weeks incidence forecast on log scale.
+The solid dots represent the observed weekly incidence where
+the blue dots show
 weeks for which at least one data point was obtained using
 interpolation. The solid line represents the median estimates for
 projected incidence while the shaded region is the 95% CrI.
 The projections are made over 4 week windows, based on the
 reproduction number estimated in the previous four weeks.
-The middle figure in each panel shows the reproduction number used to
+The middle figure in each panel shows the reproduction number
+used to
 make projections over each 4 week projection window.
 The solid line represents the median estimate and
 the shaded region represent the 95% CrI.
@@ -137,10 +177,40 @@ The bottom figure shows the effective reproduction number estimated
 retrospectively using the full dataset up to the end. The solid gray
 line is the median
 estimate and the shaded region represents the 95% CrI")
+
+
+who28cap <- fig_nums(name = "who28",
+                   caption = "Observed and predicted
+incidence, and reproduction number estimates from the WHO data.
+The top panel shows the weekly incidence derived from the WHO
+data and the 4 weeks incidence forecast on log scale.
+The solid dots represent the observed weekly incidence.
+The solid line represents the median estimates for
+projected incidence while the shaded region is the 95% CrI.
+The projections are made over 4 week windows, based on the
+reproduction number estimated in the previous four weeks.
+The middle figure in each panel shows the reproduction number
+used to
+make projections over each 4 week projection window.
+The solid line represents the median estimate and
+the shaded region represent the 95% CrI.
+The bottom figure shows the effective reproduction number estimated
+retrospectively using the full dataset up to the end. The solid gray
+line is the median
+estimate and the shaded region represents the 95% CrI")
+
+
+
 ```
 
-```{r echo = FALSE, fig.cap = g49cap, fig.align = "center"}
-knitr::include_graphics("ms-figures/gin_sle_lbr_28.png")
+```{r echo = FALSE, fig.cap = g28cap, fig.align = "center"}
+knitr::include_graphics("ms-figures/promed_projections_28.png")
+```
+
+
+
+```{r echo = FALSE, fig.cap = who28cap, fig.align = "center"}
+knitr::include_graphics("ms-figures/who_projections_28.png")
 ```
 
 ```{r echo = FALSE, warning = FALSE}
@@ -159,8 +229,8 @@ the outbreak. Both these parameters were assumed to be constant
 for the time frame over which model was fitted and across all
 countries. 
 
-```{r echo = FALSE, fig.cap = parscap, fig.align = "center"}
-knitr::include_graphics("ms-figures/gamma_pstay_over_tproj.png")
+```{r echo = FALSE, fig.cap = parscap, fig.align = "center", fig.width = 3.4}
+knitr::include_graphics("ms-figures/gamma_pstay_over_tproj_28.png")
 ```
 
 It is interesting to note that the change in estimates over the course 

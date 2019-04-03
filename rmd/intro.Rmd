@@ -17,21 +17,22 @@ Angola. Infected travellers from Angola reached China
 representing the first ever reported cases of yellow fever in Asia
 [@wasserman2016yellow].
 
-Early detection of infectious disease outbreaks can help public 
+Early detection of infectious disease outbreaks through passive or
+active surveillance data can help public 
 health officials to initiate interventions such as 
 removing contaminated food sources, isolating affected 
 individuals or launching vaccination campaigns. However, 
 any data collection method involves trade-offs between
 speed, accuracy and costs. Data collected through
 conventional surveillance such as through public health infrastructure,
-generally quite reliable. However, there is an (understandable)
+are generally quite reliable. However, there is an (understandable)
 delay from the point of data collection to the point at which 
 they are available in a usable form to the stakeholders.
 
 Digital disease surveillance consists of monitoring 
 various online information sources to collate relevant 
 information about diseases. The sources of information 
-could be formal such as advisories posted by a ministery of 
+could be formal such as advisories posted by a ministry of 
 health, or informal such as blogs or tweets. Digital 
 surveillance tools can play a significant role 
 in the rapid recognition of public health emergencies

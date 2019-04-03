@@ -1,12 +1,21 @@
-# Model predictions {#assess}
+# Model Validation {#assess}
 
-To forecast incidence at time \(t\), we fitted the model using 
-incidence data up to time \(t - 1\). We then projected 
-incidence using a random sample from the posterior distribution
+To forecast incidence 
+beginning at day $t$, we fitted the model to the daily
+incidence series up to day
+$ t - 1$. Transmissibility was assumed to stay constant in the
+time frame over which we were projecting. Samples from the 
+posterior distribution for the effective reproduction
+number estimated in the last time window before the point of
+projection were used for projections. Similarly samples from the
+posterior distribution for $ \gamma $ and $ p_{stay} $ were
+used to estimate the relative flow. We projected 
+incidence using the random sample from the posterior distributions
 of the model parameters in equation 
 \@ref(eq:likelihood) over a 2 week, 4 week and 6 week horizon.
 
-We then validated the incidence projected using our model 
+Given the retrospective nature of our analysis, we then validated 
+the incidence projected using our model 
 against observed incidence. In addition to the 
 accuracy of the projected incidence, the uncertainty associated 
 with the forecasts (e.g., measured by the width of the prediction

@@ -25,6 +25,8 @@ params:
   incid : data/processed/promed_loglinear_wide_from_march.csv
   n.dates.sim : 28
   place: SLE
+  indir: data/who_output/metrics/weekly
+  outdir: data/who_output/metrics/weekly
 ---
 
 ```{r setup, eval = TRUE}
@@ -50,7 +52,7 @@ names(infiles) <- paste0(params$tproj,
                          params$n.dates.sim
                          )
 metrics <- map_dfr(infiles,
-                   ~ readr::read_csv(here::here("data/output/metrics/weekly",
+                   ~ readr::read_csv(here::here(params$indir,
                                                 .x)),
                      .id = "parameters") 
 
@@ -67,8 +69,9 @@ metrics <- tidyr::separate(metrics,
                            remove = TRUE
                            )
 
-metrics$week_of_projection <- rep(1:4,
-                                  ceiling(nrow(metrics) / 4))[seq_len(nrow(metrics))]
+num_weeks <- params$n.dates.sim / 7
+metrics$week_of_projection <- rep(1:num_weeks,
+                                  ceiling(nrow(metrics) / num_weeks))[seq_len(nrow(metrics))]
 
 metrics <- mutate_if(metrics, is.character, factor)
 metrics$country <- params$place
@@ -86,6 +89,6 @@ outfile <- paste0(params$place,
                   ".csv")
 
 readr::write_csv(x = metrics,
-                 path = here::here("data/output/metrics/weekly",
+                 path = here::here(params$outdir,
                                    outfile))
 ```

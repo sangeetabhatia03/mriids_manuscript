@@ -21,11 +21,16 @@ biblio-style: apsr
 endnote: no
 params:
   infile: data/raw/rstb20160308supp1.csv
-  outfile: data/processed/01032019_who_bycountry.csv
+  outfile: data/processed/15032019_who_bycountry.csv
   ofinterest: data/processed/all_african_centroids.csv
 ---
 ```{r who-data-processing-1, include=FALSE}
-knitr::opts_chunk$set(fig.width=12, fig.height=6, echo=FALSE, warning=FALSE, message=FALSE, fig.path = "figures/")
+knitr::opts_chunk$set(fig.width=12,
+                      fig.height=6,
+                      echo=FALSE,
+                      warning=FALSE,
+                      message=FALSE,
+                      fig.path = "figures/")
 ```
 
 ```{r setup, echo = FALSE}
@@ -124,4 +129,66 @@ incid_wide_all <- select(incid_wide_all,
 outfile <- here::here(params$outfile)
 readr::write_csv(x = incid_wide_all,
                  path = outfile)
+```
+
+
+Other data files we will need later.
+
+```{r}
+
+## Weekly Trend
+who_weekly <- mRIIDS:::daily.to.weekly(incid)
+who_weekly <- tidyr::gather(
+  who_weekly,
+  country,
+  incid,
+  -date
+)
+who_weekly$interpolated <- FALSE
+who_weekly$date <- lubridate::ymd(who_weekly$date)
+
+outfile <- stringr::str_replace(params$outfile,
+                                ".csv",
+                                "_weekly.csv")
+
+readr::write_csv(x = who_weekly,
+                 path = here::here(outfile))
+```
+
+```{r}
+## Cumulative
+who_cumulative <- mutate_if(
+  incid,
+  is.numeric,
+  cumsum
+) %>%
+  tidyr::gather(country, cases, -date) %>%
+select(country, date, cases)
+
+outfile <- stringr::str_replace(params$outfile,
+                                ".csv",
+                                "_cumulative.csv")
+
+readr::write_csv(x = who_cumulative,
+                 path = here::here(outfile))
+```
+
+```{r}
+## For stacking with ProMED and HM data
+## that we will read in tall format
+who_tall <- tidyr::gather(
+  incid,
+  country,
+  incid,
+  -date
+)
+who_tall$interpolated <- FALSE
+
+outfile <- stringr::str_replace(params$outfile,
+                                ".csv",
+                                "_tall.csv")
+
+readr::write_csv(x = who_tall,
+                 path = here::here(outfile))
+
 ```

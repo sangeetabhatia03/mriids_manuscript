@@ -22,40 +22,72 @@ endnote: no
 params:
   tproj : !r c(21, 49, 77, 105, 133, 161, 189, 217, 245, 273, 301, 329, 357, 385, 413)
   twindow : 14
-  incid : data/processed/01032019_who_bycountry_weekly.csv
+  incid : data/processed/20122018_promed_loglinear_weekly.csv
   n.dates.sim : 28
-  place: GIN
+  places: !r c("LBR", "SLE", "GIN")
   maxtproj: 413
-  indir: data/who_stanfits
-  outdir: data/who_output
+  indir: data/stanfits
+  outdir: data/output
+  datasource: ProMED
 ---
+```{r projections-viz-fixed-country-1, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      dev = 'png',
+                      ## fig.width = 7,
+                      ## dev.args = list(pointsize = 6),
+                      fig.path = here::here(paste0(params$outdir,
+                                                   "/figures/")),
+                      fig.ext = paste0("_",
+                                       params$twindow,
+                                       ".png"))
+```
 
 ```{r setup, eval = TRUE}
 library(dplyr)
 library(purrr)
 library(ggplot2)
 library(scales)
+library(patchwork)
 
+```
+
+```{r projections-viz-fixed-country-2}
+color_scale <- c(
+    "HealthMap.FALSE" = "#000000",
+    "HealthMap" = "#000000",
+    "HealthMap.TRUE" = "#7A7A7A",
+    "WHO.FALSE" = "#EDDF1E",
+    "WHO" = "#ffd370",
+    "WHO.TRUE" = "#F9F4AF",
+    "ProMED.TRUE" = "#cfeaf9",
+    "ProMED.FALSE" = "#229de2",
+    "ProMED" = "#229de2"
+)
 ```
 ## Real-time R estimates
 
 Read in R estimates.
 
 ```{r projections-viz-fixed-country-3, eval = TRUE}
+allpars  <- expand.grid(place = params$places,
+                        tproj = params$tproj,
+                        tw = params$twindow)
+
+prefix <- paste(allpars$place,
+                "rquantiles",
+                allpars$tproj,
+                allpars$tw,
+                sep = "_")
 
 infiles <- here::here(params$indir,
-                      paste0(params$place,
-                             "_rquantiles_",
-                              params$tproj,
-                             "_",
-                             params$twindow,
-                             ".rds"))
+                      prefix) %>%
+    paste0(".rds")
 
-names(infiles) <-  paste0(params$tproj,
-                          "_",
-                          params$twindow)
+names(infiles) <-  prefix
                           
-rused <- map(infiles, ~ readRDS(.x))
+rused <- map(infiles, readr::read_rds)
 ## Repeat the last row over the projection window.
 rused <- map(rused,
              ~ slice(.x,
@@ -80,11 +112,11 @@ rused$date <- lubridate::ymd(rused$date)
 
 Read in the weekly incidence in tall form. 
 
-```{r projections-viz-fixed-country-5 }
+```{r projections-viz-fixed-country-4 }
 
 incid <- here::here(params$incid) %>%
     readr::read_csv() %>%
-    filter(country == params$place)
+    filter(country %in% params$places)
 
 incid <- filter(incid,
                 date <= max(rused$date) + 14)
@@ -93,15 +125,15 @@ incid <- filter(incid,
 
 Read in the projections output.
 
-```{r projections-viz-fixed-country-2 }
+```{r projections-viz-fixed-country-5 }
 
 infiles <- paste0("forecasts_",
-                    params$tproj,
-                    "_",
-                    params$twindow,
-                    "_",
-                    params$n.dates.sim,
-                    ".csv")
+                  params$tproj,
+                  "_",
+                  params$twindow,
+                  "_",
+                  params$n.dates.sim,
+                  ".csv")
 names(infiles) <- paste0(params$tproj,
                          "_",
                          params$twindow,
@@ -112,21 +144,109 @@ forecasts <- map_dfr(infiles,
                      ~ readr::read_csv(here::here(params$outdir,
                                                   .x)),
                      .id = "parameters") %>%
-    filter(country %in% params$place)
+    filter(country %in% params$places)
  
+
+```
+Relabel factors to get nice facet labels.
+
+```{r projections-viz-fixed-country-6 }
+incid$country <- forcats::fct_recode(incid$country,
+  Guinea = "GIN",
+  Liberia = "LBR",
+  `Sierra Leone` = "SLE"
+  )
+
+rused$country <- forcats::fct_recode(rused$country,
+  Guinea = "GIN",
+  Liberia = "LBR",
+  `Sierra Leone` = "SLE"
+  )
+
+forecasts$country <- forcats::fct_recode(forecasts$country,
+  Guinea = "GIN",
+  Liberia = "LBR",
+  `Sierra Leone` = "SLE"
+  )
+
+```
+
+Since we are going to take logs, maybe add 1 to everything.
+```{r projections-viz-fixed-country-7 }
+incid$incid <- incid$incid + 1
+forecasts <- mutate_if(forecasts,
+                       is.numeric,
+                       ~ .x + 1)
+
+## Add source
+## TODO : Get this dynamically.
+incid$source <- params$datasource
+```
+
+```{r projections-viz-fixed-country-8 }
+infiles <- here::here(params$indir,
+                      paste0(params$places,
+                             "_rquantiles_",
+                             params$maxtproj,
+                             "_",
+                             params$twindow,
+                             ".rds"))
+
+names(infiles) <- paste(params$places,
+                         params$maxtproj,
+                         params$twindow,
+                         sep = "_")
+
+rretro <- map_dfr(infiles,
+                  readr::read_rds,
+                  .id = "parameters")
+
+rretro$date <- lubridate::ymd(rretro$date)
+rretro <- filter(rretro,
+                 date >= min(rused$date) &
+                 date <= max(rused$date))
+
+rretro$country <- forcats::fct_recode(rretro$country,
+  Guinea = "GIN",
+  Liberia = "LBR",
+  `Sierra Leone` = "SLE"
+  )
+
+
+rused$rcategory <- "R[t - 1]"
+rretro$rcategory <- "R[Retrospective]"
+rboth <- rbind(rused, rretro)
+```
+
+```{r projections-viz-fixed-country-9}
+rretro_lims <- group_by(rboth,
+                       country) %>%
+    summarise(ylow = floor(min(`2.5%`)),
+              yhigh = ceiling(max(`97.5%`)))
+
+
+rreal_lims <- group_by(rboth,
+                       country) %>%
+    summarise(ylow = floor(min(`2.5%`)),
+              yhigh = ceiling(max(`97.5%`)))
+
+
 
 ```
 
 Finally plot everything.
 
-```{r projections-viz-fixed-country-6 }
+```{r projections-viz-fixed-country-10 }
 p <- ggplot()
 p <- p + geom_point(data = incid,
                     aes(date,
                         incid,
-                        col = interpolated))
+                        col = interaction(source,
+                                          interpolated)))
 ##                    col = "blue")
 ## plot projections on top
+p <- p +  scale_colour_manual(values = color_scale)
+
 p <- p + geom_ribbon(data = forecasts,
                      aes(x = date,
                          ymin = ymin,
@@ -145,71 +265,25 @@ p <- p +
     theme_classic() +
     theme(legend.position = "none")
 
+p <- p + scale_y_continuous(trans ='log10')
+
 p <- p +
     xlab("") +
-    ylab("Weekly Incidence")
+    ylab("log(weekly incidence)")
 
 p <- p +
     scale_x_date(date_breaks = "3 month",
-                 labels = date_format("%b %Y"))
-
-p <- p +
+                 labels = date_format("%b %Y")) +
     theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
-```
-
-
-
-Plot 2. 
-
-```{r projections-viz-fixed-country-4, eval = TRUE}
-preal <- ggplot()
-preal <- preal + geom_line(data = rused,
-                        aes(x = date,
-                            y = `50%`,
-                            group = parameters),
-                            col = "gray")
-preal <- preal + geom_ribbon(data = rused,
-                             aes(x = date,
-                                 ymin = `2.5%`,
-                                 ymax = `97.5%`,
-                                 group = parameters
-                                 ),
-                             alpha = 0.3)
-preal <- preal + geom_hline(yintercept = 1,
-                            linetype = "dashed")
-preal <- preal + theme_classic()
-preal <- preal + xlab("") + ylab("R")
-preal <- preal +
-    scale_x_date(date_breaks = "3 month",
-                 labels = date_format("%b %Y"))
-## Force x-axis to begin from the time we have incidence date
-## so that maps are better aligned.
-preal <- preal + expand_limits(x = min(incid$date))
-preal <- preal +
-    theme(axis.text.x = element_text(angle = 90, hjust = 0))
-```
-
-
-## Retrospective R
-
-
-```{r projections-viz-fixed-country-7}
-rretro <- here::here(params$indir,
-                     paste0(params$place,
-                            "_rquantiles_",
-                            params$maxtproj,
-                            "_",
-                            params$twindow,
-                            ".rds")) %>%
-    readr::read_rds()
-
-rretro$date <- lubridate::ymd(rretro$date)
+p <- p + facet_wrap(~country, nrow = 1, scales = "fixed")
+p
 
 ```
 
 
-```{r projections-viz-fixed-country-8, eval = TRUE}
+
+```{r projections-viz-fixed-country-11, eval = TRUE}
 pretro <- ggplot()
 pretro <- pretro + geom_line(data = rretro,
                              aes(x = date,
@@ -223,51 +297,137 @@ pretro <- pretro + geom_ribbon(data = rretro,
                                alpha = 0.3)
 pretro <- pretro + geom_hline(yintercept = 1,
                               linetype = "dashed")
-pretro <- pretro + theme_classic()
-pretro <- pretro + xlab("") + ylab("R")
+pretro <- pretro + theme_minimal()
+pretro <- pretro + xlab("") + ylab(expression(R[retrospective]))
 pretro <- pretro +
         scale_x_date(date_breaks = "3 month",
                      labels = date_format("%b %Y"))
 pretro <- pretro +
     theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
+pretro <- pretro +
+    facet_wrap(~country, nrow = 1, scales = "free_y")
+pretro <- pretro +
+    geom_blank(data = rretro_lims)
+pretro
+
 ```
 
 
-Finally, write it out with a common legend.
 
-```{r projections-viz-fixed-country-9, eval = TRUE}
-prefix <- paste0(params$tproj,
-                 collapse = "_")
-outfile <- here::here(params$outdir, 
-                      paste0("figures/",
-                             params$place,
-                             "_",
-                             prefix,
-                             "_",
-                             params$twindow,
-                             "_",
-                             params$n.dates.sim,
-                             ".png"))
-pall <- ggpubr::ggarrange(p,
-                          preal,
-                          pretro,
-                          ##labels = "AUTO",
-                          ncol = 1,
-                          nrow = 3,
-                          align = "hv",
-                          widths = c(1, 1, 1),
-                          heights = c(2, 1, 1),
-                          common.legend = FALSE) 
+```{r projections-viz-fixed-country-12, eval = TRUE}
+preal <- ggplot()
+preal <- preal + expand_limits(x = min(incid$date))
+preal <- preal +
+    geom_blank(data = rreal_lims)
+preal <- preal + geom_line(data = rused,
+                           aes(x = date,
+                               y = `50%`),
+                               ##group = parameters),
+                           col = "gray")
+preal <- preal + geom_ribbon(data = rused,
+                             aes(x = date,
+                                 ymin = `2.5%`,
+                                 ymax = `97.5%`,
+                                 ##group = parameters
+                                 ),
+                             alpha = 0.3)
+preal <- preal + geom_hline(yintercept = 1,
+                            linetype = "dashed")
+preal <- preal + theme_classic()
+preal <- preal + xlab("") + ylab(expression(R[t - 1]))
+preal <- preal +
+    scale_x_date(date_breaks = "3 month",
+                 labels = date_format("%b %Y"))
+## Force x-axis to begin from the time we have incidence date
+## so that maps are better aligned.
 
-ggpubr::ggexport(pall,
-                 filename = outfile,
-                 res = 144,
-                 width = 960,
-                 height = 960)
 
-## Also save as RDS file for later manipulation.
-outfile <- stringr::str_replace(outfile, ".png", ".rds")
-readr::write_rds(x = pall,
-                 path = outfile)
+preal <- preal +
+    facet_wrap(~country, nrow = 1, scales = "free_y")
+
+
+preal
+##    theme(axis.text.x = element_text(angle = 90, hjust = 0))
 ```
+
+
+
+
+```{r projections-viz-fixed-country-13}
+
+rboth$rcategory <- factor(rboth$rcategory,
+                          levels = c("R[t - 1]",
+                                     "R[Retrospective]"))
+
+pboth <- ggplot(rboth,
+                aes(date, `50%`)) +
+    geom_line() +
+    facet_grid(rcategory ~ country,
+               scales = "free_y",
+               ##switch = "y",
+               labeller = label_parsed) +
+    theme_classic() + 
+    theme(
+        strip.background = element_blank(),
+        strip.text.x = element_blank(),
+        panel.spacing = unit(2, "lines"),
+        ##strip.placement = "outside"
+    ) +
+    ylab(NULL) 
+    
+          
+
+pboth <- pboth + geom_ribbon(
+                     aes(x = date,
+                         ymin = `2.5%`,
+                         ymax = `97.5%`
+                         ),
+                     alpha = 0.3)
+pboth <- pboth + geom_hline(yintercept = 1,
+                              linetype = "dashed")
+
+pboth <- pboth + xlab("") + ylab("")
+pboth <- pboth +
+        scale_x_date(date_breaks = "3 month",
+                     labels = date_format("%b %Y"))
+pboth <- pboth +
+    theme(axis.text.x = element_text(angle = 90, hjust = 0))
+
+
+
+```
+
+
+
+
+
+
+```{r projections-viz-fixed-country-14 }
+
+p <- p +
+    theme(axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.line.x = element_blank())
+
+
+
+pall <- p +
+    pboth +
+    plot_layout(nrow = 2, heights = c(2, 1))
+
+pall
+
+```
+
+```{r projections-viz-fixed-country-15}
+pall2 <- p +
+    preal +
+    pretro +
+    plot_layout(nrow = 3, heights = c(2, 1, 1))
+
+pall2
+```
+
+

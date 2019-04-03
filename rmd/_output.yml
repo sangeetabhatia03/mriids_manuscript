@@ -1,4 +1,5 @@
-bookdown::word_document2: default 
+bookdown::word_document2:
+  template: null
 bookdown::epub_book: default
 bookdown::gitbook:
   css: style/gitbook.css

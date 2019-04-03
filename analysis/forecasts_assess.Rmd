@@ -21,12 +21,12 @@ biblio-style: apsr
 endnote: no
 params:
   tproj : 49
-  twindow : 42
+  twindow : 28
   n.dates.sim : 28
-  incid: data/processed/promed_loglinear_wide_from_march.csv
+  incid: data/processed/20122018_promed_loglinear_wide.csv
   place: LBR
-  outdir: data/who_output
-  indir: data/who_output
+  outdir: data/output
+  indir: data/output
 ---
 
 ```{r setup, eval = TRUE}
@@ -87,10 +87,10 @@ bs <- assessR::bias(obs, pred)
 logratio <- assessR:::log_accuracy_ratio(obs, pred)
 ```
 
-And the proportion of observed values in 50% CI.
+And the proportion of observed values in 95% CI.
 
 ```{r propinci, eval = TRUE}
-minmax <- apply(pred, 1, quantile, c(0.25, 0.75))
+minmax <- apply(pred, 1, quantile, c(0.025, 0.975))
 minmax <- t(minmax)
 propinci <- assessR:::prop_in_ci(obs,
                                  min = minmax[, 1],

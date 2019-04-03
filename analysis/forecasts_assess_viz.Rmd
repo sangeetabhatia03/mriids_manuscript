@@ -1,0 +1,180 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Visualisation of weekly performance metrics
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  twindow : 28
+  incid : data/processed/20122018_promed_loglinear_wide.csv
+  n.dates.sim : 28
+  places: !r c("SLE", "LBR", "GIN")
+  indir: data/output/metrics/weekly
+  rcategory: data/processed/rquantiles_projection.csv
+  outdir: data/output/figures
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+```
+
+Read in the files for all places of interest and visualise.
+
+```{r forecasts-assess-viz-1}
+df <- expand.grid(params$places,
+                  params$twindow,
+                  params$n.dates.sim)
+infiles <- paste0(df$Var1,
+                  "_weekly_",
+                  df$Var2,
+                  "_",
+                  df$Var3,
+                  ".csv")
+metrics <- map_dfr(infiles,
+                   ~ readr::read_csv(here::here(params$indir,
+                                                .x)))
+                    
+metrics$week_of_projection <- factor(metrics$week_of_projection,
+                                     levels = 1:4)
+
+```
+
+Join it with R estimate categorisation.
+
+```{r}
+rquantiles <- readr::read_csv(here::here(params$rcategory))
+
+rquantiles <- filter(rquantiles,
+                     country %in% params$places)
+metrics <- left_join(metrics,
+                     rquantiles,
+                     by = c("tproj",
+                            "twindow",
+                            "country"))
+```
+## Fix column classes
+```{r}
+metrics$country <- factor(metrics$country)
+metrics$ci <- factor(metrics$ci)
+metrics$week_of_projection <- factor(metrics$week_of_projection,
+                                     levels = 1:4)
+metrics$twindow <- factor(metrics$twindow)
+metrics$ci <- forcats::fct_recode(metrics$ci,
+                                  "Neither" = "ci_includes_1",
+                                  "Growing" = "ll_greater_than_1",
+                                  "Declining" = "ul_less_than_1")
+
+```
+## Bias
+
+```{r forecasts-assess-viz-2 }
+pbias <- ggplot(metrics,
+            aes(week_of_projection,
+                bias,
+                col = ci)) +
+    geom_boxplot(position = "dodge")
+pbias <- pbias +
+    theme_minimal() +
+    theme(legend.title = element_blank()) +
+    xlab("Week of projection") +
+    ylab("Bias")
+
+```
+
+## Sharpness
+
+
+```{r forecasts-assess-viz-3 }
+psharp <- ggplot(metrics,
+                 aes(week_of_projection,
+                     sharpness,
+                     col = ci)) +
+    geom_boxplot()
+
+psharp <- psharp +
+    theme_minimal() +
+    theme(legend.title = element_blank()) +
+    xlab("Week of projection") +
+    ylab("Sharpness")
+```
+
+## Relative accuracy
+
+
+```{r forecasts-assess-viz-4 }
+prel <- ggplot(metrics,
+            aes(week_of_projection,
+                logaccuracy,
+                col = ci)) +
+    geom_boxplot() 
+    ## geom_point(aes(fill = ci),
+    ##            alpha = 0.7,
+    ##            position = position_jitterdodge())
+prel <- prel +
+    theme_minimal() +
+    theme(legend.title = element_blank()) +
+    xlab("Week of projection") +
+    ylab("log relative accuracy")
+```
+
+
+## Relative mean absolute error
+
+
+```{r forecasts-assess-viz-5 }
+prelerr <- ggplot(metrics,
+            aes(week_of_projection,
+                rmae,
+                col = ci)) +
+    geom_boxplot()
+
+prelerr <- prelerr +
+    theme_minimal() +
+    theme(legend.title = element_blank())    
+
+
+prelerr <- prelerr +
+    xlab("Week of projection") +
+    ylab("Relative mean absolute error")
+
+```
+
+
+```{r}
+outfile <- here::here(params$outdir,
+                      paste0("forecasts_assess_",
+                             params$twindow,
+                             ".png"))
+ggpubr::ggarrange(pbias,
+                  psharp,
+                  prel,
+                  prelerr,
+                  nrow = 2,
+                  ncol = 2,
+                  common.legend = TRUE,
+                  labels = "AUTO") %>%
+    ggpubr::ggexport(filename = outfile,
+                     res = 144,
+                     width = 960,
+                     height = 960)
+    
+
+```
+

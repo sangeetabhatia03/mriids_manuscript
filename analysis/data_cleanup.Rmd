@@ -21,7 +21,7 @@ biblio-style: apsr
 endnote: no
 params:
   infile: data/raw/promed_2014-2016-renamed.csv
-  outfile: 19022019_promed_loglinear
+  outfile: 19032019_promed_loglinear
   ofinterest: data/processed/all_african_centroids.csv
 ---
 

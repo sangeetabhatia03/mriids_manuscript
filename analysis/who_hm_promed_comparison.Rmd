@@ -21,9 +21,24 @@ biblio-style: apsr
 endnote: no
 params:
   ofinterest: !r c("GIN", "LBR", "SLE")
+  pmcumulative: data/processed/19022019_promed_loglinear_cumulative.csv
+  hmcumulative: data/processed/19022019_healthmap_loglinear_cumulative.csv
+  whocumulative: data/processed/15032019_who_bycountry_cumulative.csv
+  pmdaily: data/processed/19022019_promed_loglinear_tall.csv
+  hmdaily: data/processed/19022019_healthmap_loglinear_tall.csv
+  whodaily: data/processed/15032019_who_bycountry_tall.csv
 ---
-```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=14, fig.height=7, echo=FALSE, warning=FALSE, message=FALSE, fig.path = "figures/")
+```{r who-hm-promed-comparison-1, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  dev = "png",
+  dpi = 300,
+  fig.width = 7,
+  ## dev.args = list(pointsize = 6),
+  fig.path = "figures/"
+)
 ```
 
 ```{r setup, echo = FALSE}
@@ -32,123 +47,106 @@ library(ggthemes)
 library(dplyr)
 library(EpiEstim)
 library(purrr)
-
+library(ggpubr)
 ```
 
 # Color Scale
 
-```{r colscale}
-color_scale <- c("HealthMap" = "#000000",
-                 "WHO" = "#E69F00",
-                 "ProMED" = "#56B4E9")
-
+```{r who-hm-promed-comparison-2 }
+color_scale <- c(
+  "HealthMap.FALSE" = "#000000",
+  "HealthMap" = "#000000",
+  "HealthMap.TRUE" = "#7A7A7A",
+  "WHO.FALSE" = "#EDDF1E",
+  "WHO" = "#ffd370",
+  "WHO.TRUE" = "#F9F4AF",
+  "ProMED.TRUE" = "#cfeaf9",
+  "ProMED.FALSE" = "#229de2",
+  "ProMED" = "#229de2"
+)
 ```
 
 # WHO data 
 
-```{r whoread}
-who_bycountry <- here::here("data/processed",
-                            "who_bycountry.csv") %>%
-    readr::read_csv() 
-    
-colnames(who_bycountry) <- c("date",
-                             "GIN",
-                             "LBR",
-                             "SLE")
-
-## Weekly Trend
-who_weekly <- mRIIDS:::daily.to.weekly(who_bycountry)    
-who_weekly <- tidyr::gather(who_weekly,
-                            country,
-                            incid,
-                            -date)
-who_weekly$interpolated <- FALSE
-who_weekly$date <- lubridate::ymd(who_weekly$date)
-
-## Cumulative
-who_cumulative <- mutate_if(who_bycountry,
-                            is.numeric,
-                            cumsum) %>%
-    tidyr::gather(country, cases, -date) %>%
-    select(country, date, cases)
-
-## For stacking with ProMED and HM data
-## that we will read in tall format
-who_tall <- tidyr::gather(who_bycountry,
-                          country,
-                          incid,
-                          -date)
-who_tall$interpolated <- FALSE
-
-
-
+```{r who-hm-promed-comparison-3 }
+who_cumulative <- here::here(params$whocumulative) %>%
+  readr::read_csv()
 ```
 # Comparison of cumulative cases
 
 The cumulative cases are extracted as sum of confirmed and
 suspected cases from ProMED/HealthMap data streams.
 
-```{r cumcomp}
+```{r who-hm-promed-comparison-4 }
 
-pm_cumulative <- here::here("data/processed",
-                                "19022019_promed_loglinear_cumulative.csv") %>%
-    readr::read_csv() 
+pm_cumulative <- here::here(params$pmcumulative) %>%
+  readr::read_csv()
 
-pm_cumulative$country <- countrycode::countrycode(pm_cumulative$country,
-                                                      'country.name',
-                                                      'iso3c')
+pm_cumulative$country <- countrycode::countrycode(
+  pm_cumulative$country,
+  "country.name",
+  "iso3c"
+)
 
-pm_cumulative <- filter(pm_cumulative,
-                            country %in% params$ofinterest) 
+pm_cumulative <- filter(
+  pm_cumulative,
+  country %in% params$ofinterest
+)
 
-hm_cumulative <- here::here("data/processed",
-                                "19022019_healthmap_loglinear_cumulative.csv") %>%
-    readr::read_csv()
+hm_cumulative <- here::here(params$hmcumulative) %>%
+  readr::read_csv()
 
-hm_cumulative$country <- countrycode::countrycode(hm_cumulative$country,
-                                                  'country.name',
-                                                  'iso3c')
+hm_cumulative$country <- countrycode::countrycode(
+  hm_cumulative$country,
+  "country.name",
+  "iso3c"
+)
 
-hm_cumulative <- filter(hm_cumulative,
-                        country %in% params$ofinterest) 
-
-
+hm_cumulative <- filter(
+  hm_cumulative,
+  country %in% params$ofinterest
+)
 ```
 
 
 
-```{r cum_incid_viz, eval = TRUE}
-all_cumulative <- list(WHO = who_cumulative,
-                       HealthMap = hm_cumulative,
-                       ProMED    = pm_cumulative) %>%
-    bind_rows(.id = "Source")
+```{r who-hm-promed-comparison-5, eval = TRUE}
+all_cumulative <- list(
+  WHO = who_cumulative,
+  HealthMap = hm_cumulative,
+  ProMED = pm_cumulative
+) %>%
+  bind_rows(.id = "Source")
 
-
-p_cumulative <- 
-    ggplot(all_cumulative,
-           aes(date,
-               cases,
-               color = Source
-               )) +
-    geom_point() 
-
-p_cumulative <- p_cumulative +
-    theme_classic()
-    
-p_cumulative <- p_cumulative +    
-    facet_wrap(country ~.,
-               scales = "free_y",
-               strip.position = "top",
-               nrow = 3) +
-    scale_colour_manual(values = color_scale)
-    
+## Comparison of cumulative trends
+p_cumulative <-
+  ggplot(
+    all_cumulative,
+    aes(date,
+      cases,
+      color = Source
+    )
+  ) +
+  geom_point(shape = 20)
 
 p_cumulative <- p_cumulative +
-    theme(legend.position = "none")
+  theme_classic()
 
 p_cumulative <- p_cumulative +
-    xlab("") +
-    ylab("Cumulative Incidence")
+  facet_wrap(country ~ .,
+    scales = "fixed",
+    strip.position = "top",
+    nrow = 3
+  ) +
+  scale_colour_manual(values = color_scale)
+
+
+p_cumulative <- p_cumulative +
+  theme(legend.position = "none")
+
+p_cumulative <- p_cumulative +
+  xlab("") +
+  ylab("Cumulative Incidence")
 
 
 p_cumulative
@@ -158,158 +156,86 @@ p_cumulative
 ## Comparison of daily incidence trends
 
 
-```{r hmread, echo = FALSE}
-hm_daily <- here::here("data/processed",
-                        "19022019_healthmap_loglinear_tall.csv") %>%
-    readr::read_csv() %>%
-    filter(country %in% params$ofinterest)
+```{r who-hm-promed-comparison-6, echo = FALSE}
+who_daily <- here::here(params$whodaily) %>%
+  readr::read_csv() %>%
+  filter(country %in% params$ofinterest)
+
+hm_daily <- here::here(params$hmdaily) %>%
+  readr::read_csv() %>%
+  filter(country %in% params$ofinterest)
 
 
-pm_daily <- here::here("data/processed",
-                       "19022019_promed_loglinear_tall.csv") %>%
-    readr::read_csv() %>%
-    filter(country %in% params$ofinterest)    
-
-
-
+pm_daily <- here::here(params$pmdaily) %>%
+  readr::read_csv() %>%
+  filter(country %in% params$ofinterest)
 ```
 
 
-```{r daily_incid_viz, eval = TRUE}
-all_daily <- list(WHO = who_tall,
-                   HealthMap = hm_daily,
-                   ProMED    = pm_daily) %>%
-    bind_rows(.id = "Source")
+```{r who-hm-promed-comparison-7, eval = TRUE}
+all_daily <- list(
+  WHO = who_daily,
+  HealthMap = hm_daily,
+  ProMED = pm_daily
+) %>%
+  bind_rows(.id = "Source")
 
+all_daily$country <- forcats::fct_recode(all_daily$country,
+  Guinea = "GIN",
+  Liberia = "LBR",
+  `Sierra Leone` = "SLE"
+)
 
-
-p_daily <- 
-    ggplot(all_daily,
-           aes(date,
-               incid,
-               color = Source)) +
-    geom_point() 
-
-p_daily <- p_daily +
-    theme_classic()
-
-p_daily <- p_daily +
-    facet_wrap(country ~.,
-               scales = "free_y",
-               strip.position = "top",
-               nrow = 3) +
-    scale_colour_manual(values = color_scale)
-
-p_daily <- p_daily +
-    theme(legend.position = "none")
+## Comparison of daily incidence trends
+p_daily <-
+  ggplot(
+    all_daily,
+    aes(date,
+      incid,
+      color = interaction(Source, interpolated)
+    )
+  ) +
+  geom_point(shape = 20)
 
 p_daily <- p_daily +
-    xlab("") +
-    ylab("Daily Incidence")
+  theme_classic()
 
+p_daily <- p_daily +
+  facet_wrap(country ~ .,
+    scales = "free_y",
+    strip.position = "top",
+    nrow = 3
+  ) +
+  scale_colour_manual(
+    values = color_scale,
+    breaks = c(
+      "ProMED",
+      "HealthMap",
+      "WHO"
+    )
+  )
+
+p_daily <- p_daily +
+  theme(legend.position = "none")
+
+p_daily <- p_daily +
+  xlab("") +
+  ylab("Daily Incidence")
+
+p_daily <- p_daily +
+  ##     theme(axis.text.x = element_text(angle = -10, hjust = 0)) +
+  scale_x_date(
+    date_breaks = "1 year",
+    labels = scales::date_format("%b %Y")
+  )
+
+p_daily <- p_daily +
+  theme(legend.title = element_blank())
 
 p_daily
-
 ```
 
 
-## Comparison of weekly incidence trends
-
-```{r}
-hm_weekly <- here::here("data/processed",
-                        "19022019_healthmap_loglinear_weekly.csv") %>%
-    readr::read_csv() %>%
-    filter(country %in% params$ofinterest) 
-
-
-pm_weekly <- here::here("data/processed",
-                        "19022019_promed_loglinear_weekly.csv") %>%
-    readr::read_csv() %>%
-    filter(country %in% params$ofinterest) 
-
-
-
-```
-
-
-```{r weekly_incid_viz, eval = TRUE}
-
-
-all_weekly <- list(WHO = who_weekly,
-                   HealthMap = hm_weekly,
-                   ProMED    = pm_weekly) %>%
-    bind_rows(.id = "Source")
-
-p_weekly <- 
-    ggplot(all_weekly,
-           aes(date, incid, color = Source)) +
-    geom_point()
-p_weekly <- p_weekly +
-    theme_classic()
-p_weekly <- p_weekly +
-        facet_wrap(country ~.,
-               scales = "free_y",
-               strip.position = "top",
-               nrow = 3) +
-    scale_colour_manual(values = color_scale)
-
-p_weekly <- p_weekly +
-    theme(legend.position = "none")
-p_weekly <- p_weekly +
-    xlab("") +
-    ylab("Weekly Incidence")
-
-
-
-p_weekly 
-
-```
-
-
-
-
-
-## Correlation between the incidence data
-
-```{r incid_corrplot, eval = TRUE}
-library(zeallot)
-## c(who, pm, hm) %<-%  map(list(who_weekly,
-##                               pm_weekly,
-##                               hm_weekly),
-##                          ~ tidyr::gather(.x,
-##                                          country,
-##                                          incid,
-##                                          -date))
-
-## Get week of year for each date after discarding the
-## interpolated column. The goal is to get a df of
-## weekly incidence so that we can compute correlation.
-c(who_weekly$week,
-  pm_weekly$week,
-  hm_weekly$week) %<-%
-    map(list(who_weekly[, -4],
-             pm_weekly[, -4],
-             hm_weekly[, -4]),
-        ~ paste(lubridate::year(.x$date),
-                lubridate::week(.x$date),
-                sep = "-"))
-
-hm_who_pm_incid <- inner_join(who_weekly,
-                              hm_weekly,
-                              by = c("week",
-                                     "country")) %>%
-              select(country, week, incid.x, incid.y) %>%
-              rename("WHO" = `incid.x`,
-                     "HealthMap" = `incid.y`) %>%
-              inner_join(pm_weekly, by = c("week", "country")) %>%
-              rename("ProMED" = `incid`) %>%
-              select(WHO, ProMED, HealthMap)
-
-
-M <- Hmisc::rcorr(as.matrix(hm_who_pm_incid),
-                  type = "pearson")
-
-```
 
 ## Estimating Reproduction number from WHO and Healthmap Data
 
@@ -317,100 +243,587 @@ M <- Hmisc::rcorr(as.matrix(hm_who_pm_incid),
 
 Culled from literature.
 
-```{r ebola_params, eval = TRUE}
+```{r who-hm-promed-comparison-8, eval = TRUE}
 
-mean_SI     <- 14.2
-CV_SI       <- 9.6 / 14.2
-SItrunc     <- 40
-SI_Distr    <- sapply(0:SItrunc, function(e) EpiEstim::DiscrSI(e, mean_SI, mean_SI * CV_SI))
-SI_Distr    <- SI_Distr / sum(SI_Distr)
-time_window <- 7 * 2
-
+mean_SI <- 14.2
+CV_SI <- 9.6 / 14.2
+SItrunc <- 40
+SI_Distr <- sapply(
+  0:SItrunc,
+  function(e) EpiEstim::DiscrSI(e, mean_SI, mean_SI * CV_SI)
+)
+SI_Distr <- SI_Distr / sum(SI_Distr)
 ```
+R estimate is strongly influenced by the choice of time window and we
+want to capture that. Hence, estimate R for different values of time
+window.
 
-```{r restim}
-all_R <- split(all_daily, list(all_daily$Source,
-                                all_daily$country)) %>%
-    map_dfr(function(x) {
-        I <- x$incid
-        start <- 2:(nrow(x) - time_window)
-        end <- start + time_window
-        res <- EpiEstim::EstimateR(I,
-                                   T.Start = start,
-                                   T.End = end,
-                                   method   = "NonParametricSI",
-                                   SI.Distr = SI_Distr,
-                                   plot     = FALSE ,
-                                   CV.Posterior = 1 ,
-                                   Mean.Prior   = 1 ,
-                                   Std.Prior    = 0.5)
-        res$R$date <- x$date[end]
-        res$R
-                                   
+```{r who-hm-promed-comparison-9 }
+all_groups <- split(all_daily, list(
+  all_daily$Source,
+  all_daily$country
+))
+
+all_R <- map_dfr(list(
+  `2` = 2,
+  `4` = 4,
+  `6` = 6
+), function(tw) {
+  time_window <- 7 * tw
+  df <- map_dfr(all_groups,
+    function(x) {
+      I <- x$incid
+      start <- 2:(nrow(x) - time_window)
+      end <- start + time_window
+      res <- EpiEstim::EstimateR(I,
+        T.Start = start,
+        T.End = end,
+        method = "NonParametricSI",
+        SI.Distr = SI_Distr,
+        plot = FALSE,
+        CV.Posterior = 1,
+        Mean.Prior = 1,
+        Std.Prior = 0.5
+      )
+      res$R$date <- x$date[end]
+      res$R
     },
-    .id = "source.country")
+    .id = "source.country"
+  )
+  df
+}, .id = "time_window_in_weeks")
 
 
 all_R <- tidyr::separate(all_R,
-                         source.country,
-                         into = c("Source", "country"),
-                         extra = "merge",
-                         fill = "left")
-
-
+  source.country,
+  into = c("Source", "country"),
+  extra = "merge",
+  fill = "left"
+)
 ```   
 
+Checking how the choice of time window impacts R estimates and
+correlation.
 
-```{r restimviz}
+```{r who-hm-promed-comparison-10 }
+all_mean_R <- select(
+  all_R,
+  time_window_in_weeks,
+  Source,
+  country,
+  `Mean(R)`,
+  date
+)
 
+all_mean_R <- tidyr::spread(
+  all_mean_R,
+  Source,
+  `Mean(R)`
+)
+all_mean_R <- filter(
+  all_mean_R,
+  time_window_in_weeks %in% c(2, 4, 6)
+)
+
+segment_eps <- group_by(
+  all_mean_R,
+  time_window_in_weeks,
+  country
+) %>%
+  summarise(
+    x = min(WHO, na.rm = TRUE),
+    xend = max(WHO, na.rm = TRUE),
+    y = min(ProMED, HealthMap, na.rm = TRUE),
+    yend = max(ProMED, HealthMap, na.rm = TRUE)
+  )
+
+## Impact of time_window on R estimation and correlation
+p_r_tw <- ggplot(all_mean_R) +
+  theme_classic() +
+  geom_point(aes(
+    x = WHO,
+    y = ProMED
+  ),
+  col = color_scale[["ProMED"]],
+  shape = 20
+  ) +
+
+  geom_point(aes(
+    x = WHO,
+    y = HealthMap
+  ),
+  col = color_scale[["HealthMap"]],
+  shape = 20
+  ) +
+  geom_segment(
+    data = segment_eps,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    linetype = "dashed"
+  ) +
+
+  facet_grid(time_window_in_weeks ~ country,
+    scales = "fixed",
+    labeller = labeller(
+      time_window_in_weeks =
+        as_labeller(c(
+          `2 weeks` = 2,
+          `6 weeks` = 6
+        ))
+    )
+  )
+
+p_r_tw <- p_r_tw +
+  xlab("Mean(R) WHO") +
+  ylab("Mean(R) ProMED/HealthMap")
+
+p_r_tw
+```
+
+
+Correlation between R series.
+
+```{r who-hm-promed-comparison-11 }
+
+coeffs <- split(
+  all_mean_R,
+  list(
+    all_mean_R$country,
+    all_mean_R$time_window_in_weeks
+  )
+) %>%
+  map(~ Hmisc::rcorr(as.matrix(select(
+    .x,
+    WHO,
+    ProMED,
+    HealthMap
+  )),
+  type = "pearson"
+  ))
+
+coeffs <- map_dfr(coeffs,
+  ~ list(
+    WHO_ProMED = .x$r["WHO", "ProMED"],
+    WHO_HealthMap = .x$r["WHO", "HealthMap"],
+    HealthMap_ProMED = .x$r["HealthMap", "ProMED"],
+    WHO_ProMED_p = .x$P["WHO", "ProMED"],
+    WHO_HealthMap_p = .x$P["WHO", "HealthMap"],
+    HealthMap_ProMED_p = .x$P["HealthMap", "ProMED"],
+    WHO_ProMED_n = .x$n["WHO", "ProMED"],
+    WHO_HealthMap_n = .x$n["WHO", "HealthMap"],
+    HealthMap_ProMED_n = .x$n["HealthMap", "ProMED"]
+  ),
+  .id = "country.tw"
+)
+
+
+coeffs <- tidyr::separate(coeffs,
+  col = "country.tw",
+  into = c("country", "time_window_in_weeks"),
+  sep = -1
+)
+
+## Get rid of the periods in country names
+coeffs$country <- stringr::str_remove(
+  coeffs$country,
+  stringr::fixed(".")
+)
+
+knitr::kable(coeffs)
+```
+
+Correlation between R estimates from WHO, ProMED and HealthMap data
+for one time window.
+
+```{r who-hm-promed-comparison-12 }
+tw_to_display <- 4
+r_who <- filter(
+  all_R,
+  Source == "WHO" &
+    time_window_in_weeks == tw_to_display
+)
+
+r_pm <- filter(
+  all_R,
+  Source == "ProMED" &
+    time_window_in_weeks == tw_to_display
+)
+
+r_hm <- filter(
+  all_R,
+  Source == "HealthMap" &
+    time_window_in_weeks == tw_to_display
+)
+```
+Trimming the data sources to bring to a common set of dates.
+
+```{r who-hm-promed-comparison-13 }
+
+r_who_pm <- left_join(r_who,
+  r_pm,
+  by = c("country", "date"),
+  suffix = c(".who", ".promed")
+)
+
+r_who_pm <- left_join(r_who_pm,
+  r_hm,
+  by = c("country", "date")
+)
+
+## At this point, the columns without a suffix (.who or .promed)
+## have been pulled from HM data.
+## WHO vs ProMED
+p_who_pm <- ggplot(r_who_pm) +
+  theme_classic()
+
+p_who_pm <- p_who_pm +
+  geom_point(
+    aes(
+      x = `Mean(R).who`,
+      y = `Mean(R).promed`
+    ),
+    shape = 20
+  ) +
+  ## geom_errorbar(aes(
+  ##   x = `Mean(R).who`,
+  ##   ymin = `Quantile.0.025(R).promed`,
+  ##   ymax = `Quantile.0.975(R).promed`
+  ## )) +
+  facet_wrap(~country, nrow = 3, scales = "fixed") +
+  geom_text(
+    data = subset(
+      coeffs,
+      coeffs$time_window_in_weeks ==
+        tw_to_display
+    ),
+    aes(
+      x = 0,
+      y = 3,
+      label = paste(
+        "r = ",
+        round(WHO_ProMED,
+          digits = 2
+        )
+      )
+    ),
+    lineheight = .7
+  ) +
+  xlab("Mean(R) WHO") +
+  ylab("Mean(R) ProMED") +
+  geom_abline(slope = 1)
+
+p_who_pm
+```
+
+
+```{r who-hm-promed-comparison-14 }
+## WHO vs HealthMap
+p_who_hm <- ggplot(r_who_pm) +
+  theme_classic()
+
+p_who_hm <- p_who_hm +
+  geom_point(
+    aes(
+      x = `Mean(R).who`,
+      y = `Mean(R)`
+    ),
+    shape = 20
+  ) +
+  ## geom_errorbar(aes(
+  ##   x = `Mean(R).who`,
+  ##   ymin = `Quantile.0.025(R)`,
+  ##   ymax = `Quantile.0.975(R)`
+  ## )) +
+  facet_wrap(~country, nrow = 3, scales = "fixed") +
+  geom_text(
+    data = subset(
+      coeffs,
+      coeffs$time_window_in_weeks ==
+        tw_to_display
+    ),
+    aes(
+      x = 0,
+      y = 3,
+      label = paste(
+        "r = ",
+        round(WHO_HealthMap,
+          digits = 2
+        )
+      )
+    ),
+    lineheight = .7
+  ) +
+  xlab("Mean(R) WHO") +
+  ylab("Mean(R) HealthMap") +
+  geom_abline(slope = 1)
+
+p_who_hm
+```
+
+
+## WHO vs the other 2 on the same graph.
+
+```{r who-hm-promed-comparison-15 }
+
+
+p_who_others <- ggplot(r_who_pm) +
+  geom_point(aes(
+    x = `Mean(R).who`,
+    y = `Mean(R).promed`
+  ),
+  col = color_scale[["ProMED"]]
+  ) +
+
+  geom_point(aes(
+    x = `Mean(R).who`,
+    y = `Mean(R)`
+  ),
+  shape = 20,
+  col = color_scale[["HealthMap"]]
+  ) +
+  geom_abline(slope = 1, linetype = "dashed") +
+  facet_wrap(~country, nrow = 3, scales = "fixed") +
+  theme_classic() +
+  xlab("Mean(R) WHO") +
+  ylab("Mean(R) ProMED/HealthMap")
+
+p_who_others
+```
+
+## ProMED vs HealthMap
+```{r who-hm-promed-comparison-16 }
+p_pm_hm <- ggplot(r_who_pm) +
+  geom_point(aes(
+    x = `Mean(R)`,
+    y = `Mean(R).promed`
+  )) +
+  geom_abline(slope = 1, linetype = "dashed") +
+  facet_wrap(~country, nrow = 3, scales = "fixed") +
+  geom_text(
+    data = subset(
+      coeffs,
+      coeffs$time_window_in_weeks ==
+        tw_to_display
+    ),
+    aes(
+      x = 0,
+      y = 3,
+      label = paste(
+        "r = ",
+        round(HealthMap_ProMED,
+          digits = 2
+        )
+      )
+    ),
+    lineheight = .7
+  ) +
+  theme_classic() +
+  xlab("Mean(R) HealthMap") +
+  ylab("Mean(R) ProMED")
+
+p_pm_hm
+```
+
+Comparison of R estimates for a given choice of time window.
+
+```{r who-hm-promed-comparison-17 }
+
+all_R_6 <- filter(
+  all_R,
+  time_window_in_weeks == tw_to_display
+)
+```
+We have calculated the correlation coefficients between the Mean(R)
+values for different sources. Since we are displaying Median R now,
+calculate correlation coefficient for this.
+
+```{r who-hm-promed-comparison-18}
+median_coeffs <- split(
+  all_R_6,
+  all_R_6$country
+) %>%
+  map(function(x) {
+    x <- select(x, date, Source, `Median(R)`)
+    x <- tidyr::spread(x, key = Source, value = `Median(R)`)
+    x <- na.omit(x)
+    coeff <- Hmisc::rcorr(as.matrix(select(
+      x,
+      WHO,
+      ProMED,
+      HealthMap
+    )),
+    type = "pearson"
+    )
+
+    coeff
+  })
+
+median_coeffs <- map_dfr(median_coeffs,
+  ~ list(
+    WHO_ProMED = .x$r["WHO", "ProMED"],
+    WHO_HealthMap = .x$r["WHO", "HealthMap"],
+    HealthMap_ProMED = .x$r["HealthMap", "ProMED"],
+    WHO_ProMED_p = .x$P["WHO", "ProMED"],
+    WHO_HealthMap_p = .x$P["WHO", "HealthMap"],
+    HealthMap_ProMED_p = .x$P["HealthMap", "ProMED"],
+    WHO_ProMED_n = .x$n["WHO", "ProMED"],
+    WHO_HealthMap_n = .x$n["WHO", "HealthMap"],
+    HealthMap_ProMED_n = .x$n["HealthMap", "ProMED"]
+  ),
+  .id = "country"
+)
+
+
+
+
+
+knitr::kable(median_coeffs)
+```
+
+```{r who-hm-promed-comparison-19}
 p <- ggplot()
-p <- p + geom_ribbon(data = all_R,
-                     aes(x = date,
-                         ymin = `Quantile.0.025(R)`,
-                         ymax = `Quantile.0.975(R)`,
-                         fill = Source),
-                     alpha = 0.3)
-p <- p + geom_line(data = all_R,
-                   aes(
-                       x = date,
-                       y = `Median(R)`,
-                       color = Source))
 p <- p + theme_classic()
-p <- p + facet_wrap(country ~.,
-                    scale = "free_y",
-                    strip.position = "top",
-                    nrow = 3)
+p <- p + geom_ribbon(
+  data = all_R_6,
+  aes(
+    x = date,
+    ymin = `Quantile.0.025(R)`,
+    ymax = `Quantile.0.975(R)`,
+    fill = Source
+  ),
+  alpha = 0.3
+)
+p <- p + geom_line(
+  data = all_R_6,
+  aes(
+    x = date,
+    y = `Median(R)`,
+    color = Source
+  )
+)
+
+p <- p + facet_wrap(country ~ .,
+  scale = "fixed",
+  strip.position = "top",
+  nrow = 3
+)
 p <- p + theme(legend.position = "none")
-p <- p + xlab("")
+p <- p + xlab("") + ylab("Retrospective R")
 p <- p +
-    scale_colour_manual(values = color_scale) +
-    scale_fill_manual(values = color_scale) 
+  scale_colour_manual(
+    values = color_scale,
+    breaks = c(
+      "ProMED",
+      "HealthMap",
+      "WHO"
+    )
+  ) +
+  scale_fill_manual(values = color_scale)
 p <- p +
-    geom_hline(yintercept = 1,
-               linetype = "dashed")
+  geom_hline(
+    yintercept = 1,
+    linetype = "dashed"
+  )
+
+## Add correlation coefficient
+median_coeffs <- mutate_if(
+  median_coeffs,
+  is.numeric,
+  ~ round(.x, digits = 2)
+)
+
+p <- p +
+  geom_text(
+    data = median_coeffs,
+    aes(
+      x = as.Date("2015-07-06"),
+      y = 4,
+      label =
+        paste0(
+          "r : WHO-ProMED = ", WHO_ProMED,
+          "\n  WHO-HealthMap = ", WHO_HealthMap,
+          "\n  HealthMap-ProMED = ", HealthMap_ProMED
+        )
+    ),
+    lineheight = .7,
+    size = 2
+  )
+
 
 p
-
 ```
 
-The graphs show that the estimates from the three different sources
-closely track each other. Here's another way to visualise this.
-As the above graphs indicates, estimates of the reproduction number
-from ProMed, HealthMap and WHO data are highly correlated (correlation
-coefficient = 0.76, 95% CI = (0.74, 0.78)).
 
-```{r all6}
-library(ggpubr)
+
+```{r who-hm-promed-comparison-20 }
+
 p_all <- ggarrange(p_daily,
-                   p,
-                   nrow = 1,
-                   ncol = 2,
-                   labels = "AUTO",
-                   legend = "bottom",
-                   common.legend = TRUE)
+  p,
+  nrow = 1,
+  ncol = 2,
+  labels = "AUTO",
+  
+  legend = NULL
+)
 
-ggexport(p_all,
-         filename = "figures/who_hm_promed_compare.png"
-         )
+p_all
 
+## ggexport(p_all,
+##   filename = here::here(
+##     "data/output/figures",
+##     "who_hm_promed_compare.eps"
+##     ),
+##   width = 11.4,
+##   units = "cm"
+## )
 ```
+Different panels.
+
+```{r who-hm-promed-comparison-21 }
+p_all <- ggarrange(p_daily,
+  p_who_others,
+  nrow = 1,
+  ncol = 2,
+  labels = "AUTO",
+  legend = "bottom",
+  common.legend = TRUE
+)
+
+p_all
+
+## ggsave(p_all,
+##   filename = here::here(
+##     "data/output/figures",
+##     "who_hm_promed_compare2.eps"
+##     ),
+##   width = 11.4,
+##   units = "cm"
+## )
+```
+
+```{r who-hm-promed-comparison-22 }
+p_all <- ggarrange(p_who_pm,
+  p_who_hm,
+  p_pm_hm,
+  nrow = 1,
+  ncol = 3,
+  labels = "AUTO",
+  legend = "bottom",
+  common.legend = TRUE
+)
+
+p_all
+
+## ggsave(plot = p_all,
+##   filename = here::here(
+##     "data/output/figures",
+##     "r_compare_pairs.eps"
+##     )
+##   )
+```
+
+

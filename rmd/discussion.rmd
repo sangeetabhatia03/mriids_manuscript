@@ -54,3 +54,14 @@ for consumption of data at any spatial scale. It would be
 interesting to explore ways of integrating spatially coarse 
 but timely data from ProMED and HealthMap with spatially resolved 
 but delayed data from ground surveillance.
+
+
+<!-- The influence of -->
+<!-- factors such as healthcare capacity of a location can be incorporated -->
+<!-- into the model through the prior distribution of the reproduction -->
+<!-- numbers.  -->
+<!-- Similarly, the prior -->
+<!-- distributions on the probability of staying at a location and the -->
+<!-- exponent on distance could be informed by additional data sources  -->
+<!-- such as prior information derived from human migration data (e.g.,  -->
+<!-- census data).  -->

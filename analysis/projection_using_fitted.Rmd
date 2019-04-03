@@ -67,7 +67,7 @@ countries <- colnames(trng)
 
 ## Ebola params
 ```{r ebpars}
-suffix <- paste0(params$tproj, "_", params$twindow, ".rds")
+##suffix <- paste0(params$tproj, "_", params$twindow, ".rds")
 si <- paste0("si_", suffix)
 si <- here::here(params$indir,
                  si) %>%
@@ -102,20 +102,25 @@ r_pred <- select(r_pred, - (date:var))
 Now we will sample from the full draw for each parameter of the model.
 
 ```{r project, eval = TRUE}
-nrsamples <- ncol(r_samples[[1]]) - 3 ## date, country, var in the way we have organised this.
-index <- sample(seq_len(nrsamples),
-                params$nsamples)
+## nrsamples <- ncol(r_samples[[1]]) - 3 ## date, country, var in the way we have organised this.
+## index <- sample(seq_len(nrsamples),
+##                 params$nsamples)
+
+## We want a joint sample from the parameter space.
+## We already have the indices of the selected gamma and pstay from
+## before. We use it now.
+
+index <- readr::read_rds(here::here(params$indir,
+                                    paste0("idx_",
+                                           suffix)))
+                         
 ```
 
-Flow matrices have been calculated on the cluster. However, they have been named 
-sequentially from 1 to 900. So we can't use a random integer to call them.
-To get around this problem, we will name each item using the random integers drawn in the previous step
-and use this name to use the matrix.
 
 ```{r}
 flow_mats <- here::here(params$indir,
                          paste0("flow_matrices/flow_",
-                                seq_len(params$nsamples),
+                                index,
                                 "_",
                                 suffix)) %>%
   purrr::map(~ readr::read_rds(.x))
