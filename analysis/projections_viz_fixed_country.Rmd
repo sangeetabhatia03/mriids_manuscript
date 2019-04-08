@@ -21,7 +21,7 @@ biblio-style: apsr
 endnote: no
 params:
   tproj : !r c(21, 49, 77, 105, 133, 161, 189, 217, 245, 273, 301, 329, 357, 385, 413)
-  twindow : 14
+  twindow : 28
   incid : data/processed/20122018_promed_loglinear_weekly.csv
   n.dates.sim : 28
   places: !r c("LBR", "SLE", "GIN")
@@ -54,17 +54,7 @@ library(patchwork)
 ```
 
 ```{r projections-viz-fixed-country-2}
-color_scale <- c(
-    "HealthMap.FALSE" = "#000000",
-    "HealthMap" = "#000000",
-    "HealthMap.TRUE" = "#7A7A7A",
-    "WHO.FALSE" = "#EDDF1E",
-    "WHO" = "#ffd370",
-    "WHO.TRUE" = "#F9F4AF",
-    "ProMED.TRUE" = "#cfeaf9",
-    "ProMED.FALSE" = "#229de2",
-    "ProMED" = "#229de2"
-)
+source(here::here("analysis/common_plot_properties.R"))
 ```
 ## Real-time R estimates
 
@@ -245,7 +235,6 @@ p <- p + geom_point(data = incid,
                                           interpolated)))
 ##                    col = "blue")
 ## plot projections on top
-p <- p +  scale_colour_manual(values = color_scale)
 
 p <- p + geom_ribbon(data = forecasts,
                      aes(x = date,
@@ -255,15 +244,13 @@ p <- p + geom_ribbon(data = forecasts,
                          ),
                      fill = "gray45",
                      alpha = 0.3)
+
 p <- p + geom_line(data = forecasts,
                      aes(x = date,
                          y = y,
                          group = parameters),
                          col = "gray3")
 
-p <- p +
-    theme_classic() +
-    theme(legend.position = "none")
 
 p <- p + scale_y_continuous(trans ='log10')
 
@@ -277,6 +264,11 @@ p <- p +
     theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
 p <- p + facet_wrap(~country, nrow = 1, scales = "fixed")
+p <- p +
+    scale_colour_manual(values = mriids_plot_theme$color_scale) +
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend
+
 p
 
 ```
@@ -284,7 +276,8 @@ p
 
 
 ```{r projections-viz-fixed-country-11, eval = TRUE}
-pretro <- ggplot()
+pretro <- ggplot() +
+    expand_limits(x = min(incid$date))
 pretro <- pretro + geom_line(data = rretro,
                              aes(x = date,
                                  y = `50%`),
@@ -297,7 +290,7 @@ pretro <- pretro + geom_ribbon(data = rretro,
                                alpha = 0.3)
 pretro <- pretro + geom_hline(yintercept = 1,
                               linetype = "dashed")
-pretro <- pretro + theme_minimal()
+
 pretro <- pretro + xlab("") + ylab(expression(R[retrospective]))
 pretro <- pretro +
         scale_x_date(date_breaks = "3 month",
@@ -309,6 +302,12 @@ pretro <- pretro +
     facet_wrap(~country, nrow = 1, scales = "free_y")
 pretro <- pretro +
     geom_blank(data = rretro_lims)
+
+pretro <- pretro +
+    scale_colour_manual(values = mriids_plot_theme$color_scale) +
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend
+
 pretro
 
 ```
@@ -334,7 +333,7 @@ preal <- preal + geom_ribbon(data = rused,
                              alpha = 0.3)
 preal <- preal + geom_hline(yintercept = 1,
                             linetype = "dashed")
-preal <- preal + theme_classic()
+
 preal <- preal + xlab("") + ylab(expression(R[t - 1]))
 preal <- preal +
     scale_x_date(date_breaks = "3 month",
@@ -346,6 +345,10 @@ preal <- preal +
 preal <- preal +
     facet_wrap(~country, nrow = 1, scales = "free_y")
 
+preal <- preal +
+    scale_colour_manual(values = mriids_plot_theme$color_scale) +
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend
 
 preal
 ##    theme(axis.text.x = element_text(angle = 90, hjust = 0))
@@ -367,7 +370,8 @@ pboth <- ggplot(rboth,
                scales = "free_y",
                ##switch = "y",
                labeller = label_parsed) +
-    theme_classic() + 
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend +
     theme(
         strip.background = element_blank(),
         strip.text.x = element_blank(),
@@ -405,7 +409,7 @@ pboth <- pboth +
 
 ```{r projections-viz-fixed-country-14 }
 
-p <- p +
+p2 <- p +
     theme(axis.title.x = element_blank(),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank(),
@@ -413,7 +417,7 @@ p <- p +
 
 
 
-pall <- p +
+pall <- p2 +
     pboth +
     plot_layout(nrow = 2, heights = c(2, 1))
 
@@ -425,7 +429,8 @@ pall
 pall2 <- p +
     preal +
     pretro +
-    plot_layout(nrow = 3, heights = c(2, 1, 1))
+    plot_layout(nrow = 3, heights = c(2, 1, 1)) &
+    theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
 pall2
 ```

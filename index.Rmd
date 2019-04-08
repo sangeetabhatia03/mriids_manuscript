@@ -1,9 +1,9 @@
 ---
-title: "Using Digital Surveillance Tools for 
-Near Real-Time Mapping of the Risk of International Infectious Disease
-Spread: A Case Study"
-author: "Sangeeta Bhatia, Britta Lassmann, Emily Cohn, Moritz Kraemer, 
-Mark Herringer, John Brownstein, Larry Madoff, Anne Cori, Pierre Nouvellet"
+title: >- 
+  Using Digital Surveillance Tools for 
+  Near Real-Time Mapping of the Risk of International Infectious Disease
+  Spread: A Case Study
+author: "Sangeeta Bhatia, Britta Lassmann, Emily Cohn, Moritz Kraemer, Mark Herringer, John Brownstein, Larry Madoff, Anne Cori, Pierre Nouvellet"
 site: bookdown::bookdown_site
 documentclass: article
 output:
@@ -15,8 +15,8 @@ header-includes:
   - \usepackage{amsmath}
 link-citations: yes
 colorlinks: no
-toc: no
-lot: no
-lof: no
+toc: false
+lot: false
+lof: false
 geometry: [b5paper, tmargin=2.5cm, bmargin=2.5cm, lmargin=3.5cm, rmargin=2.5cm]
 ---

@@ -3,15 +3,15 @@
 To forecast incidence 
 beginning at day $t$, we fitted the model to the daily
 incidence series up to day
-$ t - 1$. Transmissibility was assumed to stay constant in the
-time frame over which we were projecting. Samples from the 
+$t - 1$. Transmissibility was assumed to stay constant in the
+time frame over which we were projecting. We used 1000 samples from the 
 posterior distribution for the effective reproduction
 number estimated in the last time window before the point of
-projection were used for projections. Similarly samples from the
-posterior distribution for $ \gamma $ and $ p_{stay} $ were
-used to estimate the relative flow. We projected 
-incidence using the random sample from the posterior distributions
-of the model parameters in equation 
+projection for forward projections. Similarly 1000 samples from the
+posterior distribution for $\gamma$ and $p_{stay}$ were
+used to estimate the relative flow. All model parameters were sampled
+jointly. We projected 
+incidence using the random samples thus drawn in equation 
 \@ref(eq:likelihood) over a 2 week, 4 week and 6 week horizon.
 
 Given the retrospective nature of our analysis, we then validated 

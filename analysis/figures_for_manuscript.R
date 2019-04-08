@@ -114,15 +114,22 @@ param_quantiles <- purrr::map2_dfr(indir,
                                       out},
                                   .id = "Source")
 
-p1 <- plot_gravity_model_pars(param_quantiles)
-p1 <- mriids_plot_theme(p1)
 
-ggsave(here::here("data/output/figures/who_gamma_pstay_over_tproj_14.png"),
+p1 <- plot_gravity_model_pars(param_quantiles)
+p1 <- p1 +
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend +
+    scale_color_manual(values = mriids_plot_theme$color_scale) +
+    scale_fill_manual(values = mriids_plot_theme$color_scale)
+
+
+ggsave(here::here("who_gamma_pstay_over_tproj_14.png"),
        p1)
 
-## Maps.
-## Second throwaway function.
 
+#####################################################################
+## Maps.
+#####################################################################
 
 
 ## three points separated by approximately 6 months
@@ -193,8 +200,32 @@ incid <- select(incid,
                 country,
                 incid)
 
+
+## WHO Observed
+who_incid <- readr::read_csv("data/processed/15032019_who_bycountry_weekly.csv")
+who_incid <- select(who_incid, date, country, incid)
+who_incid <- tidyr::spread(who_incid,
+                           key = country,
+                           value = incid,
+                           fill = 0)
+who_incid <- tidyr::gather(who_incid,
+                           country,
+                           incid,
+                           -date)
+who_incid <- filter(who_incid,
+                date %in% unique(forecasts$date))
+
+who_incid$source <- "WHO (Observed)"
+who_incid <- select(who_incid,
+                    date,
+                    source,
+                    country,
+                    incid)
+
+## Stack everything together
 forecasts_observed <- rbind(forecasts,
-                            incid)
+                            incid,
+                            who_incid)
 
 fname <- here::here("data/Africa_SHP")
 africa <- sf::st_read(fname)
@@ -236,28 +267,32 @@ joined$week_of_year <- factor(joined$week_of_year)
 joined$source <- factor(joined$source,
                         levels = c("ProMED (Observed)",
                                    "ProMED",
+                                   "WHO (Observed)",
                                    "WHO"))
 
 
 ## Set-up
-joined <- filter(joined,
-                  source
-                  %in%
-                  c("ProMED (Observed)" , "ProMED"))
+## joined <- filter(joined,
+##                   source
+##                   %in%
+##                   c("ProMED (Observed)" , "ProMED"))
 
 joined$source <- forcats::fct_recode(joined$source,
-                                      c(`ProMED (Predicted)` = "ProMED"))
+                                     `ProMED (Predicted)` = "ProMED",
+                                     `WHO (Predicted)` = "WHO")
 
 
 joined$source <- factor(joined$source,
                          levels = c("ProMED (Observed)",
-                                    "ProMED (Predicted)"),
+                                    "ProMED (Predicted)",
+                                    "WHO (Observed)",
+                                    "WHO (Predicted)"),
                          ordered = TRUE)
 
 ##
 library(viridis)
 p <- ggplot()
-p <- p + scale_fill_viridis_c(breaks = c(1, 300, 600),
+p <- p + scale_fill_viridis_c(breaks = c(1, 450, 900),
                               alpha = 0.8,
                               na.value = "#fefdf6")
 p <- p + xlab("") + ylab("")

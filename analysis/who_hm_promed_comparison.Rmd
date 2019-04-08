@@ -53,17 +53,18 @@ library(ggpubr)
 # Color Scale
 
 ```{r who-hm-promed-comparison-2 }
-color_scale <- c(
-  "HealthMap.FALSE" = "#000000",
-  "HealthMap" = "#000000",
-  "HealthMap.TRUE" = "#7A7A7A",
-  "WHO.FALSE" = "#EDDF1E",
-  "WHO" = "#ffd370",
-  "WHO.TRUE" = "#F9F4AF",
-  "ProMED.TRUE" = "#cfeaf9",
-  "ProMED.FALSE" = "#229de2",
-  "ProMED" = "#229de2"
-)
+# color_scale <- c(
+#   "HealthMap.FALSE" = "#000000",
+#   "HealthMap" = "#000000",
+#   "HealthMap.TRUE" = "#7A7A7A",
+#   "WHO.FALSE" = "#EDDF1E",
+#   "WHO" = "#ffd370",
+#   "WHO.TRUE" = "#F9F4AF",
+#   "ProMED.TRUE" = "#cfeaf9",
+#   "ProMED.FALSE" = "#229de2",
+#   "ProMED" = "#229de2"
+# )
+source(here::here("analysis/common_plot_properties.R"))
 ```
 
 # WHO data 
@@ -130,19 +131,21 @@ p_cumulative <-
   geom_point(shape = 20)
 
 p_cumulative <- p_cumulative +
-  theme_classic()
+  mriids_plot_theme$theme
 
 p_cumulative <- p_cumulative +
   facet_wrap(country ~ .,
     scales = "fixed",
     strip.position = "top",
     nrow = 3
-  ) +
-  scale_colour_manual(values = color_scale)
+  ) 
+p_cumulative <-
+  p_cumulative + 
+  scale_colour_manual(values = mriids_plot_theme$color_scale)
 
 
 p_cumulative <- p_cumulative +
-  theme(legend.position = "none")
+    mriids_plot_theme$legend
 
 p_cumulative <- p_cumulative +
   xlab("") +
@@ -197,8 +200,8 @@ p_daily <-
   ) +
   geom_point(shape = 20)
 
-p_daily <- p_daily +
-  theme_classic()
+ p_daily <- p_daily +
+   mriids_plot_theme$theme
 
 p_daily <- p_daily +
   facet_wrap(country ~ .,
@@ -207,7 +210,7 @@ p_daily <- p_daily +
     nrow = 3
   ) +
   scale_colour_manual(
-    values = color_scale,
+    values = mriids_plot_theme$color_scale,
     breaks = c(
       "ProMED",
       "HealthMap",
@@ -216,21 +219,22 @@ p_daily <- p_daily +
   )
 
 p_daily <- p_daily +
-  theme(legend.position = "none")
+   mriids_plot_theme$legend
 
 p_daily <- p_daily +
   xlab("") +
   ylab("Daily Incidence")
 
-p_daily <- p_daily +
-  ##     theme(axis.text.x = element_text(angle = -10, hjust = 0)) +
-  scale_x_date(
-    date_breaks = "1 year",
-    labels = scales::date_format("%b %Y")
-  )
+# p_daily <- p_daily +
+#   ##     theme(axis.text.x = element_text(angle = -10, hjust = 0)) +
+#   scale_x_date(
+#     date_breaks = "1 year",
+#     labels = scales::date_format("%b %Y")
+#   )
 
-p_daily <- p_daily +
-  theme(legend.title = element_blank())
+# 
+# p_daily <- p_daily +
+#   theme(legend.title = element_blank())
 
 p_daily
 ```
@@ -286,6 +290,15 @@ all_R <- map_dfr(list(
         Std.Prior = 0.5
       )
       res$R$date <- x$date[end]
+      ## Append an interpolated = TRUE flag if
+      ## any point in the window was interpolated.
+      res$R$interpolated  <- purrr::map2_lgl(start,
+                                             end,
+                                             function(st, ed) {
+                                               any(x$interpolated[st:ed])
+                                             })
+      
+      
       res$R
     },
     .id = "source.country"
@@ -339,12 +352,11 @@ segment_eps <- group_by(
 
 ## Impact of time_window on R estimation and correlation
 p_r_tw <- ggplot(all_mean_R) +
-  theme_classic() +
   geom_point(aes(
     x = WHO,
     y = ProMED
   ),
-  col = color_scale[["ProMED"]],
+  col = mriids_plot_theme$color_scale[["ProMED"]],
   shape = 20
   ) +
 
@@ -352,7 +364,7 @@ p_r_tw <- ggplot(all_mean_R) +
     x = WHO,
     y = HealthMap
   ),
-  col = color_scale[["HealthMap"]],
+  col = mriids_plot_theme$color_scale[["HealthMap"]],
   shape = 20
   ) +
   geom_segment(
@@ -376,6 +388,9 @@ p_r_tw <- ggplot(all_mean_R) +
         ))
     )
   )
+
+p_r_tw <- p_r_tw +
+  mriids_plot_theme$theme
 
 p_r_tw <- p_r_tw +
   xlab("Mean(R) WHO") +
@@ -516,6 +531,7 @@ p_who_pm <- p_who_pm +
   ylab("Mean(R) ProMED") +
   geom_abline(slope = 1)
 
+p_who_pm <- p_who_pm + mriids_plot_theme$theme
 p_who_pm
 ```
 
@@ -523,7 +539,7 @@ p_who_pm
 ```{r who-hm-promed-comparison-14 }
 ## WHO vs HealthMap
 p_who_hm <- ggplot(r_who_pm) +
-  theme_classic()
+  mriids_plot_theme$theme
 
 p_who_hm <- p_who_hm +
   geom_point(
@@ -575,7 +591,7 @@ p_who_others <- ggplot(r_who_pm) +
     x = `Mean(R).who`,
     y = `Mean(R).promed`
   ),
-  col = color_scale[["ProMED"]]
+  col = mriids_plot_theme$color_scale[["ProMED"]]
   ) +
 
   geom_point(aes(
@@ -583,7 +599,7 @@ p_who_others <- ggplot(r_who_pm) +
     y = `Mean(R)`
   ),
   shape = 20,
-  col = color_scale[["HealthMap"]]
+  col = mriids_plot_theme$color_scale[["HealthMap"]]
   ) +
   geom_abline(slope = 1, linetype = "dashed") +
   facet_wrap(~country, nrow = 3, scales = "fixed") +
@@ -621,7 +637,7 @@ p_pm_hm <- ggplot(r_who_pm) +
     ),
     lineheight = .7
   ) +
-  theme_classic() +
+  mriids_plot_theme$theme +
   xlab("Mean(R) HealthMap") +
   ylab("Mean(R) ProMED")
 
@@ -686,7 +702,10 @@ knitr::kable(median_coeffs)
 
 ```{r who-hm-promed-comparison-19}
 p <- ggplot()
-p <- p + theme_classic()
+p <- p +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend
+
 p <- p + geom_ribbon(
   data = all_R_6,
   aes(
@@ -711,18 +730,26 @@ p <- p + facet_wrap(country ~ .,
   strip.position = "top",
   nrow = 3
 )
-p <- p + theme(legend.position = "none")
+
 p <- p + xlab("") + ylab("Retrospective R")
 p <- p +
   scale_colour_manual(
-    values = color_scale,
+    values = mriids_plot_theme$color_scale,
     breaks = c(
       "ProMED",
       "HealthMap",
       "WHO"
     )
   ) +
-  scale_fill_manual(values = color_scale)
+  scale_fill_manual(
+    values = mriids_plot_theme$color_scale,
+    breaks = c(
+      "ProMED",
+      "HealthMap",
+      "WHO"
+    )
+  ) 
+  
 p <- p +
   geom_hline(
     yintercept = 1,

@@ -33,6 +33,7 @@ params:
 library(dplyr)
 library(purrr)
 library(ggplot2)
+source(here::here("analysis/common_plot_properties.R"))
 ```
 
 Read in the files for all places of interest and visualise.
@@ -91,10 +92,11 @@ pbias <- ggplot(metrics,
                 col = ci)) +
     geom_boxplot(position = "dodge")
 pbias <- pbias +
-    theme_minimal() +
-    theme(legend.title = element_blank()) +
     xlab("Week of projection") +
-    ylab("Bias")
+    ylab("Bias") +
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend
+    
 
 ```
 
@@ -109,10 +111,11 @@ psharp <- ggplot(metrics,
     geom_boxplot()
 
 psharp <- psharp +
-    theme_minimal() +
-    theme(legend.title = element_blank()) +
     xlab("Week of projection") +
-    ylab("Sharpness")
+    ylab("Sharpness") +
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend
+
 ```
 
 ## Relative accuracy
@@ -128,10 +131,11 @@ prel <- ggplot(metrics,
     ##            alpha = 0.7,
     ##            position = position_jitterdodge())
 prel <- prel +
-    theme_minimal() +
-    theme(legend.title = element_blank()) +
     xlab("Week of projection") +
-    ylab("log relative accuracy")
+    ylab("log relative accuracy") +
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend
+
 ```
 
 
@@ -146,8 +150,8 @@ prelerr <- ggplot(metrics,
     geom_boxplot()
 
 prelerr <- prelerr +
-    theme_minimal() +
-    theme(legend.title = element_blank())    
+    mriids_plot_theme$theme +
+    mriids_plot_theme$legend  
 
 
 prelerr <- prelerr +
@@ -168,7 +172,6 @@ ggpubr::ggarrange(pbias,
                   prelerr,
                   nrow = 2,
                   ncol = 2,
-                  common.legend = TRUE,
                   labels = "AUTO") %>%
     ggpubr::ggexport(filename = outfile,
                      res = 144,
