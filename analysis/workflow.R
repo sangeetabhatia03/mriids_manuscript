@@ -558,3 +558,125 @@ furrr::future_pmap(pars,
                                                suffix))})
 
 toc()
+
+
+## Bayes factor calculation
+
+
+fitfiles <- list.files(
+  path = indir,
+  pattern = "marginal_log_lklh_[0-9]*_[0-9]*.rds",
+  )
+pars <- data.frame(fitfile = fitfiles,
+                   stringsAsFactors = FALSE)
+
+bits <- strsplit(x = pars$fitfile,
+                 split = "_",
+                 fixed = TRUE)
+pars$tproj <- purrr::map(bits,
+                         ~ as.integer(.x[4]))
+
+pars$twindow <- purrr::map(bits,
+                           ~ as.integer(stringr::str_replace(.x[5],
+                                                             ".rds",
+                                                             "")))
+
+
+pars$logml <- purrr::map(pars$fitfile,
+                         function(x) {
+                             out <- readr::read_rds(here::here(indir,
+                                                                x))
+                             out$logml
+                         })
+
+model_comparison <- select(pars,
+                           -fitfile) %>%
+    tidyr::spread(key = twindow,
+                  value = logml)
+
+colnames(model_comparison) <- c("tproj",
+                                "two_weeks",
+                                "four_weeks",
+                                "six_weeks")
+
+
+two_over_four <- rep(NA, nrow(model_comparison))
+four_over_six <- rep(NA, nrow(model_comparison))
+two_over_six <- rep(NA, nrow(model_comparison))
+for (row in 1:nrow(model_comparison)) {
+        out <- ifelse(!is.null(model_comparison$two_weeks[row]) &
+                      !is.null(model_comparison$four_weeks[row]),
+                      model_comparison$two_weeks[row][[1]] /
+                      model_comparison$four_weeks[row][[1]],
+                      NA)
+        two_over_four[row] <- out
+
+        out <- ifelse(!is.null(model_comparison$four_weeks[row]) &
+                      !is.null(model_comparison$six_weeks[row]),
+                      model_comparison$four_weeks[row][[1]] /
+                      model_comparison$six_weeks[row][[1]],
+                      NA)
+        four_over_six[row] <- out
+
+        out <- ifelse(!is.null(model_comparison$two_weeks[row]) &
+                      !is.null(model_comparison$six_weeks[row]),
+                      model_comparison$two_weeks[row][[1]] /
+                      model_comparison$six_weeks[row][[1]],
+                      NA)
+
+        two_over_six[row] <- out
+
+
+}
+
+model_comparison <- cbind(model_comparison,
+                          two_over_four,
+                          four_over_six,
+                          two_over_six)
+
+
+#### For a given time window, number of weeks with predicted
+#### non-zero cases. Similarly, number of weeks with non-zero observed
+#### cases.
+
+time_window <- 28
+n.dates.sim <- 28
+forecasts_files <- list.files(
+    path = outdir,
+    pattern = paste0("forecasts_[0-9]*_",
+                     time_window,
+                     "_",
+                     n.dates.sim,
+                     ".csv")
+  )
+names(forecasts_files) <- stringr::str_replace(forecasts_files,
+                                               "forecasts_",
+                                               "") %>%
+    stringr::str_replace(".csv", "")
+
+all_forecasts <- purrr::map_dfr(forecasts_files,
+                                ~ readr::read_csv(here::here(outdir,
+                                                             .x)),
+                                .id = "parameters")
+
+all_forecasts <- tidyr::separate(all_forecasts,
+                                 col = parameters,
+                                 into = c("tproj",
+                                          "time_window",
+                                          "n.dates.sim"),
+                                 convert = TRUE)
+
+
+
+all_forecasts <- arrange(all_forecasts, tproj)
+
+pm_predicted_nonzero <-
+    group_by(all_forecasts, country) %>%
+    summarise(non_zero_y = sum(y > 0),
+              non_zero_ymin = sum(ymin > 0),
+              non_zero_ymax = sum(ymax > 0))
+
+
+readr::write_csv(x = pm_predicted_nonzero,
+                 path = here::here(outdir,
+                                  "weeks_with_nonzero_predicted.csv"))
