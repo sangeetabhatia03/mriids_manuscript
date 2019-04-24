@@ -20,8 +20,8 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  infile: data/raw/promed_2014-2016-renamed.csv
-  outfile: 19032019_promed_loglinear
+  infile: data/raw/HealthMap_Ebola_GNE_WHO.csv
+  outfile: 16042019_healthmap_loglinear
   ofinterest: data/processed/all_african_centroids.csv
 ---
 
@@ -52,7 +52,7 @@ wafrica <- c("Sierra Leone",
               "Liberia",
               "Guinea",
              "Senegal",
-             "Ghana",
+             ## "Ghana",
              "Mali",
              "Nigeria")
 

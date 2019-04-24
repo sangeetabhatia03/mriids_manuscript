@@ -25,10 +25,12 @@ individuals or launching vaccination campaigns. However,
 any data collection method involves trade-offs between
 speed, accuracy and costs. Data collected through
 conventional surveillance such as through public health infrastructure,
-are generally quite reliable. However, there is an (understandable)
-delay from the point of data collection to the point at which 
-they are available in a usable form to the stakeholders.
+are generally quite reliable but are made available for upstream
+analysis with an (understandable) delay.
 
+With the rapid growth of the internet, there has been a 
+corresponding increase in tools for internet based 
+disease detection that lie at the other end of the spectrum.
 Digital disease surveillance consists of monitoring 
 online information sources to collate relevant 
 information about diseases. The sources of information 
@@ -43,11 +45,12 @@ The Program for Monitoring Emerging Diseases
 one of the first entrants in the field of digital 
 disease detection. ProMED was created in 1994 as a surveillance
 network to provide early warning of familiar as well as emerging 
-infections [@morse2012public]. Sources of information include
+infections [@morse2012public]. ProMED collates information from 
+various sources that include
 media reports, official reports, local observers, and a network
 of clinicians throughout the world. The reports generated through
 bottom-up surveillance are reviewed by a team of subject matter
-experts before being posted to ProMED network.ProMED now provides 
+experts before being posted to ProMED network. ProMED now provides 
 free email 
 based reports on outbreaks to over 70,000 subscribers in at 
 least 185 countries. 
@@ -59,13 +62,11 @@ aggregators, eyewitness reports and other formal and informal
 sources of information and allows for visualisation of alerts 
 on a map [@freifeld2008healthmap]. 
 
-With the rapid growth of the internet, there has been a 
-corresponding increase in tools for internet based digital 
-disease detection. Examples include 
+Some other examples of digital disease detection tools include 
 MediSys (http://medisys.newsbrief.eu/), H5N1 Google Earth mashup
 (www.nature.com/avianflu/google-earth), Emerging Infections 
-Network (http://ein.idsociety.org) and others. These digital 
-surveillance tools provide a unique opportunity to rapidly 
+Network (http://ein.idsociety.org). These tools 
+provide a unique opportunity to rapidly 
 detect new outbreaks and follow their evolution in near 
 real-time. 
 
@@ -83,9 +84,11 @@ to visualize the risk, this information did not have any
 significant impact on public health resource allocation and 
 decision making.
 While there has been a
-growth in the number of 
-epidemiological studies using data from digital surveillance 
-tools [@chowell2016elucidating], there is as yet a dearth of a
+growing interest in using various internet data streams for 
+epidemiological investigations [@generous2014global, @milinovich2015role] and 
+in using data from digital surveillance 
+tools [@chowell2016elucidating], 
+there is as yet a dearth of a
 framework that can automatically combine such data with other 
 streams of  
 information analyse them in a statistically robust manner, 
@@ -101,7 +104,7 @@ quantify spatial heterogeneity in the risk of disease spread
 and
 estimate, for a given country, where the risk comes from. 
 In this paper, we present the model implemented in this system and as
-a case study, we report the analysis of  ProMED/HealthMap data
+a case study, we report the analysis of  ProMED and HealthMap data
 for the 2014-16 West African Ebola epidemic.  
 To assess the robustness of the digital surveillance data, 
 we also applied the framework to the data 
@@ -111,11 +114,9 @@ data with the retrospective WHO data and the results of
 the spatiotemporal analysis carried out on the two data sources.
 
 In using only data available through ProMED/HealthMap to analyse 
-this outbreak, we provide a realistic appraisal of their 
+this epidemic, we provide a realistic appraisal of their 
 strengths and weaknesses, especially if used in near real-time 
-forecasting. As other authors have emphasised, digital
-disease detection is not a replacement for, but complementary to
-public health infrastructure. 
+forecasting. 
 
 
 

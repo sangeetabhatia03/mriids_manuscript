@@ -20,7 +20,7 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  twindow : 28
+  twindow : 14
   incid : data/processed/20122018_promed_loglinear_wide.csv
   n.dates.sim : 28
   places: !r c("SLE", "LBR", "GIN")
@@ -29,6 +29,19 @@ params:
   outdir: data/output/figures
 ---
 
+```{r}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      dev = 'png',
+                      ## fig.width = 7,
+                      ## dev.args = list(pointsize = 6),
+                      fig.path = here::here(params$outdir),
+                      fig.ext = paste0("_",
+                                       params$twindow,
+                                       ".png"))
+
+```
 ```{r setup, eval = TRUE}
 library(dplyr)
 library(purrr)
@@ -53,7 +66,7 @@ metrics <- map_dfr(infiles,
                                                 .x)))
                     
 metrics$week_of_projection <- factor(metrics$week_of_projection,
-                                     levels = 1:4)
+                                     levels = 1:(params$n.dates.sim / 7))
 
 ```
 
@@ -166,18 +179,32 @@ outfile <- here::here(params$outdir,
                       paste0("forecasts_assess_",
                              params$twindow,
                              ".png"))
-ggpubr::ggarrange(pbias,
-                  psharp,
-                  prel,
-                  prelerr,
-                  nrow = 2,
-                  ncol = 2,
-                  labels = "AUTO") %>%
-    ggpubr::ggexport(filename = outfile,
-                     res = 144,
-                     width = 960,
-                     height = 960)
-    
+
+## Affix legend manually otherwise I can't get rid of the
+## annoying legend title.
+legend <- cowplot::get_legend(pbias +
+                              theme(legend.position = "bottom",
+                                    legend.title = element_blank()))
+
+prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
+                           psharp + theme(legend.position = "none"),
+                           prel + theme(legend.position = "none"),
+                           prelerr + theme(legend.position = "none"),
+                           align = 'vh',
+                           labels = c("A", "B", "C", "D"),
+                           hjust = -1,
+                           nrow = 2
+                           )
+
+
+# add the legend underneath the row we made earlier. Give it 10% of the height
+# of one plot (via rel_heights).
+p <- cowplot::plot_grid(prow,
+                        legend,
+                        ncol = 1,
+                        rel_heights = c(1, .1))
+
+p    
 
 ```
 

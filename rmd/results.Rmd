@@ -7,6 +7,19 @@ fig_nums <- captioner(prefix = "Figure")
 tab_nums <- captioner(prefix = "Table")
 ```
 
+
+```{r echo = FALSE, warning = FALSE}
+## Need to define stuff before we can use it.
+rcorrcite <- si_fig_nums(name = "rcorr",
+                       display = "cite")
+rcorrcap <- si_fig_nums(name = "rcorr",
+                     caption = "R estimates from ProMED,
+HealthMap and WHO data when using different time windows. (Top) Time
+ window of 14 days. (Bottom) Time window of 42 days.
+The orange line depicts the identity function.")
+
+```
+
 ## Processing ProMED/HealthMap data feed
 
 We used a set of curated ProMED and HealthMap records on the human 
@@ -38,13 +51,15 @@ Healthmap data are presented in the supplementary text.
 
 We used the incidence data collated by the WHO during the West 
 African Ebola epidemic made available by [@garske20160308], 
-later referred to as ``the WHO data'' in the interest of brevity. 
+later referred to as the ``WHO data'' in the interest of brevity. 
 The cleaned version of the WHO data consisted of cases reported
 between December 2013 and October 2015 in three most affected
-countries - Guinea, Sierra Leone and Liberia. Location of residence 
-was geo-coded to the second administrative level. However, as data
-from ProMED and HealthMap were only available at the country level,
-we aggregated the WHO data to national level for comparison.
+countries - Guinea, Sierra Leone and Liberia. The location of
+residence of cases was geo-coded to the second administrative level. 
+We aggregated the WHO data to national level to match the spatial
+resolution of ProMED and HealthMap that were only available at the 
+country level.
+
 
 ## Comparison of incidence trends from different sources
 
@@ -56,7 +71,8 @@ incidrcap <- fig_nums(name = "incidrcompare",
 trends and R estimates from ProMED, HealthMap and WHO data (A) Daily
 incidence series derived from ProMED (blue), HealthMap (black) and WHO data (orange). The interpolated points for ProMED and HealthMap are shown in lighter shade of blue and black respectively. WHO data were aggergated to country level. (B) The mean
 time-varying reproduction number estimated using the WHO data, ProMED (blue) and
-HealthMap (black) data. The shaded region depicts the 95% CrI for the R estimate. A time window of 28 days for estimating R was used here.")
+HealthMap (black) data. The shaded region depicts the 95% CrI for the R estimates.
+The reprodcution number was estimated using EpiEstim with a time window of 28 days.")
 
 ```
 
@@ -113,7 +129,7 @@ into time windows of equal width.
 Assuming that transmissibility in each location stays constant 
 within each time window, we estimated 
 a single reproduction number for each location for each time window. 
-We varied the length of this time window from 1 week to 4 weeks 
+We varied the length of this time window from 2 weeks to 4 weeks 
 to obtain different models. The forecast horizon was varied from
 4 weeks to 8 weeks. 
 
@@ -199,7 +215,7 @@ knitr::include_graphics("ms-figures/who_projections-viz-fixed-country-14-1._14.p
 
 
 ```{r echo = FALSE, fig.cap = mapcap, fig.align = "center"}
-knitr::include_graphics("ms-figures/whole_africa_MALI_nonzero.png")
+knitr::include_graphics("ms-figures/promed_mli_nonzero.png")
 ```
 
 ```{r echo = FALSE, warning = FALSE}
@@ -228,7 +244,7 @@ travel across national borders.
 
 
 
-## Evaluation of the model performance
+## Model Evaluation 
 
 ```{r echo = FALSE, warning = FALSE}
 assesscite <- fig_nums(name = "assess", display = "cite")
@@ -243,41 +259,64 @@ projection window. be If the 97.5th percentile of the R estimate used
 was less than 1, we defined the epidemic to be in the declining phase
 during this period. Similarly, if the 2.5th percentile of R was
 greater than 1, we defined the epidemic to be in a growing phase.")
+
+proptabcite <- tab_nums(name = "propinci", display = "cite")
+proptabcap <- tab_nums(name = "propinci",
+                       caption = "Proportion of observed incidence in
+95% CrI of the projected incidence.")
 ```
-`r assesscite` shows the metrics (bias,
-sharpness, log of relative accuracy, and relative mean absolute error) 
-discussed earlier for the 4 week projections in 
-Guinea, Sierra Leone and Liberia using a 4-week window to estimate
-reproduction number. Each metric was first computed using the daily
-observed and predicted series and then averaged across all weeks of
-projections.
+
+An intuitive measure of model accuracy is the proportion of
+observed values that are contained in the distribution of simulated 
+values.  In addition to the 
+accuracy of the projected incidence, the uncertainty associated 
+with the forecasts (e.g., measured by the width of the prediction
+interval) is an important indicator of model performance. A 
+narrow prediction interval that contains the observed values
+is preferable over wide prediction intervals. To asses the 
+performance of the model along both these dimensions, 
+we used different metrics - bias, sharpness, and relative error,
+drawn from the literature. These are explained in detail in the
+SI. Briefly, sharpness is a measure of the spread of forecasts with a 
+value of 0 indicating perfect agreement across simulated
+trajectories. Bias measures the tendency of a model to systematically 
+under or over predict. The bias score for a model is 1 if it always 
+over-predicts and  -1 if it always under-predicts. 
+
+
+```{r proponci, echo = FALSE, message = FALSE, fig.cap = proptabcap}
+library(magrittr)
+here::here("data/processed/promed_propinci_byphase.csv") %>%
+    readr::read_csv() %>%
+        flextable::flextable(cwidth = 1) 
+```
+
+`r proptabcite` shows the proportion of observed incidence 
+values in the 95% CrI of the simulated trajectories. The model
+performance varies depending on the phase of the epidemic and the 
+country. In
+general, the model accuracy is better in the declining phase of the
+epidemic (defined as the window in which the 975th percentile of the
+posterior distribution of the reproduction number is less than 1). 
+The bias and scores of the model (`r assesscite` A) indicate that in the
+growing phase, the model tends to over-predict with the forecasts
+becoming less sharp (`r assesscite` B) as we projections are made over
+longer time frames. In 
+the declining phase (defined similarly as the window in which the 
+0.975th R percentile is less than 1), the model tends to 
+under-predict.
 
 Across all metrics, there is a strong trend of decreased model
 performance as the forecast horizon increases. The bias in forecasts
 at week 1 is closer to 0 at every time point. Similarly the forecasts
-at week 1 are more sharp (sharpness close to 0) than at week 4. In
-general, the model performs better in the growing phase of the
-epidemic (defined as the window in which the 0.025th percentile of the
-posterior distribution of the reproduction number is greater than 1). 
-In this phase, the
-forecasts are generally greater than the observed incidence while in 
-the declining phase (defined similarly as the window in which the 
-0.975th R percentile is less than 1), the model tends to 
-under-predict. The
-length of the calibration window did not have a significant impact on 
-the model performance.
+at week 1 are more sharp (sharpness close to 0) than at week 4. 
+The length of the time window used to estimate R did not have a 
+significant impact on the model performance.
 
 
 
 
 ```{r assess, echo = FALSE, fig.cap = assesscap, fig.align = "center"}
-knitr::include_graphics("ms-figures/forecasts_assess_28.png")
-```
-
-```{r proponci, echo = FALSE, message = FALSE}
-library(magrittr)
-here::here("data/processed/promed_propinci_byphase.csv") %>%
-    readr::read_csv() %>%
-        flextable::flextable() 
+knitr::include_graphics("ms-figures/forecasts_assess_14.png")
 ```
 

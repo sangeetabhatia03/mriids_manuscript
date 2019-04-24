@@ -24,6 +24,7 @@ day0 <- readr::read_csv(here::here(all_files[[datasource]]$incidfile),
   n_max = 1
 ) %>%
   pull(date)
+
 fitfiles <- list.files(
   path = all_files[[datasource]]$stanfits_dir,
   pattern = "^[0-9]*_[0-9]*.rds",
@@ -53,7 +54,11 @@ for (fit in fitfiles) {
     readr::read_rds(here::here(
       all_files[[datasource]]$stanfits_dir,
       fit
-    ))
+      ))
+  if (! inherits(fitobj, "stanfit")) {
+      message("Not a stanfit object ", fit)
+      next
+  }
   list_of_draws <- rstan::extract(fitobj)
   nsamples <- length(list_of_draws[["gamma"]])
   selected <- sample(seq_len(nsamples), nsim)
@@ -69,8 +74,6 @@ for (fit in fitfiles) {
       )
     )
   )
-
-
   gamma_samples <- list_of_draws[["gamma"]][selected]
   pstay_samples <- list_of_draws[["pstay"]][selected]
 
@@ -207,7 +210,7 @@ toc()
 
 ## Consolidates metrics for all countries.
 purrr::map(
-  twindows,
+  c(14, 28, 42),
   function(tw) {
     idx <- which(pars$twindow == tw)
     tproj <- pars$tproj[idx]
@@ -221,9 +224,9 @@ purrr::map(
           n.dates.sim = 28,
           place = p,
           indir =
-            "data/who_output/metrics/weekly",
+            paste0(all_files[[datasource]]$outdir, "/metrics/weekly"),
           outdir =
-            "data/who_output/metrics/weekly"
+            paste0(all_files[[datasource]]$outdir, "/metrics/weekly")
         )
       )
     }
@@ -495,211 +498,6 @@ readr::write_csv(
 
 
 ######
-library(bridgesampling)
-is_zero <- function(col) {
-  return(all(col == 0))
-}
-
-
-window <- c(14, 28, 42)
-pars <- data.frame(
-  tproj = c(),
-  twindow = c()
-)
-for (tw in window) {
-  tproj <- seq(
-    from = tw + 7,
-    to = 656 - tw,
-    by = 7
-  )
-  pars <- rbind(pars, expand.grid(
-    tproj = tproj,
-    twindow = tw
-  ))
-}
-
-
-metadatafile <- "data/processed/all_african_centroids.csv"
-distances <- readRDS("data/processed/allafrica_distances.rds")
-centroids <- read.csv(metadatafile)
-library(furrr)
-plan(multiprocess)
-tic()
-furrr::future_pmap(
-  pars,
-  function(tproj, twindow) {
-    suffix <- paste(tproj, twindow, sep = "_")
-    suffix <- paste0(
-      suffix,
-      ".rds"
-    )
-    message("read ", suffix)
-    fit <- readr::read_rds(here::here(
-      all_files[[datasource]]$stanfits_dir,
-      suffix
-    ))
-
-    ## collect data for stan
-    I <- readr::read_rds(here::here(
-      all_files[[datasource]]$stanfits_dir,
-      paste0(
-        "incid_",
-        suffix
-      )
-    ))
-    zero_idx <- which(apply(I, 2, is_zero))
-    zero_incid <- length(zero_idx)
-
-    SI <- readr::read_rds(here::here(
-      all_files[[datasource]]$stanfits_dir,
-      paste0(
-        "si_",
-        suffix
-      )
-    ))
-    rindex <- readr::read_rds(here::here(
-      all_files[[datasource]]$stanfits_dir,
-      paste0(
-        "rindex_",
-        suffix
-      )
-    ))
-
-    standata <- list(
-      T = tproj,
-      N = 55,
-      I = I,
-      SI = SI,
-      rindex = rindex,
-      num_Rjt = max(rindex),
-      population = centroids$pop,
-      dist_mat = distances,
-      alpha = 1,
-      beta = 1,
-      K = 1,
-      prior_mean = 1,
-      prior_std = 0.5,
-      zero_incid = zero_incid,
-      zero_idx = zero_idx
-    )
-
-
-    new_mod <- stan(
-      file = here::here("analysis/full_spatial_model_optimised.stan"),
-      data = standata,
-      chains = 0
-    )
-    out <- bridgesampling::bridge_sampler(fit, new_mod)
-    readr::write_rds(
-      x = out,
-      path = paste0(
-        all_files[[datasource]]$stanfits_dir,
-        "/marginal_log_lklh_",
-        suffix
-      )
-    )
-  }
-)
-
-toc()
-
-
-##  Bayes factor calculation
-
-
-fitfiles <- list.files(
-  path = all_files[[datasource]]$stanfits_dir,
-  pattern = "marginal_log_lklh_[0-9]*_[0-9]*.rds",
-)
-pars <- data.frame(
-  fitfile = fitfiles,
-  stringsAsFactors = FALSE
-)
-
-bits <- strsplit(
-  x = pars$fitfile,
-  split = "_",
-  fixed = TRUE
-)
-pars$tproj <- purrr::map(
-  bits,
-  ~ as.integer(.x[4])
-)
-
-pars$twindow <- purrr::map(
-  bits,
-  ~ as.integer(stringr::str_replace(
-    .x[5],
-    ".rds",
-    ""
-  ))
-)
-
-
-pars$logml <- purrr::map(
-  pars$fitfile,
-  function(x) {
-    out <- readr::read_rds(here::here(
-      all_files[[datasource]]$stanfits_dir,
-      x
-    ))
-    out$logml
-  }
-)
-
-model_comparison <- select(
-  pars,
-  -fitfile
-) %>%
-  tidyr::spread(
-    key = twindow,
-    value = logml
-  )
-
-colnames(model_comparison) <- c(
-  "tproj",
-  "two_weeks",
-  "four_weeks",
-  "six_weeks"
-)
-
-
-two_over_four <- rep(NA, nrow(model_comparison))
-four_over_six <- rep(NA, nrow(model_comparison))
-two_over_six <- rep(NA, nrow(model_comparison))
-for (row in 1:nrow(model_comparison)) {
-  out <- ifelse(!is.null(model_comparison$two_weeks[row]) &
-    !is.null(model_comparison$four_weeks[row]),
-  model_comparison$two_weeks[row][[1]] /
-    model_comparison$four_weeks[row][[1]],
-  NA
-  )
-  two_over_four[row] <- out
-
-  out <- ifelse(!is.null(model_comparison$four_weeks[row]) &
-    !is.null(model_comparison$six_weeks[row]),
-  model_comparison$four_weeks[row][[1]] /
-    model_comparison$six_weeks[row][[1]],
-  NA
-  )
-  four_over_six[row] <- out
-
-  out <- ifelse(!is.null(model_comparison$two_weeks[row]) &
-    !is.null(model_comparison$six_weeks[row]),
-  model_comparison$two_weeks[row][[1]] /
-    model_comparison$six_weeks[row][[1]],
-  NA
-  )
-
-  two_over_six[row] <- out
-}
-
-model_comparison <- cbind(
-  model_comparison,
-  two_over_four,
-  four_over_six,
-  two_over_six
-)
 
 
 #### For a given time window, number of weeks with predicted
@@ -709,8 +507,8 @@ model_comparison <- cbind(
 forecasts_files <- list.files(
   path = all_files[[datasource]]$outdir,
   pattern = paste0(
-    "forecasts_[0-9]*_",
-    time_window,
+    "^forecasts_[0-9]*_",
+    twindow,
     "_",
     n.dates.sim,
     ".csv"
@@ -744,6 +542,19 @@ all_forecasts <- tidyr::separate(all_forecasts,
 
 
 all_forecasts <- arrange(all_forecasts, tproj)
+all_forecasts$week_of_year <-
+    paste(lubridate::year(all_forecasts$date),
+          "Week",
+          lubridate::week(all_forecasts$date))
+
+## Save this for mapping later.
+readr::write_csv(x = all_forecasts,
+                 path = here::here(all_files[[datasource]]$outdir,
+                                   paste0("all_forecasts_",
+                                          twindow,
+                                          "_",
+                                          n.dates.sim,
+                                          ".csv")))
 
 pm_predicted_nonzero <-
   group_by(all_forecasts, country) %>%
@@ -758,6 +569,10 @@ readr::write_csv(
   x = pm_predicted_nonzero,
   path = here::here(
     all_files[[datasource]]$outdir,
-    "weeks_with_nonzero_predicted.csv"
+    paste0("weeks_with_nonzero_predicted_",
+           twindow,
+           "_",
+           n.dates.sim,
+           ".csv")
   )
 )
