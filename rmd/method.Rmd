@@ -1,7 +1,7 @@
 # Material and methods
 ## Statistical model
 Our model relies on a well-established and simple framework 
-that assumes the daily incidence, $I_t $ , can be approximated with a
+that assumes the daily incidence, $I_t$ , can be approximated with a
 Poisson process following the renewal equation
 [@fraser2007estimating]. 
 
@@ -13,13 +13,13 @@ Poisson process following the renewal equation
   \right).
 \]
 
-Here $ R_t$ is the reproduction number at time $t$ (the average 
+Here $R_t$ is the reproduction number at time $t$ (the average 
 number of secondary cases per infected individual) and $\omega$
 is the distribution of the serial interval (the time between onset of 
 symptoms in a case and their infector).
 
 We extend this model to incorporate the spatial spread of the
-outbreak between  $ n $ different locations.
+outbreak between  $n$ different locations.
 The number of incident cases at a location $j$ at time $t$ is
 given by the equation
 \begin{align}
@@ -45,7 +45,7 @@ dependence of the reproduction number on these factors.
 The probability of moving between locations is derived from the
 relative flow of populations between locations.
 This latter quantity can be estimated using a population flow
-model; here we used a gravity model [@grosche2007175, @zipf1946p]. 
+model; here we used a gravity model [@grosche2007175], [@zipf1946p]. 
 Under a gravity model, the flow of individuals from area $i$ to area $j$,
 $\phi_{i \rightarrow j}$, is proportional to the product of the
 populations of the two locations, $N_i$ and $N_j$ and inversely
@@ -156,9 +156,11 @@ Since $p_{stay}$ is a probability,
 the prior was a uniform distribution on the interval $[0, 1]$.
 For simplicity, and in the absence of 
 data to inform these, 
-we assumed the exponents $\alpha $ and $\beta$ on the
+we assumed the exponents $\alpha$ and $\beta$ on the
 populations to be 1.
-$\gamma$ was allowed to vary between 1 and 3.
+$\gamma$ was allowed to vary between 1 and 2 in the results presented
+in the main text. We did sensitivity analysis by letting gamma vary 
+between 1 and 10. The results of this analysis are presented in the SI.
 
 Model fitting was done in a Bayesian framework using MCMC
 methods as implemented in the software Stan [@carpenter2017stan] 

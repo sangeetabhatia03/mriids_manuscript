@@ -25,7 +25,8 @@ individuals or launching vaccination campaigns. However,
 any data collection method involves trade-offs between
 speed, accuracy and costs. Data collected through
 conventional surveillance such as through public health infrastructure,
-are generally quite reliable but are made available for upstream
+are generally quite reliable but are resource intensive and are 
+made available for upstream
 analysis with an (understandable) delay.
 
 With the rapid growth of the internet, there has been a 
@@ -64,7 +65,7 @@ on a map [@freifeld2008healthmap].
 
 Some other examples of digital disease detection tools include 
 MediSys (http://medisys.newsbrief.eu/), H5N1 Google Earth mashup
-(www.nature.com/avianflu/google-earth), Emerging Infections 
+(www.nature.com/avianflu/google-earth), and Emerging Infections 
 Network (http://ein.idsociety.org). These tools 
 provide a unique opportunity to rapidly 
 detect new outbreaks and follow their evolution in near 
@@ -85,7 +86,8 @@ significant impact on public health resource allocation and
 decision making.
 While there has been a
 growing interest in using various internet data streams for 
-epidemiological investigations [@generous2014global, @milinovich2015role] and 
+epidemiological investigations [@generous2014global], 
+[@milinovich2015role] and 
 in using data from digital surveillance 
 tools [@chowell2016elucidating], 
 there is as yet a dearth of a
@@ -98,7 +100,8 @@ during an outbreak where such information would be most useful.
 
 We have developed 
 a system to estimate and visualize risks posed by
-outbreak events. It relies on a simple methodological
+outbreak events using digital surveillance data. 
+It relies on a simple methodological
 framework that integrates multiple data streams to
 quantify spatial heterogeneity in the risk of disease spread 
 and

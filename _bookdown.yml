@@ -3,7 +3,8 @@ rmd_files: [
 "index.Rmd",
 "rmd/abstract.Rmd",
 "rmd/intro.Rmd",
-"rmd/assess.Rmd",
 "rmd/results.Rmd",
 "rmd/discussion.Rmd",
-"rmd/references.Rmd"]
+"rmd/references.Rmd",
+"rmd/method.Rmd",
+"rmd/assess.Rmd"]

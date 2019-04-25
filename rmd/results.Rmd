@@ -77,7 +77,7 @@ The reprodcution number was estimated using EpiEstim with a time window of 28 da
 ```
 
 We compared the processed country-specific incidence time 
-series derived  from ProMED and HealthMap data with the incidence data 
+series derived from ProMED and HealthMap data with the incidence series 
 from the WHO data. Incidence time series and the reproduction numbers 
 estimated using the
 incidence from these various sources are shown in  
@@ -94,8 +94,9 @@ correlation coefficient 0.44 and 0.74 respectively, p value < 0.001).
 The digital surveillance data differ significantly from the WHO data 
 at the peak of the epidemic approximately in the first few months of 
 2015. While the reasons for this discrepancy are not entirely clear, 
-they could for instance reflect the susceptibility of digital surveillance to
-biases in reporting. At the same time, it is important to remember
+they could for instance reflect the susceptibility of digital 
+surveillance to variability in reporting during the course of the 
+epidemic. At the same time, it is important to remember
 that the WHO data used here are an extensively cleaned
 version of the data collected during the epidemic [@who2014ebola, 
 @team2015west], published well after the epidemic was declared to be 
@@ -111,7 +112,6 @@ on ProMED on Ebola cases in Guinea appeared in March 2014
 knitr::include_graphics("ms-figures/who-hm-promed-comparison-20-1.png")
 ```
 
-
 The estimates of the reproduction number are strongly influenced by
 the choice of the time window (`r rcorrcite`). The correlation between 
 mean R estimates from ProMED or HealthMap data with the estimates from 
@@ -122,8 +122,10 @@ WHO data varied from weak (0.13, time window of 2 weeks) to very strong
 
 ## Short term projections
 
-To project incidence at time $t$, we used the incidence data up to 
-day $t - 1$. To estimate the time-varying reproduction number for 
+To project incidence at time $t$, we fitted the daily incidence up to 
+day $t - 1$ to a spatially explicit branching process model (see
+Methods). 
+To estimate the time-varying reproduction number for 
 each country, we divided the duration from day 1 to day $t - 1$ 
 into time windows of equal width. 
 Assuming that transmissibility in each location stays constant 
@@ -131,7 +133,10 @@ within each time window, we estimated
 a single reproduction number for each location for each time window. 
 We varied the length of this time window from 2 weeks to 4 weeks 
 to obtain different models. The forecast horizon was varied from
-4 weeks to 8 weeks. 
+4 weeks to 8 weeks. The model fitting was done in a Bayesian framework 
+and 1000 trajectories were simulated using a joint sample of all model 
+parameters (reproduction numbers for each location in each time window
+and parameters of the gravity model). 
 
 ```{r echo = FALSE, warning = FALSE}
 g28cite <- fig_nums(name = "promed28",
@@ -150,11 +155,12 @@ mapcite <- fig_nums(name = "spatial",
 mapcap <- fig_nums(name = "spatial",
                    caption = "Spatial spread of the epidemic. The
 observed and predicted spread of the epidemic in two weeks in late
-2014.")
+2014. The color shows the observed and predicted incidence on a
+logarithmic scale.")
 
 ```
 
-We also estimated retrosective transmissibilty using all the available 
+We also estimated retrospective transmissibilty using all the available 
 data. The retrospective estimates of R agree reasonably well with the 
 real time estimates of R (bottom two panels `r g28cite`). The model is
 able to capture well the broad trends in the progress of the epidemic 
@@ -162,9 +168,9 @@ within each country (top panel `r g28cite`) as well as the
 spatio-temporal spread (`r mapcite`). 
 The forecasts and R estimates using WHO data are shown in `r who28cite`.
 
-In the results presented in the main text, we used a time window of 14
-days. Results from the model using other time windows and projection 
-horizon are presented in the supplementary text.
+The results presented in the main text were obtained using a time 
+window of 14 days. Results from the model using other time windows and 
+projection horizon are presented in the supplementary text.
 
 ```{r figcaps, echo = FALSE}
 g28cap <- fig_nums(name = "promed28",
@@ -223,24 +229,30 @@ parscite <- fig_nums(name = "pstayandgamma",
                      display = "cite")
 
 parscap <- fig_nums(name = "pstayandgamma",
-                    caption = "Estimates of mobility model parameters at
-different points during the epidemic.
-The circle represents the central estimate and the horizontal bars
-represent the 2.5th and 97.5th percentiles.")
+                    caption = "Estimates of mobility model parameters 
+during the epidemic.
+The solid yellow line represents the median obtained using WHO
+data and the blue line represents the median using ProMED data.
+The shaded regions represent the 95% CrI.")
 ```
-`r parscite` shows how the estimated values of 
-the parameters of the mobility model changed over the course of
-the outbreak. Both these parameters were assumed to be constant
-for the time frame over which model was fitted and across all
-countries. 
+The parameters of the mobility model ($p_{stay}$ and $\gamma$) 
+were estimated using the incidence data coupled with the population 
+estimates and the 
+geographical distances. $p_{stay}$ is the probability
+of an individual to stay within a country and $\gamma$ is a measure of
+the influence of distance between two locations on the flow between 
+them. Both the parameters were 
+assumed to be constant for the time frame over which model was fitted 
+and across all countries. It is interesting to note that the change in 
+parameter estimates over the course 
+of the epidemic (`r parscite`) suggests a decreased probability of 
+travel across national borders.
+
 
 ```{r echo = FALSE, fig.cap = parscap, fig.align = "center", fig.width = 3.4}
 knitr::include_graphics("ms-figures/who_gamma_pstay_over_tproj_14.png")
 ```
 
-It is interesting to note that the change in estimates over the course 
-of the epidemic suggests a decreased probability of 
-travel across national borders.
 
 
 
@@ -268,7 +280,15 @@ proptabcap <- tab_nums(name = "propinci",
 
 An intuitive measure of model accuracy is the proportion of
 observed values that are contained in the distribution of simulated 
-values.  In addition to the 
+values. `r proptabcite` shows the proportion of observed incidence 
+values in the 95% CrI of the simulated trajectories. The model
+performance varies depending on the phase of the epidemic and the 
+country. In general, the model accuracy is better in the declining 
+phase of the epidemic (defined as the window in which the 975th 
+percentile of the
+posterior distribution of the reproduction number is less than 1). 
+
+In addition to the 
 accuracy of the projected incidence, the uncertainty associated 
 with the forecasts (e.g., measured by the width of the prediction
 interval) is an important indicator of model performance. A 
@@ -291,16 +311,9 @@ here::here("data/processed/promed_propinci_byphase.csv") %>%
         flextable::flextable(cwidth = 1) 
 ```
 
-`r proptabcite` shows the proportion of observed incidence 
-values in the 95% CrI of the simulated trajectories. The model
-performance varies depending on the phase of the epidemic and the 
-country. In
-general, the model accuracy is better in the declining phase of the
-epidemic (defined as the window in which the 975th percentile of the
-posterior distribution of the reproduction number is less than 1). 
 The bias and scores of the model (`r assesscite` A) indicate that in the
 growing phase, the model tends to over-predict with the forecasts
-becoming less sharp (`r assesscite` B) as we projections are made over
+becoming less sharp (`r assesscite` B) as the projections are made over
 longer time frames. In 
 the declining phase (defined similarly as the window in which the 
 0.975th R percentile is less than 1), the model tends to 
@@ -313,6 +326,20 @@ at week 1 are more sharp (sharpness close to 0) than at week 4.
 The length of the time window used to estimate R did not have a 
 significant impact on the model performance.
 
+The choice of time window (2, 4 or 6 weeks) for estimating R
+corresponded to a different model. As we estimated a reproduction
+number in each time window for each location, a shorter time window 
+introduced more parameters in the model. At each point of projection
+where more than one model was fitted, we estimated Bayes factor 
+[@kass1995bayes] for model comparison using R package bridgesampling 
+[@bridgeasampling]. Our analysis suggests that the preference for
+increased model complexity changed during the course of the epidemic. 
+In the early phase, we did not find strong evidence for using a smaller 
+time window (more complex model) while in the later phase, there was 
+decisive support for small time window over a longer one. This finding
+lends support to the intuition that in an unfolding outbreak, the more 
+recent past is a better indicator of the short term future, especially 
+in a rapidly changing situation.
 
 
 

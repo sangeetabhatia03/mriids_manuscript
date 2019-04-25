@@ -1,6 +1,6 @@
 # Discussion
 
-In the context of increasing threat of inadvertent movement of
+In the context of increasing threat of movement of
 diseases between various regions of the world due to increased global 
 connectivity, innovative disease surveillance  solutions are urgently 
 needed. We compared the West African Ebola outbreak of 
@@ -11,12 +11,19 @@ epidemic.
 
 In general, we found the data from ProMED and HealthMap to be in good 
 agreement with the data collated by WHO through traditional 
-surveillance methods. However, in spite of the manual curation of the 
+surveillance methods. In particular, retrospective estimates of 
+transmissibility over time were highly correlated across all data 
+sources. As future incidence trends are more sensitive to the accuracy of 
+transmissibility estimates than to the accuracy of incidence estimates,
+the observed agreement in transmissibility estimated from the
+different data sources suggests that digital surveillance data 
+could be used for providing accurate trends for forecast in an outbreak.
+  
+In spite of the manual curation of the 
 data carried out by subject matter experts at ProMED and HealthMap, 
-significant data 
-quality issues remained in the data feeds. Dealing with issues such as 
-missing data and inconsistent data records was a key challenge
-in using these data. 
+significant quality issues remained in the data feeds. Dealing with 
+issues such as missing information and inconsistent records was a key 
+challenge in using these data. 
 
 In spite of these challenges, we 
 argue that digital surveillance tools can play a very important role
@@ -43,9 +50,15 @@ A possible explanation for this could be that we assume that the
 transmissibility remains constant over
 the entire projection window. This assumption may not hold as we move 
 project over longer horizons for instance, due to interventions being
-implemented. 
+implemented. Model performance also depended on the phase of the 
+epidemic in which projections were made. During a growing phase, the 
+model tended to over-predict while in a declining phase, there was a 
+tendency to under-predict. This variation could have important 
+implications if the model predictions are used to inform resource
+allocation. Model estimates should therefore be interpreted with caution, 
+particularly as an outbreak is observed to be declining. 
 
-For this outbreak, ProMED and HealthMap data were 
+For the West African Ebola epidemic, ProMED and HealthMap data were 
 available at a coarse spatial scale with the district level
 information for cases missing in most of the records. This 
 limited our analysis to the spread of the outbreak across 
@@ -54,6 +67,21 @@ for consumption of data at any spatial scale. It would be
 interesting to explore ways of integrating spatially coarse 
 but timely data from ProMED and HealthMap with spatially resolved 
 but delayed data from ground surveillance.
+
+The framework presented in this paper was developed as a proof of 
+concept to use digital surveillance data for near real time
+forecasting of the course of an outbreak. To further develop this
+system, it is important to establish an automated pipeline from data 
+collection to curation to analysis, which currently requires manual 
+intervention at each of these steps. Another factor that could enhance
+the usability of the system in near real time is to improve the
+running time of the
+fitting and forward simulation. In the current implementation, the
+running time varies from up to 30 mins with projection being done 
+for example, with 100 days of data to more than a day when an year of 
+incidence data are used. Although the West African Ebola epidemic was 
+of unusual duration, there is a significant scope for optimising 
+the model implementation.
 
 
 <!-- The influence of -->
