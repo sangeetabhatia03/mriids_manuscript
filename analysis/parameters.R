@@ -10,8 +10,8 @@ all_files <- list(
       "data/processed/01032019_who_bycountry.csv",
     weekly_incidfile =
       "data/processed/01032019_who_bycountry_weekly.csv",
-    stanfits_dir = "data/who_stanfits_gamma_ul_10",
-    outdir = "data/who_stanfits_gamma_ul_10_output"
+    stanfits_dir = "data/who_stanfits",
+    outdir = "data/who_output"
   ),
 
   ProMED = list(
