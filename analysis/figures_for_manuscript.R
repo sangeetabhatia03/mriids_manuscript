@@ -117,6 +117,7 @@ param_quantiles <- purrr::map2_dfr(indir,
 
 p1 <- plot_gravity_model_pars(param_quantiles)
 p1 <- p1 +
+    expand_limits(y = 0) +
     mriids_plot_theme$theme +
     mriids_plot_theme$legend +
     scale_color_manual(values = mriids_plot_theme$color_scale) +

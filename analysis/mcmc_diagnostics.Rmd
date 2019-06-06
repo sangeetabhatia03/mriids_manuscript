@@ -29,6 +29,7 @@ library(dplyr)
 library(purrr)
 library(ggplot2)
 library(bayesplot)
+library(ggmcmc)
 ```
 
 ## Read stan fit object
@@ -49,4 +50,9 @@ bayesplot::mcmc_rhat(rhats)  + yaxis_text(hjust = 1)
 ```{r neff}
 ratios_ne <- bayesplot::neff_ratio(fit1)
 bayesplot::mcmc_neff(ratios_ne, size = 2) + yaxis_text(hjust = 1)
+```
+
+## 
+```{r}
+S <- ggmcmc::ggs(fit1)
 ```

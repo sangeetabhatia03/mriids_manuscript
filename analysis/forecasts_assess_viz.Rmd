@@ -21,7 +21,6 @@ biblio-style: apsr
 endnote: no
 params:
   twindow : 14
-  incid : data/processed/20122018_promed_loglinear_wide.csv
   n.dates.sim : 28
   places: !r c("SLE", "LBR", "GIN")
   indir: data/output/metrics/weekly
@@ -208,3 +207,14 @@ p
 
 ```
 
+```{r}
+readr::write_csv(x = metrics,
+                 path = here::here(params$indir,
+                                   paste0(params$twindow,
+                                          "_",
+                                          params$n.dates.sim,
+                                          "_metrics_consolidated.csv")
+                                   )
+                 )
+                 
+```

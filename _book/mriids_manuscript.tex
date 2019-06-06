@@ -123,9 +123,64 @@ picture.
 
 \section{Introduction}\label{introduction}
 
+Pandemics and emerging diseases cause catastrophic morbidity, mortality,
+and economic hardship and may occur at any time. Increasing
+globalization of commerce, finance, production, and services has
+fostered rapid global movement of people, animals, plants, food, and
+feed. With the transportation of people and goods comes the widespread
+dispersion of pathogens that cause infectious diseases and the vectors
+that may spread them. Outbreaks that begin in the most remote parts of
+the world now spread swiftly to urban centers in countries far away with
+dangerous, global consequences.
+
+Early detection of infectious disease outbreaks has the potential to
+limit the size of an outbreak and prevent an outbreak from becoming a
+pandemic. Digital surveillance tools have the potential to play a
+significant role in this. They can be used to complement the traditional
+public health infrastructure, particularly in resource-poor settings.
+One of the earliest entrants in the field of digital surveillance is The
+Program for Monitoring Emerging Diseases (ProMED). ProMED was founded in
+1994 with the goal of detecting emerging infectious or toxin-mediated
+diseases through emails from clinicians, experts and freely dissemiate
+contextualsied and curated information.
+
+HealthMap is another key player in the field of internet based
+surveillance. In addition to using curated ProMED reports, Healthmap
+utilises other informal sources such as online news and eyewitness
+reports.
+
+However, gathering timely data, while critical, is but the first step in
+the disease surveillance process. Compiling the data, conducting
+analysis, and generating actionable reports that are easily understood
+are equally important. While there has been a proliferation of digital
+surveillance tools as well as\\
+epidemiological studies using data from these tools
+\citep{chowell2016elucidating}, there is as yet a dearth of a framework
+that can automatically combine various streams of\\
+information to produce actionable reports, particularly during an
+outbreak where such information would be most useful.
+
 other tools that do similar stuff - EpiDMS \citep{liu2016epidms}
 slightly old paper - authors curated news themselves!
 \citep{chowell2016elucidating}
+
+To address this gap, the International Society for Infectious Diseases
+(ISID) through its program ProMED along with project partners the
+Imperial College London, HealthMap, and HealthSites.io, have developed a
+system to estimate and visualize risks posed by outbreak events. The
+system integrated multiple data streams. In this paper, we present the
+model implemented in this system. We analyse ProMED data for the 2014
+West African Ebola outbreak. Our work makes two key contributions.
+First, in using only\\
+data available through ProMED to analyse this outbreak, we provide a
+realistic appraisal of its strengths and weaknesses, especially is used
+in near real-time forecasting. Second, we suggest a method to combine
+ground and digital surveillance data to estimate a relatively more
+complete picture of the spread of an outbreak. As other authors have
+emphasised, digital disease detection is not a replacement for, but
+complementary to public health infrastructure. Our work underscores how
+the two can be used in conjunction with each other to better inform
+stakeholders.
 
 \section{Results}\label{results}
 
@@ -133,7 +188,7 @@ The raw data from ProMED is shown in Figure \ref{fig:hmraw}
 
 \begin{figure}
 
-{\centering \includegraphics[width=6.67in]{figures/hmraw} 
+{\centering \includegraphics[width=6.67in]{figures/promed_raw} 
 
 }
 
@@ -147,12 +202,12 @@ The data cleaning consists of the following steps : extracting the total
 case counts as a sum of desired case categories, merging duplicate
 alerts, removing data that made the cumulative case counts inconsistent
 and finally, fill in the missing data using interpolation. Results at
-each step pre-processing workflow for Sierra Leone are show in Figure
+each step pre-processing workflow for Guinea are shown in Figure
 \ref{fig:hmclean}.
 
 \begin{figure}
 
-{\centering \includegraphics[width=6.67in]{figures/guinea} 
+{\centering \includegraphics[width=6.67in]{figures/promed_Guinea} 
 
 }
 
@@ -161,6 +216,31 @@ each step pre-processing workflow for Sierra Leone are show in Figure
 
 \subsection{Comparison of incidence trends from different
 sources}\label{comparison-of-incidence-trends-from-different-sources}
+
+We compare incidence trends derived from ProMED and HealthMap as well as
+data from WHO. The results are shown in Figure \ref{fig:incidcompare}
+
+\begin{figure}
+
+{\centering \includegraphics[width=29.17in]{figures/who_promed_hm_incid} 
+
+}
+
+\caption{Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.}\label{fig:incidcompare}
+\end{figure}
+
+Figure \ref{fig:rcompare} compares the reproduction number estimated
+from the respective incidence series. As expected, the estimated
+reproduction number are highly correlated.
+
+\begin{figure}
+
+{\centering \includegraphics[width=29.17in]{figures/who_promed_hm_r} 
+
+}
+
+\caption{Comparison of daily incidence trends derived from ProMED, HealthMap and WHO data. The three time series exhibit a high degree of correlation.}\label{fig:rcompare}
+\end{figure}
 
 \bibliography{bib/mriids.bib}
 

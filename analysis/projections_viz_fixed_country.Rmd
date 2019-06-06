@@ -21,7 +21,7 @@ biblio-style: apsr
 endnote: no
 params:
   tproj : !r c(21, 49, 77, 105, 133, 161, 189, 217, 245, 273, 301, 329, 357, 385, 413)
-  twindow : 28
+  twindow : 14
   incid : data/processed/20122018_promed_loglinear_weekly.csv
   n.dates.sim : 28
   places: !r c("LBR", "SLE", "GIN")
@@ -192,9 +192,9 @@ rretro <- map_dfr(infiles,
                   .id = "parameters")
 
 rretro$date <- lubridate::ymd(rretro$date)
-rretro <- filter(rretro,
-                 date >= min(rused$date) &
-                 date <= max(rused$date))
+#rretro <- filter(rretro,
+#                 date >= min(rused$date) &
+#                 date <= max(rused$date))
 
 rretro$country <- forcats::fct_recode(rretro$country,
   Guinea = "GIN",

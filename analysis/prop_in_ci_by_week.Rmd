@@ -1,0 +1,115 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: 
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  tproj : 49
+  twindow : 28
+  n.dates.sim : 28
+  incid: data/processed/20122018_promed_loglinear_wide.csv
+  place: LBR
+  outdir: data/output
+  indir: data/output
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+```
+The metrics are implemented in R package assessR.
+
+```{r install, eval = FALSE}
+devtools::install_github("sangeetabhatia03/assessR")
+```
+
+Read in the forecasts and the observed incidence.
+
+```{r incid}
+incid <- here::here(params$incid) %>%
+    readr::read_csv()
+
+idx <- seq(from = params$tproj + 1,
+           length.out = params$n.dates.sim,
+           by = 1)
+
+observed <- incid[idx, ]
+
+```
+
+```{r pred}
+infile <- paste0("forecasts_samples_",
+                 params$tproj,
+                  "_",
+                 params$twindow,
+                 "_",
+                 params$n.dates.sim,
+                 ".Rds")
+predicted <- here::here(params$indir,
+                        infile) %>%
+    readr::read_rds()
+
+```
+We will need to reshape the forecasts so that we can use the functions
+in assessR.
+
+```{r reshape}
+predicted <- bind_cols(predicted)
+pred <- select(predicted, starts_with(params$place)) %>%
+    as.matrix
+obs <- pull(observed, params$place)
+```
+
+
+The proportion of observed values in 95% CI.
+
+```{r propinci, eval = TRUE}
+minmax <- apply(pred, 1, quantile, c(0.025, 0.975))
+minmax <- t(minmax)
+
+weekly_obs <- split(obs, ceiling(seq_along(obs) / 7))
+weekly_pred_idx <- split(seq_len(nrow(minmax)),
+                     ceiling(seq_len(nrow(minmax)) / 7))
+
+weekly_prop <- purrr::map2_dfc(weekly_obs,
+                               weekly_pred_idx,
+                               function(o, p) {
+                                   assessR:::prop_in_ci(o,
+                                                        min = minmax[p, 1],
+                                                        max = minmax[p, 2])
+                               }
+                               )
+
+
+df <- data.frame(tproj = params$tproj,
+                 twindow = params$twindow) %>%
+    cbind(weekly_prop)
+
+outfile <- paste0(params$place, 
+                 "_prop_in_ci_by_week.csv")
+
+here::here(paste0(params$outdir,
+                  "/metrics/daily"),
+           outfile) %>%
+    readr::write_csv(x = df,
+                     path = .,
+                     append = TRUE)
+
+```

@@ -1,7 +1,7 @@
-twindow <- 28
+twindow <- 14
 n.dates.sim <- 28
 nsim <- 1000
-datasource <- "ProMED"
+datasource <- "HealthMap"
 places <- c("LBR", "GIN", "SLE")
 all_files <- list(
   WHO = list(
@@ -25,9 +25,9 @@ all_files <- list(
   ),
 
   HealthMap = list(
-    incidfile = "",
-    weekly_incidfile = "",
-    stanfits_dir = "",
-    outdir = ""
+    incidfile = "data/processed/16042019_healthmap_loglinear_wide.csv",
+    weekly_incidfile = "data/processed/16042019_healthmap_loglinear_weekly.csv",
+    stanfits_dir = "data/healthmap_stanfits",
+    outdir = "data/healthmap_output"
   )
 )

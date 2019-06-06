@@ -22,7 +22,6 @@ endnote: no
 params:
   twindow : 14
   tproj : !r seq(from = 49, to = 614, by = 7)
-  incid : data/processed/promed_loglinear_wide_from_march.csv
   n.dates.sim : 28
   place: SLE
   indir: data/who_output/metrics/weekly
@@ -66,9 +65,11 @@ metrics <- tidyr::separate(metrics,
                            parameters,
                            into = c("tproj", "twindow", "ndates"),
                            sep = "_",
-                           remove = TRUE
+                           remove = TRUE,
+                           convert = TRUE
                            )
 
+metrics <- dplyr::arrange(metrics, tproj)
 num_weeks <- params$n.dates.sim / 7
 metrics$week_of_projection <- rep(1:num_weeks,
                                   ceiling(nrow(metrics) / num_weeks))[seq_len(nrow(metrics))]
