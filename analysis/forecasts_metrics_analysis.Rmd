@@ -1,0 +1,108 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: 
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  twindow : 14
+  incid : data/processed/16042019_healthmap_loglinear_weekly.csv
+  n.dates.sim : 28
+  places: !r c("LBR", "SLE", "GIN")
+  outdir: data/healthmap_gamma_ul_10_output
+  datasource: HealthMap
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+```
+# Proportion of observations in 95% CrI
+
+```{r}
+infiles <-here::here(
+    paste0(all_files[[datasource]]$outdir, "/metrics/daily"),
+    paste0(places, "_prop_in_ci.csv")
+    )
+names(infiles) <- places
+
+x <- purrr::map_dfr(
+    infiles,
+    ~ readr::read_csv(.x, col_names = FALSE),
+    .id = "country"
+ )
+
+colnames(x) <- c("country", "tproj", "twindow", "prop_in_ci")
+
+```
+
+```{r}
+epidemic_phases <- readr::read_csv(
+  file = here::here(
+    all_files[[datasource]]$outdir,
+    paste0(
+      datasource,
+      "_rquantiles_projection.csv"
+    )
+  )
+)
+
+```
+
+```{r}
+prop_in_ci <- dplyr::left_join(
+    x,
+    epidemic_phases
+    )
+prop_in_ci$tproj <- as.integer(prop_in_ci$tproj)
+prop_in_ci$twindow <- as.integer(prop_in_ci$twindow)
+
+prop_in_ci_by_twindow <- split(prop_in_ci, prop_in_ci$twindow)
+```
+
+Pooled acrosss all countries.
+
+```{r}
+group_by(prop_in_ci, twindow) %>% summarise(low = quantile(prop_in_ci, 0.25, na.rm = TRUE),
+                                            med = quantile(prop_in_ci, 0.5, na.rm = TRUE),
+                                            high = quantile(prop_in_ci, 0.75, na.rm = TRUE))
+
+```
+
+
+For each country
+```{r}
+group_by(prop_in_ci, country, twindow) %>% summarise(low = quantile(prop_in_ci, 0.25, na.rm = TRUE),
+                                            med = quantile(prop_in_ci, 0.5, na.rm = TRUE),
+                                            high = quantile(prop_in_ci, 0.75, na.rm = TRUE))
+
+```
+
+By epidemic phase
+
+```{r}
+group_by(prop_in_ci, country, twindow, ci) %>%
+    summarise(overall = mean(prop_in_ci, na.rm = TRUE)) %>%
+    tidyr::spread(key = ci, value = overall)
+
+
+```
+```{r}
+devtools::session_info()
+```
