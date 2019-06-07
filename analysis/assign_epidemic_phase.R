@@ -11,11 +11,21 @@ fitfiles <- list.files(
   full.names = FALSE
 )
 
-rquantile_files <- paste(
-  places,
-  "rquantiles",
+fitfiles <- paste(
+  "_rquantiles",
   fitfiles,
   sep = "_"
+)
+
+rquantile_files <- expand.grid(
+  places,
+  fitfiles,
+  stringsAsFactors = FALSE
+)
+
+rquantile_files <- paste0(
+    rquantile_files$Var1,
+    rquantile_files$Var2
 )
 
 names(rquantile_files) <- stringr::str_replace_all(

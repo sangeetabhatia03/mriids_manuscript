@@ -9,7 +9,8 @@ consolidate_metrics <- function(infiles, indir) {
     metrics <- tidyr::separate(
         metrics,
         col = params,
-        into = c("country", "tproj", "twindow", "n.dates.sim")
+        into = c("country", "tproj", "twindow", "n.dates.sim"),
+        convert = TRUE
         )
     metrics
 }

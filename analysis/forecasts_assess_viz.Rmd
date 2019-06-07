@@ -23,24 +23,11 @@ params:
   twindow : 14
   n.dates.sim : 28
   places: !r c("SLE", "LBR", "GIN")
-  indir: data/output/metrics/weekly
-  rcategory: data/processed/rquantiles_projection.csv
-  outdir: data/output/figures
+  indir: data/healthmap_gamma_ul_10_output
+  outdir: data/healthmap_gamma_ul_10_output/
+  datasource: HealthMap
 ---
 
-```{r}
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE,
-                      message = FALSE,
-                      dev = 'png',
-                      ## fig.width = 7,
-                      ## dev.args = list(pointsize = 6),
-                      fig.path = here::here(params$outdir),
-                      fig.ext = paste0("_",
-                                       params$twindow,
-                                       ".png"))
-
-```
 ```{r setup, eval = TRUE}
 library(dplyr)
 library(purrr)
@@ -48,173 +35,212 @@ library(ggplot2)
 source(here::here("analysis/common_plot_properties.R"))
 ```
 
-Read in the files for all places of interest and visualise.
+
 
 ```{r forecasts-assess-viz-1}
-df <- expand.grid(params$places,
-                  params$twindow,
-                  params$n.dates.sim)
-infiles <- paste0(df$Var1,
-                  "_weekly_",
-                  df$Var2,
-                  "_",
-                  df$Var3,
-                  ".csv")
-metrics <- map_dfr(infiles,
-                   ~ readr::read_csv(here::here(params$indir,
-                                                .x)))
-                    
-metrics$week_of_projection <- factor(metrics$week_of_projection,
-                                     levels = 1:(params$n.dates.sim / 7))
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  dev = "png",
+  ## fig.width = 7,
+  ## dev.args = list(pointsize = 6),
+  fig.path = here::here(params$outdir),
+  fig.ext = paste0(
+    "_",
+    params$twindow,
+    ".png"
+  )
+)
+```
+Read in the files for all places of interest and visualise.
 
+```{r forecasts-assess-viz-2 }
+
+weekly_metrics <- readr::read_csv(
+  file = here::here(
+    params$indir,
+    "weekly_metrics.csv"
+  )
+)
 ```
 
 Join it with R estimate categorisation.
 
-```{r}
-rquantiles <- readr::read_csv(here::here(params$rcategory))
+```{r forecasts-assess-viz-3}
 
-rquantiles <- filter(rquantiles,
-                     country %in% params$places)
-metrics <- left_join(metrics,
-                     rquantiles,
-                     by = c("tproj",
-                            "twindow",
-                            "country"))
+epidemic_phase <- readr::read_csv(
+  file = here::here(
+    "data/processed",
+    paste0(
+      params$datasource,
+      "_rquantiles_projection.csv"
+    )
+  )
+)
+
+
+weekly_metrics <- dplyr::left_join(
+  weekly_metrics,
+  epidemic_phase,
+  by = c("tproj", "twindow", "country")
+)
+
+weekly_metrics <- weekly_metrics[
+  weekly_metrics$twindow == params$twindow &
+    weekly_metrics$n.dates.sim == params$n.dates.sim,
+]
 ```
-## Fix column classes
-```{r}
-metrics$country <- factor(metrics$country)
-metrics$ci <- factor(metrics$ci)
-metrics$week_of_projection <- factor(metrics$week_of_projection,
-                                     levels = 1:4)
-metrics$twindow <- factor(metrics$twindow)
-metrics$ci <- forcats::fct_recode(metrics$ci,
-                                  "Neither" = "ci_includes_1",
-                                  "Growing" = "ll_greater_than_1",
-                                  "Declining" = "ul_less_than_1")
 
+## Fix column classes
+```{r forecasts-assess-viz-4}
+
+weekly_metrics <- dplyr::mutate_if(
+  weekly_metrics,
+  is.character,
+  factor
+)
+weekly_metrics$week_of_projection <- factor(weekly_metrics$week_of_projection)
+
+weekly_metrics$ci <- forcats::fct_recode(
+  weekly_metrics$ci,
+  "Neither" = "ci_includes_1",
+  "Growing" = "ll_greater_than_1",
+  "Declining" = "ul_less_than_1"
+)
+weekly_metrics$tproj <- as.integer(weekly_metrics$tproj)
+weekly_metrics$twindow <- factor(weekly_metrics$twindow)
 ```
 ## Bias
 
-```{r forecasts-assess-viz-2 }
-pbias <- ggplot(metrics,
-            aes(week_of_projection,
-                bias,
-                col = ci)) +
-    geom_boxplot(position = "dodge")
+```{r forecasts-assess-viz-5 }
+pbias <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    bias,
+    col = ci
+  )
+) +
+  geom_boxplot(position = "dodge")
 pbias <- pbias +
-    xlab("Week of projection") +
-    ylab("Bias") +
-    mriids_plot_theme$theme +
-    mriids_plot_theme$legend
-    
+  xlab("Week of projection") +
+  ylab("Bias") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend
 
+pbias
 ```
 
 ## Sharpness
 
 
-```{r forecasts-assess-viz-3 }
-psharp <- ggplot(metrics,
-                 aes(week_of_projection,
-                     sharpness,
-                     col = ci)) +
-    geom_boxplot()
+```{r forecasts-assess-viz-6 }
+psharp <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    sharpness,
+    col = ci
+  )
+) +
+  geom_boxplot()
 
 psharp <- psharp +
-    xlab("Week of projection") +
-    ylab("Sharpness") +
-    mriids_plot_theme$theme +
-    mriids_plot_theme$legend
+  xlab("Week of projection") +
+  ylab("Sharpness") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend
 
+psharp
 ```
 
 ## Relative accuracy
 
 
-```{r forecasts-assess-viz-4 }
-prel <- ggplot(metrics,
-            aes(week_of_projection,
-                logaccuracy,
-                col = ci)) +
-    geom_boxplot() 
-    ## geom_point(aes(fill = ci),
-    ##            alpha = 0.7,
-    ##            position = position_jitterdodge())
+```{r forecasts-assess-viz-7 }
+prel <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    logaccuracy,
+    col = ci
+  )
+) +
+  geom_boxplot()
+## geom_point(aes(fill = ci),
+##            alpha = 0.7,
+##            position = position_jitterdodge())
 prel <- prel +
-    xlab("Week of projection") +
-    ylab("log relative accuracy") +
-    mriids_plot_theme$theme +
-    mriids_plot_theme$legend
+  xlab("Week of projection") +
+  ylab("log relative accuracy") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend
 
+prel
 ```
 
 
 ## Relative mean absolute error
 
 
-```{r forecasts-assess-viz-5 }
-prelerr <- ggplot(metrics,
-            aes(week_of_projection,
-                rmae,
-                col = ci)) +
-    geom_boxplot()
+```{r forecasts-assess-viz-8 }
+prelerr <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    rmae,
+    col = ci
+  )
+) +
+  geom_boxplot()
 
 prelerr <- prelerr +
-    mriids_plot_theme$theme +
-    mriids_plot_theme$legend  
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend
 
 
 prelerr <- prelerr +
-    xlab("Week of projection") +
-    ylab("Relative mean absolute error")
+  xlab("Week of projection") +
+  ylab("Relative mean absolute error")
 
+prelerr
 ```
 
 
-```{r}
-outfile <- here::here(params$outdir,
-                      paste0("forecasts_assess_",
-                             params$twindow,
-                             ".png"))
+```{r forecasts-assess-viz-9}
+outfile <- here::here(
+  params$outdir,
+  paste0(
+    "forecasts_assess_",
+    params$datasource,
+    params$twindow,
+    ".png"
+  )
+)
 
 ## Affix legend manually otherwise I can't get rid of the
 ## annoying legend title.
 legend <- cowplot::get_legend(pbias +
-                              theme(legend.position = "bottom",
-                                    legend.title = element_blank()))
+  theme(
+    legend.position = "bottom",
+    legend.title = element_blank()
+  ))
 
 prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
-                           psharp + theme(legend.position = "none"),
-                           prel + theme(legend.position = "none"),
-                           prelerr + theme(legend.position = "none"),
-                           align = 'vh',
-                           labels = c("A", "B", "C", "D"),
-                           hjust = -1,
-                           nrow = 2
-                           )
+  psharp + theme(legend.position = "none"),
+  prel + theme(legend.position = "none"),
+  prelerr + theme(legend.position = "none"),
+  align = "vh",
+  labels = c("A", "B", "C", "D"),
+  hjust = -1,
+  nrow = 2
+)
 
 
 # add the legend underneath the row we made earlier. Give it 10% of the height
 # of one plot (via rel_heights).
 p <- cowplot::plot_grid(prow,
-                        legend,
-                        ncol = 1,
-                        rel_heights = c(1, .1))
+  legend,
+  ncol = 1,
+  rel_heights = c(1, .1)
+)
 
-p    
-
-```
-
-```{r}
-readr::write_csv(x = metrics,
-                 path = here::here(params$indir,
-                                   paste0(params$twindow,
-                                          "_",
-                                          params$n.dates.sim,
-                                          "_metrics_consolidated.csv")
-                                   )
-                 )
-                 
+p
 ```
