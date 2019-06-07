@@ -27,7 +27,7 @@ all_files <- list(
   HealthMap = list(
     incidfile = "data/processed/16042019_healthmap_loglinear_wide.csv",
     weekly_incidfile = "data/processed/16042019_healthmap_loglinear_weekly.csv",
-    stanfits_dir = "data/healthmap_stanfits",
-    outdir = "data/healthmap_output"
+    stanfits_dir = "data/healthmap_stanfits_gamma_ul_10",
+    outdir = "data/healthmap_gamma_ul_10_output"
   )
 )

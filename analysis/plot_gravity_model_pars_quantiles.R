@@ -15,7 +15,7 @@ all_quantiles <- purrr::map_dfr(
     .id = "Source"
 )
 
-
+all_quantiles <- all_quantiles[all_quantiles$twindow == twindow, ]
 all_quantiles$Source <- factor(all_quantiles$Source)
 
 p <- ggplot(all_quantiles) +
