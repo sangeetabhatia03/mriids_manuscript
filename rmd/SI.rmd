@@ -1,0 +1,36 @@
+---
+output: word_document:
+keep_tex: true
+fig_caption: false
+title: Supplementary Information
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+---
+
+# Data Pre-processing 
+
+```{r}
+knitr::include_graphics("ms-figures/r_corr_time_window.png")
+```
+
+
+## Impact of the time window on the estimation of R 
+
+The correlation between transmissibility estimates from ProMED,
+HealthMap and WHO data was strongly influenced by the choice of the 
+time window.
+
+```{r echo = FALSE, fig.cap = rcorrcap, fig.align = "center"}
+knitr::include_graphics("ms-figures/r_corr_time_window.png")
+```
+
+## Projections over alternative time windows for inference
+### Projections using 4 weeks for estimating R
+#### 4 weeks Projection window 
+#### 8 weeks Projection window 
+### Projections using 6 weeks for estimating R
+#### 4 weeks Projection window 
+#### 8 weeks Projection window
+
