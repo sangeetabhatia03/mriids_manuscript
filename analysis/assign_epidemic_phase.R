@@ -3,7 +3,7 @@ library(dplyr)
 ## phase, we classify each window as either
 ## declining, growing or neither.
 
-source(here::here("analysis/parameters.R"))
+
 
 fitfiles <- list.files(
   path = all_files[[datasource]]$stanfits_dir,
@@ -57,7 +57,8 @@ rquantiles <- tidyr::separate(rquantiles,
     "tproj",
     "twindow"
   ),
-  sep = "_"
+  sep = "_",
+  convert = TRUE
 )
 
 rquantiles <- select(
@@ -82,10 +83,93 @@ rquantiles <- mutate(rquantiles,
 readr::write_csv(
   x = rquantiles,
   path = here::here(
-    "data/processed",
+    all_files[[datasource]]$outdir,
     paste0(
       datasource,
       "_rquantiles_projection.csv"
     )
   )
 )
+
+
+## Retrospective and real-time estimates of R.
+## Repeat each row over the projection horizon.
+
+rused <- rquantiles[rep(seq_len(nrow(rquantiles)), each = n.dates.sim), ]
+
+## Fix the dates.
+rused <- dplyr::group_by(
+    rused,
+    tproj,
+    twindow,
+    country
+    ) %>%
+    dplyr::mutate(
+    date = seq(from = min(date), length.out = n.dates.sim, by = "1 day")
+)
+
+readr::write_csv(
+  x = rused,
+  path = here::here(
+    all_files[[datasource]]$outdir,
+    paste0(
+      datasource,
+      "_rquantiles_real_time.csv"
+    )
+  )
+ )
+
+
+## Retrospective R Estimates
+infiles <- paste0(
+    all_files[[datasource]]$stanfits_dir,
+    "/",
+    places,
+    "_rquantiles_",
+    max(rused$tproj),
+    "_",
+    twindow,
+    ".rds"
+)
+
+
+names(infiles) <- paste(
+    places,
+    max(rused$tproj),
+    twindow,
+    sep = "_"
+)
+
+rretro <- purrr::map_dfr(
+    infiles,
+    ~ readr::read_rds(here::here(.x)),
+    .id = "params"
+)
+
+rretro <- tidyr::separate(rretro,
+  params,
+  into = c(
+    "country",
+    "tproj",
+    "twindow"
+  ),
+  sep = "_",
+  convert = TRUE
+)
+
+rretro <- select(
+  rretro,
+  -var
+)
+
+
+readr::write_csv(
+  x = rused,
+  path = here::here(
+    all_files[[datasource]]$outdir,
+    paste0(
+      datasource,
+      "_rquantiles_retrospective.csv"
+    )
+  )
+ )
