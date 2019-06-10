@@ -1,18 +1,18 @@
 source(here::here("analysis/parameters.R"))
 
 consolidate_metrics <- function(infiles, indir) {
-    metrics <- purrr::map_dfr(
-        infiles,
-        ~ readr::read_csv(here::here(indir, .x)),
-        .id = "params"
-        )
-    metrics <- tidyr::separate(
-        metrics,
-        col = params,
-        into = c("country", "tproj", "twindow", "n.dates.sim"),
-        convert = TRUE
-        )
-    metrics
+  metrics <- purrr::map_dfr(
+    infiles,
+    ~ readr::read_csv(here::here(indir, .x)),
+    .id = "params"
+  )
+  metrics <- tidyr::separate(
+    metrics,
+    col = params,
+    into = c("country", "tproj", "twindow", "n.dates.sim"),
+    convert = TRUE
+  )
+  metrics
 }
 
 pattern <- "*daily_metrics*csv"
@@ -22,32 +22,34 @@ infiles <- list.files(
 )
 
 names(infiles) <- stringr::str_remove_all(
-    infiles,
-    "daily_metrics_"
-    )
+  infiles,
+  "daily_metrics_"
+)
 
 indir <- paste0(all_files[[datasource]]$outdir, "/metrics/daily")
 daily_metrics <- consolidate_metrics(infiles, indir)
 
 
-## Weekly Metrics
+##  Weekly Metrics
 infiles <- stringr::str_replace_all(infiles,
-                                    pattern = "daily",
-                                    replacement = "weekly")
+  pattern = "daily",
+  replacement = "weekly"
+)
 
 names(infiles) <- stringr::str_remove_all(
-    infiles,
-    "weekly_metrics_"
-    )
+  infiles,
+  "weekly_metrics_"
+)
 
 indir <- stringr::str_replace_all(indir,
-                                    pattern = "daily",
-                                    replacement = "weekly")
+  pattern = "daily",
+  replacement = "weekly"
+)
 
 weekly_metrics <- consolidate_metrics(infiles, indir)
 weekly_metrics <- dplyr::group_by(weekly_metrics, country, tproj, twindow) %>%
-    arrange(date) %>%
-    mutate(week_of_projection = seq_len(n()))
+  arrange(date) %>%
+  mutate(week_of_projection = seq_len(n()))
 
 
 
@@ -57,7 +59,7 @@ readr::write_csv(
     all_files[[datasource]]$outdir,
     "daily_metrics.csv"
   )
- )
+)
 
 
 readr::write_csv(
@@ -66,11 +68,28 @@ readr::write_csv(
     all_files[[datasource]]$outdir,
     "weekly_metrics.csv"
   )
- )
+)
 
 
+## Proportion of observations in 95% CrI
+infiles <- here::here(
+  paste0(all_files[[datasource]]$outdir, "/metrics/daily"),
+  paste0(places, "_prop_in_ci.csv")
+)
+names(infiles) <- places
 
+prop_in_ci <- purrr::map_dfr(
+  infiles,
+  ~ readr::read_csv(.x, col_names = FALSE),
+  .id = "country"
+)
 
+colnames(prop_in_ci) <- c("country", "tproj", "twindow", "prop_in_ci")
 
-
-
+readr::write_csv(
+  x = prop_in_ci,
+  path = here::here(
+    all_files[[datasource]]$outdir,
+    "prop_in_ci_overall.csv"
+  )
+)

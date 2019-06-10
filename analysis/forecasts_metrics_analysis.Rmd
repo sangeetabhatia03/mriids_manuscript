@@ -35,74 +35,114 @@ library(ggplot2)
 ```
 # Proportion of observations in 95% CrI
 
-```{r}
-infiles <-here::here(
-    paste0(all_files[[datasource]]$outdir, "/metrics/daily"),
-    paste0(places, "_prop_in_ci.csv")
-    )
-names(infiles) <- places
-
-x <- purrr::map_dfr(
-    infiles,
-    ~ readr::read_csv(.x, col_names = FALSE),
-    .id = "country"
- )
-
-colnames(x) <- c("country", "tproj", "twindow", "prop_in_ci")
-
+```{r forecasts-metrics-analysis-1}
+prop_in_ci <- readr::read_csv(
+  file = here::here(
+    params$outdir,
+    "prop_in_ci_overall.csv"
+  )
+)
 ```
 
-```{r}
+```{r forecasts-metrics-analysis-2}
 epidemic_phases <- readr::read_csv(
   file = here::here(
-    all_files[[datasource]]$outdir,
+    params$outdir,
     paste0(
-      datasource,
+      params$datasource,
       "_rquantiles_projection.csv"
     )
   )
 )
-
 ```
 
-```{r}
+```{r forecasts-metrics-analysis-3}
 prop_in_ci <- dplyr::left_join(
-    x,
-    epidemic_phases
-    )
+  prop_in_ci,
+  epidemic_phases
+)
 prop_in_ci$tproj <- as.integer(prop_in_ci$tproj)
 prop_in_ci$twindow <- as.integer(prop_in_ci$twindow)
-
 prop_in_ci_by_twindow <- split(prop_in_ci, prop_in_ci$twindow)
 ```
 
 Pooled acrosss all countries.
 
-```{r}
-group_by(prop_in_ci, twindow) %>% summarise(low = quantile(prop_in_ci, 0.25, na.rm = TRUE),
-                                            med = quantile(prop_in_ci, 0.5, na.rm = TRUE),
-                                            high = quantile(prop_in_ci, 0.75, na.rm = TRUE))
-
+```{r forecasts-metrics-analysis-4}
+group_by(prop_in_ci, twindow) %>% summarise(
+  low = quantile(prop_in_ci, 0.25, na.rm = TRUE),
+  med = quantile(prop_in_ci, 0.5, na.rm = TRUE),
+  high = quantile(prop_in_ci, 0.75, na.rm = TRUE)
+)
 ```
 
-
 For each country
-```{r}
-group_by(prop_in_ci, country, twindow) %>% summarise(low = quantile(prop_in_ci, 0.25, na.rm = TRUE),
-                                            med = quantile(prop_in_ci, 0.5, na.rm = TRUE),
-                                            high = quantile(prop_in_ci, 0.75, na.rm = TRUE))
-
+```{r forecasts-metrics-analysis-5}
+group_by(prop_in_ci, country, twindow) %>%
+  summarise(
+    low = quantile(prop_in_ci, 0.25, na.rm = TRUE),
+    med = quantile(prop_in_ci, 0.5, na.rm = TRUE),
+    high = quantile(prop_in_ci, 0.75, na.rm = TRUE)
+  ) %>%
+  kableExtra()
 ```
 
 By epidemic phase
 
-```{r}
+```{r forecasts-metrics-analysis-6}
 group_by(prop_in_ci, country, twindow, ci) %>%
-    summarise(overall = mean(prop_in_ci, na.rm = TRUE)) %>%
-    tidyr::spread(key = ci, value = overall)
+  summarise(overall = mean(prop_in_ci, na.rm = TRUE)) %>%
+  tidyr::spread(key = ci, value = overall)
+```
 
+## Proportion of observations in 95% CrI in each week.
+
+```{r forecasts-metrics-analysis-7}
+infiles <- paste0(
+  params$places,
+  "_prop_in_ci_by_week.csv"
+)
+infiles <- here::here(
+  paste0(
+    params$outdir,
+    "/metrics/daily"
+  ),
+  infiles
+)
+names(infiles) <- params$places
+
+prop_in_ci_by_week <- purrr::map_dfr(
+  infiles,
+  ~ readr::read_csv(., col_names = FALSE),
+  .id = "country"
+)
+
+colnames(prop_in_ci_by_week) <- c("country", "tproj", "twindow", paste0("Week ", 1:(params$n.dates.sim / 7)))
+```
+
+```{r forecasts-metrics-analysis-8}
+
+group_by(prop_in_ci_by_week, twindow) %>%
+    summarise_at(vars(starts_with("Week")), mean, na.rm = TRUE) %>%
+    knitr::kable()
 
 ```
-```{r}
+
+By country
+
+
+```{r forecasts-metrics-analysis-9}
+group_by(prop_in_ci_by_week, twindow, country) %>%
+    summarise_at(vars(starts_with("Week")), mean, na.rm = TRUE) %>%
+    knitr::kable()
+
+```
+
+## Other Metrics for Predictive Ability
+
+```{r forecasts-metrics-analysis-10}
+```
+
+```{r forecasts-metrics-analysis-11}
 devtools::session_info()
 ```

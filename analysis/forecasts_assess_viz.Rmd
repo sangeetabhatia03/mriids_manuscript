@@ -37,7 +37,7 @@ source(here::here("analysis/common_plot_properties.R"))
 
 
 
-```{r forecasts-assess-viz-1}
+```{r forecasts-assess-viz-1 }
 knitr::opts_chunk$set(
   echo = FALSE,
   warning = FALSE,
@@ -67,7 +67,7 @@ weekly_metrics <- readr::read_csv(
 
 Join it with R estimate categorisation.
 
-```{r forecasts-assess-viz-3}
+```{r forecasts-assess-viz-3 }
 
 epidemic_phase <- readr::read_csv(
   file = here::here(
@@ -93,7 +93,7 @@ weekly_metrics <- weekly_metrics[
 ```
 
 ## Fix column classes
-```{r forecasts-assess-viz-4}
+```{r forecasts-assess-viz-4 }
 
 weekly_metrics <- dplyr::mutate_if(
   weekly_metrics,
@@ -111,9 +111,174 @@ weekly_metrics$ci <- forcats::fct_recode(
 weekly_metrics$tproj <- as.integer(weekly_metrics$tproj)
 weekly_metrics$twindow <- factor(weekly_metrics$twindow)
 ```
-## Bias
 
 ```{r forecasts-assess-viz-5 }
+
+summary_stats <- summarise_at(
+  weekly_metrics,
+  vars(rmae:logaccuracy),
+  list(
+    med = ~ quantile(., 0.5, na.rm = TRUE),
+    low = ~ quantile(., 0.25, na.rm = TRUE),
+    high = ~ quantile(., 0.75, na.rm = TRUE)
+  )
+)
+
+summary_stats <- tidyr::gather(
+  summary_stats,
+  key = metric,
+  value = value
+) %>%
+  tidyr::separate(
+    col = metric,
+    into = c("metric", "bound")
+  ) %>%
+  tidyr::spread(
+    key = bound,
+    value = value,
+    convert = TRUE
+  )
+
+select(
+  summary_stats,
+  metric,
+  med,
+  low,
+  high
+) %>% knitr::kable()
+```
+
+## Summary stats by week
+
+
+```{r forecasts-assess-viz-6 }
+
+weekly_summary_stats <- group_by(weekly_metrics, week_of_projection) %>%
+  summarise_at(
+    vars(rmae:logaccuracy),
+    list(
+      med = ~ quantile(., 0.5, na.rm = TRUE),
+      low = ~ quantile(., 0.25, na.rm = TRUE),
+      high = ~ quantile(., 0.75, na.rm = TRUE)
+    )
+  )
+
+weekly_summary_stats <- tidyr::gather(
+  weekly_summary_stats,
+  key = metric,
+  value = value,
+  -week_of_projection
+) %>%
+  tidyr::separate(
+    col = metric,
+    into = c("metric", "bound")
+  ) %>%
+  tidyr::spread(
+    key = bound,
+    value = value,
+    convert = TRUE
+  )
+
+weekly_summary_stats <- dplyr::mutate_if(
+  weekly_summary_stats,
+  is.numeric,
+  round,
+  3
+)
+
+weekly_summary_stats$formatted_iqr <- paste0(
+  weekly_summary_stats$med,
+  " (",
+  weekly_summary_stats$low,
+  " - ",
+  weekly_summary_stats$high,
+  ")"
+)
+
+weekly_summary_stats <- dplyr::select(
+  weekly_summary_stats,
+  week_of_projection,
+  metric,
+  formatted_iqr
+) %>%
+  tidyr::spread(
+    key = metric,
+    value = formatted_iqr
+  )
+```
+
+```{r forecasts-assess-viz-7}
+knitr::kable(weekly_summary_stats)
+```
+
+## Summary stats by week and phase of epidemic
+```{r forecasts-assess-viz-8}
+phase_weekly_summary_stats <- group_by(
+  weekly_metrics,
+  week_of_projection,
+  ci
+) %>%
+  summarise_at(
+    vars(rmae:logaccuracy),
+    list(
+      med = ~ quantile(., 0.5, na.rm = TRUE),
+      low = ~ quantile(., 0.25, na.rm = TRUE),
+      high = ~ quantile(., 0.75, na.rm = TRUE)
+    )
+  )
+
+phase_weekly_summary_stats <- tidyr::gather(
+  phase_weekly_summary_stats,
+  key = metric,
+  value = value,
+  -week_of_projection,
+  -ci
+) %>%
+  tidyr::separate(
+    col = metric,
+    into = c("metric", "bound")
+  ) %>%
+  tidyr::spread(
+    key = bound,
+    value = value,
+    convert = TRUE
+  )
+
+phase_weekly_summary_stats <- dplyr::mutate_if(
+  phase_weekly_summary_stats,
+  is.numeric,
+  round,
+  3
+)
+
+phase_weekly_summary_stats$formatted_iqr <- paste0(
+  phase_weekly_summary_stats$med,
+  " (",
+  phase_weekly_summary_stats$low,
+  " - ",
+  phase_weekly_summary_stats$high,
+  ")"
+)
+
+phase_weekly_summary_stats <- dplyr::select(
+  phase_weekly_summary_stats,
+  week_of_projection,
+  ci,
+  metric,
+  formatted_iqr
+) %>%
+  tidyr::spread(
+    key = metric,
+    value = formatted_iqr
+  )
+```
+
+```{r forecasts-assess-viz-9}
+knitr::kable(phase_weekly_summary_stats)
+```
+## Bias
+
+```{r forecasts-assess-viz-10 }
 pbias <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -134,7 +299,7 @@ pbias
 ## Sharpness
 
 
-```{r forecasts-assess-viz-6 }
+```{r forecasts-assess-viz-11 }
 psharp <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -156,7 +321,7 @@ psharp
 ## Relative accuracy
 
 
-```{r forecasts-assess-viz-7 }
+```{r forecasts-assess-viz-12 }
 prel <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -181,7 +346,7 @@ prel
 ## Relative mean absolute error
 
 
-```{r forecasts-assess-viz-8 }
+```{r forecasts-assess-viz-13 }
 prelerr <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -204,7 +369,7 @@ prelerr
 ```
 
 
-```{r forecasts-assess-viz-9}
+```{r forecasts-assess-viz-14 }
 outfile <- here::here(
   params$outdir,
   paste0(
