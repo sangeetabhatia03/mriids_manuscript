@@ -1,4 +1,4 @@
-source(here::here("analysis/parameters.R"))
+
 pattern <- paste0(
     "^forecasts_samples_[0-9]*_",
     twindow,
@@ -85,7 +85,7 @@ infiles <- stringr::str_replace_all(infiles, "forecasts", "risk")
 infiles <- stringr::str_replace_all(infiles, "Rds", "fst")
 
 x <- fst::read.fst(
-   here::here(all_files[[datasource]]$outdir, infiles[1])
+   here::here(all_files[["ProMED"]]$outdir, infiles[1])
    )
 
 median_risk <-

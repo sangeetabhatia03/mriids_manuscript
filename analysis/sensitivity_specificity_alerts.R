@@ -14,16 +14,12 @@ false_negative <- function(obs, pred) {
 incid_pred <- readr::read_csv(
   file = here::here(
     all_files[[datasource]]$outdir,
-    paste0(
-      "incidence_forecasts_",
-      twindow,
-      "_",
-      n.dates.sim,
-      ".csv"
-    )
+    "incidence_forecasts.csv"
   )
 )
 
+incid_pred <- incid_pred[incid_pred$time_window == twindow &
+                         incid_pred$n.dates.sim == n.dates.sim, ]
 
 metrics_central <- dplyr::group_by(incid_pred, country, week_of_projection) %>%
   dplyr::summarise(
