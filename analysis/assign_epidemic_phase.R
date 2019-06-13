@@ -120,41 +120,40 @@ readr::write_csv(
  )
 
 
-## Retrospective R Estimates
 infiles <- paste0(
-    all_files[[datasource]]$stanfits_dir,
-    "/",
-    places,
-    "_rquantiles_",
-    max(rused$tproj),
-    "_",
-    twindow,
-    ".rds"
+  all_files[[datasource]]$stanfits_dir,
+  "/",
+  places,
+  "_rquantiles_",
+  max(rused$tproj),
+  "_",
+  twindow,
+  ".rds"
 )
 
 
 names(infiles) <- paste(
-    places,
-    max(rused$tproj),
-    twindow,
-    sep = "_"
+  places,
+  max(rused$tproj),
+  twindow,
+  sep = "_"
 )
 
 rretro <- purrr::map_dfr(
-    infiles,
-    ~ readr::read_rds(here::here(.x)),
-    .id = "params"
+  infiles,
+  ~ readr::read_rds(here::here(.x)),
+  .id = "params"
 )
 
 rretro <- tidyr::separate(rretro,
-  params,
-  into = c(
-    "country",
-    "tproj",
-    "twindow"
-  ),
-  sep = "_",
-  convert = TRUE
+                          params,
+                          into = c(
+                            "country",
+                            "tproj",
+                            "twindow"
+                          ),
+                          sep = "_",
+                          convert = TRUE
 )
 
 rretro <- select(
@@ -172,4 +171,5 @@ readr::write_csv(
       "_rquantiles_retrospective.csv"
     )
   )
- )
+)
+
