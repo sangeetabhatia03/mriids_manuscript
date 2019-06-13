@@ -103,7 +103,8 @@ Now go over each row of this data frame, look at the var variable,
 grab the corresponding column from r_samples and affix it to this row.
 
 ```{r reshape}
-samples <- purrr::pmap(rindex_df, ~ r_samples[, ..3])
+## samples <- purrr::pmap(rindex_df, ~ r_samples[, ..3])
+samples <- purrr::pmap(rindex_df, function(date, country, var) r_samples[ , var])
 samples <- do.call(rbind, samples)
 rsamples <- cbind(rindex_df, samples)
 ```
