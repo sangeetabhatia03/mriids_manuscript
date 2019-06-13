@@ -1,19 +1,11 @@
 library(dplyr)
-source(here::here("analysis/parameters.R"))
-
 ## observations
 
 weekly_incid <- readr::read_csv(here::here(all_files[[datasource]]$weekly_incidfile))
 
 forecasts_files <- list.files(
   path = all_files[[datasource]]$outdir,
-  pattern = paste0(
-    "^forecasts_[0-9]*_",
-    twindow,
-    "_",
-    n.dates.sim,
-    ".csv"
-  )
+  pattern = "^forecasts_[0-9]*_[0-9]*_[0-9]*.csv",
 )
 
 names(forecasts_files) <- stringr::str_replace(
@@ -58,13 +50,7 @@ readr::write_csv(
   x = all_forecasts,
   path = here::here(
     all_files[[datasource]]$outdir,
-    paste0(
-      "all_forecasts_",
-      twindow,
-      "_",
-      n.dates.sim,
-      ".csv"
-    )
+    "all_forecasts_consolidated.csv"
   )
 )
 
@@ -87,12 +73,6 @@ readr::write_csv(
   x = incid_pred,
   path = here::here(
     all_files[[datasource]]$outdir,
-    paste0(
-      "incidence_forecasts_",
-      twindow,
-      "_",
-      n.dates.sim,
-      ".csv"
-    )
+    "incidence_forecasts.csv"
   )
 )
