@@ -1,6 +1,3 @@
-
-datasources <- c("ProMED", "HealthMap", "WHO")
-names(datasources) <- datasources
 all_quantiles <- purrr::map_dfr(
     datasources,
     function(ds) {

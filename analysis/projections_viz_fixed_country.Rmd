@@ -128,23 +128,20 @@ Read in the projections output.
 
 forecasts <- readr::read_csv(
   file = here::here(
-    params$outdir,
-    paste0(
-      "all_forecasts_",
-      params$twindow,
-      "_",
-      params$n.dates.sim,
-      ".csv"
-    )
+    all_files[[datasource]]$outdir,
+    "all_forecasts_consolidated.csv"
   )
 )
 
 forecasts <- filter(
   forecasts,
-  country %in% params$places
+  country %in% params$places &
+  time_window == params$twindow &
+  n.dates.sim == params$n.dates.sim
 )
 forecasts$tproj <- as.integer(forecasts$tproj)
 forecasts$time_window <- as.integer(forecasts$time_window)
+
 ```
 Relabel factors to get nice facet labels.
 
@@ -180,6 +177,7 @@ non_overlapping <- seq(
   to = max(forecasts$tproj),
   by = params$n.dates.sim
 )
+
 forecasts <- dplyr::filter(
   forecasts,
   tproj %in% non_overlapping
