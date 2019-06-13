@@ -55,23 +55,26 @@ observed <- incid[idx, ]
 ```
 
 ```{r pred}
-infile <- paste0("forecasts_samples_",
-                 params$tproj,
-                  "_",
-                 params$twindow,
-                 "_",
-                 params$n.dates.sim,
-                 ".Rds")
-predicted <- here::here(params$indir,
-                        infile) %>%
-    readr::read_rds()
-
+predicted <- readr::read_rds(
+  path = here::here(
+    params$outdir,
+    paste0(
+      "consolidated_forecasts_samples_",
+      params$tproj,
+      "_",
+      params$twindow,
+      "_",
+      params$n.dates.sim,
+      ".Rds"
+    )
+  )
+)
 ```
 We will need to reshape the forecasts so that we can use the functions
 in assessR.
 
 ```{r reshape}
-predicted <- bind_cols(predicted)
+
 pred <- select(predicted, starts_with(params$place)) %>%
     as.matrix
 obs <- pull(observed, params$place)
