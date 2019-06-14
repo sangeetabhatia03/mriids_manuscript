@@ -195,63 +195,7 @@ purrr::pwalk(
 )
 
 
-
-
-## Consolidates metrics for all countries.
-purrr::map(
-  c(14, 28, 42),
-  function(tw) {
-    idx <- which(pars$twindow == tw)
-    tproj <- pars$tproj[idx]
-    for (p in places) {
-      message("working on ", tw, " and ", p)
-      rmarkdown::render("analysis/forecasts_metrics_consolidate.Rmd",
-        params = list(
-          twindow = tw,
-          tproj = tproj,
-          n.dates.sim = 28,
-          place = p,
-          indir =
-            paste0(all_files[[datasource]]$outdir, "/metrics/weekly"),
-          outdir =
-            paste0(all_files[[datasource]]$outdir, "/metrics/weekly")
-        )
-      )
-    }
-  }
-)
-
-## Projections for each country for non-overlapping periods.
-## give weekly incid for visualisation
-purrr::walk(
-  c(14, 28, 42),
-  function(tw) {
-    idx <- which(pars$twindow == tw)
-    tproj <- pars$tproj[idx]
-    ##  We want non-overlapping projections
-    tproj <- seq(
-      from = min(tproj),
-      to = max(tproj),
-      by = n.dates.sim
-    )
-    rmarkdown::render("analysis/projections_viz_fixed_country.Rmd",
-      params = list(
-        tproj = tproj,
-        twindow = tw,
-        incid = all_files[[datasource]]$weekly_incidfile,
-        n.dates.sim = n.dates.sim,
-        places = places,
-        maxtproj = max(tproj),
-        indir =
-          all_files[[datasource]]$stanfits_dir,
-        outdir =
-          all_files[[datasource]]$outdir,
-        datasource = datasource
-      )
-    )
-  }
-)
-
+## Proportion of observations in 95% CrI by week.
 ## Proportion in CrI each week.
 purrr::pwalk(
   pars,

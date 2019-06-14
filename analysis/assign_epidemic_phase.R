@@ -93,67 +93,58 @@ readr::write_csv(
 
 
 ## Retrospective and real-time estimates of R.
-## Repeat each row over the projection horizon.
-
-rused <- rquantiles[rep(seq_len(nrow(rquantiles)), each = n.dates.sim), ]
-
-## Fix the dates.
-rused <- dplyr::group_by(
-    rused,
-    tproj,
-    twindow,
-    country
-    ) %>%
-    dplyr::mutate(
-    date = seq(from = min(date), length.out = n.dates.sim, by = "1 day")
-)
-
-readr::write_csv(
-  x = rused,
-  path = here::here(
-    all_files[[datasource]]$outdir,
-    paste0(
-      datasource,
-      "_rquantiles_real_time.csv"
-    )
-  )
- )
-
+maxtproj <- group_by(
+    rquantiles,
+    twindow) %>%
+    summarise(tproj = max(tproj))
 
 infiles <- paste0(
-  all_files[[datasource]]$stanfits_dir,
-  "/",
-  places,
   "_rquantiles_",
-  max(rused$tproj),
+  maxtproj$tproj,
   "_",
-  twindow,
+  maxtproj$twindow,
   ".rds"
 )
 
+infiles <- purrr::cross2(
+    places,
+    infiles
+    ) %>%
+    purrr::map_chr(~ paste0(.x[[1]], .x[[2]]))
 
-names(infiles) <- paste(
-  places,
-  max(rused$tproj),
-  twindow,
-  sep = "_"
-)
+
+names(infiles) <- infiles
 
 rretro <- purrr::map_dfr(
   infiles,
-  ~ readr::read_rds(here::here(.x)),
+  ~ readr::read_rds(
+        here::here(
+           all_files[[datasource]]$stanfits_dir,
+           .x
+           )
+        ),
   .id = "params"
 )
 
-rretro <- tidyr::separate(rretro,
-                          params,
-                          into = c(
-                            "country",
-                            "tproj",
-                            "twindow"
-                          ),
-                          sep = "_",
-                          convert = TRUE
+rretro$params <- stringr::str_remove_all(
+    rretro$params,
+    ".rds"
+    )
+
+rretro$params <- stringr::str_remove_all(
+    rretro$params,
+    "_rquantiles"
+)
+rretro <- tidyr::separate(
+              rretro,
+              params,
+              into = c(
+                  "country",
+                  "tproj",
+                  "twindow"
+              ),
+              sep = "_",
+              convert = TRUE
 )
 
 rretro <- select(
@@ -163,7 +154,7 @@ rretro <- select(
 
 
 readr::write_csv(
-  x = rused,
+  x = rretro,
   path = here::here(
     all_files[[datasource]]$outdir,
     paste0(

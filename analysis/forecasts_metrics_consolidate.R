@@ -1,5 +1,3 @@
-source(here::here("analysis/parameters.R"))
-
 consolidate_metrics <- function(infiles, indir) {
   metrics <- purrr::map_dfr(
     infiles,

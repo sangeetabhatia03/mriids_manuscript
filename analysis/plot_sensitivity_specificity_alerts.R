@@ -127,6 +127,12 @@ ggplot(
 ggsave(
     here::here(
         all_files[[datasource]]$outdir,
-        "alert_type_high.png"
+        paste0(
+            "alerts_per_week_high_",
+            twindow,
+            "_",
+            n.dates.sim,
+            ".png"
+        )
    )
 )

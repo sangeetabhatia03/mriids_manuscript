@@ -37,8 +37,11 @@ knitr::opts_chunk$set(
   ## dev.args = list(pointsize = 6),
   fig.path = here::here(paste0(params$outdir, "/")),
   fig.ext = paste0(
+    params$datasource,
     "_",
     params$twindow,
+    "_",
+    params$n.dates.sim,
     ".png"
   )
 )
@@ -60,20 +63,36 @@ source(here::here("analysis/common_plot_properties.R"))
 Read in R estimates.
 
 ```{r projections-viz-fixed-country-3, eval = TRUE}
+
 rused <- readr::read_csv(
   file = here::here(
     params$outdir,
     paste0(
       params$datasource,
-      "_rquantiles_real_time.csv"
+      "_rquantiles_projection.csv"
     )
   )
 )
 
 rused$tproj <- as.integer(rused$tproj)
 rused$twindow <- as.integer(rused$twindow)
-
 rused <- rused[rused$twindow == params$twindow, ]
+
+rused <- rused[rep(
+    seq_len(nrow(rused)),
+    each = params$n.dates.sim), ]
+
+## Fix the dates.
+rused <- dplyr::group_by(
+    rused,
+    tproj,
+    country
+    ) %>%
+    dplyr::mutate(
+    date = seq(from = min(date), length.out = params$n.dates.sim, by = "1 day")
+)
+
+
 
 
 
@@ -102,11 +121,14 @@ rretro$country <- forcats::fct_recode(rretro$country,
   `Sierra Leone` = "SLE"
 )
 rretro$rcategory <- "R[Retrospective]"
-
+rretro <- rretro[rretro$twindow == params$twindow, ]
 rused <- rused[, colnames(rretro)]
-rboth <- rbind(rused, rretro)
+
 ```
 ## Observed and projected incidence
+
+
+
 
 Read in the weekly incidence in tall form. 
 
@@ -128,27 +150,25 @@ Read in the projections output.
 
 forecasts <- readr::read_csv(
   file = here::here(
-    params$outdir,
-    paste0(
-      "all_forecasts_",
-      params$twindow,
-      "_",
-      params$n.dates.sim,
-      ".csv"
-    )
+    all_files[[datasource]]$outdir,
+    "all_forecasts_consolidated.csv"
   )
 )
 
 forecasts <- filter(
   forecasts,
-  country %in% params$places
+  country %in% params$places &
+  time_window == params$twindow &
+  n.dates.sim == params$n.dates.sim
 )
 forecasts$tproj <- as.integer(forecasts$tproj)
 forecasts$time_window <- as.integer(forecasts$time_window)
+
 ```
 Relabel factors to get nice facet labels.
 
 ```{r projections-viz-fixed-country-7 }
+
 incid$country <- forcats::fct_recode(incid$country,
   Guinea = "GIN",
   Liberia = "LBR",
@@ -165,6 +185,7 @@ forecasts$country <- forcats::fct_recode(forecasts$country,
 
 Since we are going to take logs, maybe add 1 to everything.
 ```{r projections-viz-fixed-country-8 }
+
 incid$incid <- incid$incid + 1
 forecasts <- dplyr::mutate_at(
   forecasts,
@@ -175,17 +196,28 @@ incid$source <- params$datasource
 ```
 
 ```{r projections-viz-fixed-country-9}
+
 non_overlapping <- seq(
   from = min(forecasts$tproj),
   to = max(forecasts$tproj),
   by = params$n.dates.sim
 )
+
 forecasts <- dplyr::filter(
   forecasts,
   tproj %in% non_overlapping
-)
+  )
+
 ```
 
+```{r}
+rused <- dplyr::ungroup(rused)
+rused <- filter(
+    rused,
+    tproj %in% non_overlapping
+)
+rboth <- rbind(rused, rretro)
+```
 
 ```{r projections-viz-fixed-country-10 }
 rretro_lims <- dplyr::group_by(
@@ -318,6 +350,7 @@ pretro
 
 
 ```{r projections-viz-fixed-country-13, eval = TRUE}
+
 preal <- ggplot()
 preal <- preal + expand_limits(x = min(incid$date))
 preal <- preal +
@@ -326,7 +359,8 @@ preal <- preal + geom_line(
   data = rused,
   aes(
     x = date,
-    y = `50%`
+    y = `50%`,
+    group = tproj
   ),
   ## group = parameters),
   col = "gray"
@@ -337,7 +371,7 @@ preal <- preal + geom_ribbon(
     x = date,
     ymin = `2.5%`,
     ymax = `97.5%`,
-    ## group = parameters
+    group = tproj
   ),
   alpha = 0.3
 )
@@ -380,11 +414,8 @@ rboth$rcategory <- factor(rboth$rcategory,
   )
 )
 
-pboth <- ggplot(
-  rboth,
-  aes(date, `50%`)
-) +
-  geom_line() +
+pboth <- ggplot(rboth) +
+  geom_line(aes(date, `50%`)) +
   facet_grid(rcategory ~ country,
     scales = "free_y",
     ## switch = "y",
@@ -407,6 +438,7 @@ pboth <- pboth + geom_ribbon(
     x = date,
     ymin = `2.5%`,
     ymax = `97.5%`
+
   ),
   alpha = 0.3
 )
@@ -422,7 +454,9 @@ pboth <- pboth +
     labels = date_format("%b %Y")
   )
 pboth <- pboth +
-  theme(axis.text.x = element_text(angle = 90, hjust = 0))
+    theme(axis.text.x = element_text(angle = 90, hjust = 0))
+
+pboth
 ```
 
 

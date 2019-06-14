@@ -1,7 +1,7 @@
 twindow <- 14
 n.dates.sim <- 28
 nsim <- 1000
-datasource <- "HealthMap"
+datasource <- "ProMED"
 places <- c("LBR", "GIN", "SLE")
 all_files <- list(
   WHO = list(
