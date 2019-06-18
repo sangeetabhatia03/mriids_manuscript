@@ -1,17 +1,14 @@
+message("Reading from and writing to ", all_files[[datasource]]$outdir)
 incid_pred <- readr::read_csv(
   file = here::here(
     all_files[[datasource]]$outdir,
-    paste0(
-      "alerts_per_week_",
-      twindow,
-      "_",
-      n.dates.sim,
-      ".csv"
+    "alerts_per_week.csv"
     )
   )
-)
 
 
+incid_pred <- incid_pred[incid_pred$time_window == twindow &
+                           incid_pred$n.dates.sim == n.dates.sim, ]
 ## Only retain countries where we didn't always observe and predict 0.
 incid_pred <- filter(incid_pred, !is.na(incid))
 nonna_alerts <- filter(incid_pred, incid != 0 | ymin != 0)

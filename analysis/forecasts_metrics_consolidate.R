@@ -12,6 +12,7 @@ consolidate_metrics <- function(infiles, indir) {
   )
   metrics
 }
+message("Reading from and writing to ", all_files[[datasource]]$outdir)
 
 pattern <- "*daily_metrics*csv"
 infiles <- list.files(
@@ -45,9 +46,24 @@ indir <- stringr::str_replace_all(indir,
 )
 
 weekly_metrics <- consolidate_metrics(infiles, indir)
-weekly_metrics <- dplyr::group_by(weekly_metrics, country, tproj, twindow) %>%
-  arrange(date) %>%
-  mutate(week_of_projection = seq_len(n()))
+
+weekly_metrics$week_of_year <- paste(
+    lubridate::year(weekly_metrics$date),
+    "Week",
+    lubridate::week(weekly_metrics$date)
+)
+
+week_projection <- function(date) {
+    as.integer(
+        cut(date, "7 days")
+    )
+}
+
+weekly_metrics <-dplyr::group_by(
+    weekly_metrics,
+    country, tproj, twindow, n.dates.sim) %>%
+    mutate(week_of_projection = week_projection(date))
+
 
 
 

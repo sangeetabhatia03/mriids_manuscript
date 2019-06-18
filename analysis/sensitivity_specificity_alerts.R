@@ -11,6 +11,14 @@ false_negative <- function(obs, pred) {
   sum(pred == 0 & obs > 0, na.rm = TRUE) / sum(obs > 0, na.rm = TRUE)
 }
 
+metrics <- function(obs, pred) {
+  data.frame(
+    true_positive = sensitivity(obs = obs, pred = pred),
+    true_negative = specificity(obs = obs, pred = pred),
+    missed_alerts = false_negative(obs = obs, pred = pred)
+  )
+}
+
 incid_pred <- readr::read_csv(
   file = here::here(
     all_files[[datasource]]$outdir,
@@ -18,53 +26,62 @@ incid_pred <- readr::read_csv(
   )
 )
 
-incid_pred <- incid_pred[incid_pred$time_window == twindow &
-                         incid_pred$n.dates.sim == n.dates.sim, ]
+metrics_central <- dplyr::group_by(
+    incid_pred,
+    time_window,
+    n.dates.sim,
+    country,
+    week_of_projection
+    ) %>% do(metrics(.$incid, .$y))
 
-metrics_central <- dplyr::group_by(incid_pred, country, week_of_projection) %>%
-  dplyr::summarise(
-    true_positive_central = sensitivity(obs = incid, pred = y),
-    true_negative_central = specificity(obs = incid, pred = y),
-    missed_alerts_central = false_negative(obs = incid, pred = y)
-  )
+metrics_low <- dplyr::group_by(
+  incid_pred,
+  time_window,
+  n.dates.sim,
+  country,
+  week_of_projection
+) %>% do(metrics(.$incid, .$ymin))
 
-metrics_low <- dplyr::group_by(incid_pred, country, week_of_projection) %>%
-  dplyr::summarise(
-    true_positive_low = sensitivity(obs = incid, pred = ymin),
-    true_negative_low = specificity(obs = incid, pred = ymin),
-    missed_alerts_low = false_negative(obs = incid, pred = ymin)
-  )
 
-metrics_high <- dplyr::group_by(incid_pred, country, week_of_projection) %>%
-  dplyr::summarise(
-    true_positive_high = sensitivity(obs = incid, pred = ymax),
-    true_negative_high = specificity(obs = incid, pred = ymax),
-    missed_alerts_high = false_negative(obs = incid, pred = ymax)
-  )
+metrics_high <- dplyr::group_by(
+  incid_pred,
+  time_window,
+  n.dates.sim,
+  country,
+  week_of_projection
+) %>% do(metrics(.$incid, .$ymax))
 
 ## combine to save as 1.
-metrics <- left_join(
+metrics_df <- dplyr::left_join(
     metrics_central,
-    metrics_low
+    metrics_low,
+    by = c(
+      "time_window",
+      "n.dates.sim",
+      "country",
+      "week_of_projection"
+    ),
+    suffix = c("_central", "_low")
 ) %>%
-    left_join(
+  dplyr::left_join(
         metrics_high,
+        by = c(
+          "time_window",
+          "n.dates.sim",
+          "country",
+          "week_of_projection"
+        )
     )
 
 
 readr::write_csv(
-  x =  metrics,
+  x =  metrics_df,
   path = here::here(
     all_files[[datasource]]$outdir,
-    paste0(
-      "sensitivity_specificity_",
-      twindow,
-      "_",
-      n.dates.sim,
-      ".csv"
+    "sensitivity_specificity.csv"
     )
   )
-)
+
 
 ## Temporal trend in true, false and missed alerts.
 ## Using central estimate.
@@ -91,12 +108,6 @@ readr::write_csv(
   x =  incid_pred,
   path = here::here(
     all_files[[datasource]]$outdir,
-    paste0(
-      "alerts_per_week_",
-      twindow,
-      "_",
-      n.dates.sim,
-      ".csv"
-    )
+    "alerts_per_week.csv"
   )
 )

@@ -20,8 +20,8 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  infile: data/raw/HealthMap_Ebola_GNE_WHO.csv
-  outfile: 16042019_healthmap_loglinear
+  infile: data/raw/promed_2014-2016-renamed.csv
+  outfile: 17062019_promed_loglinear
   ofinterest: data/processed/all_african_centroids.csv
 ---
 
@@ -79,6 +79,7 @@ feed <- dplyr::rename(feed,
                       healthmap_alert_id = health_map_alert_id)
 
 
+
 ```
 
 Strip the date of the time stamp
@@ -104,8 +105,9 @@ by.location <- feed %>%
 ### Raw data by case category
 
 ```{r data-cleanup-6 }
+## Deaths are not used anywhere. No use plotting them
 raw_p <- purrr::map(by.location, function(x) {
-    x <- select(x, issue_date, sc, sd, cc, cd, country) %>%
+    x <- select(x, issue_date, sc, cc, country) %>%
         tidyr::gather(case_type,
                       count, -c(issue_date, country)) 
     x$issue_date <- as.Date(x$issue_date,
