@@ -50,6 +50,7 @@ source(
 ## Depends on: cleaned weekly incidence file.
 ## Outfile 1: incidence_forecasts.csv
 ## Outfile 2: all_forecasts_consolidated.csv
+
 for (ds in c("ProMED", "HealthMap", "WHO")) {
   datasource <- ds
   message("Working on ", datasource)
@@ -76,6 +77,7 @@ for (ds in c("ProMED", "HealthMap", "WHO")) {
   
 
 
+
 ## Compiling various files
 ## Compile forecast samples. Needed by forecast_assess tasks.
 ## Outfiles: consolidated_tproj_twindow_n.dates.sim.Rds
@@ -89,7 +91,6 @@ source(
 ## Outfile 1: daily_metrics.csv
 ## Outfile 2: weekly_metrics.csv
 ## Outfile 3: prop_in_ci_overall.csv
-
 for (ds in "WHO") {
     datasource <- ds
     message("Working on ", datasource)
