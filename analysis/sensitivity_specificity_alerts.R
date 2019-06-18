@@ -26,7 +26,6 @@ incid_pred <- readr::read_csv(
   )
 )
 
-<<<<<<< HEAD
 metrics_central <- dplyr::group_by(
     incid_pred,
     time_window,
