@@ -76,67 +76,71 @@ The reprodcution number was estimated using EpiEstim with a time window of 28 da
 
 ```
 
-We compared the processed country-specific incidence time 
-series derived from ProMED and HealthMap data with the incidence series 
-from the WHO data. Incidence time series and the reproduction numbers 
-estimated using the
-incidence from these various sources are shown in  
-`r incidrcite` for the three mainly affected 
-countries: Guinea, Liberia and Sierra Leone.  The instantaneous 
-reproduction number was estimated independently for each country in
-using the R package EpiEstim [@cori2013new] with a time window of 
-4 weeks.
+Incidence time series were computed from ProMED, HealthMap and WHO
+data (see Methods section) for the three mainly affected countries, 
+Guinea, Liberia and Sierra Leone, and are shown in 
+`r incidrcite`.There were substantial differences between the
+incidence 
+time series derived from the three data sources, particularly at the 
+peak of the epidemic. There may be multiple reasons underpinning such
+discrepancy, including potential variability in digital surveillance 
+reporting to during the course of the epidemic. It is also worth 
+highlighting that the WHO data used here are an extensively cleaned 
+version of the data collected during the epidemic [@who2014ebola], 
+[@team2015west], published more than a year after the epidemic was declared to be 
+over. However, despite these discrepancies, the weekly incidence
+derived from ProMED and HealthMap was moderately to highly correlated with that
+reported by WHO later (Pearson's 
+correlation coefficient aggregated across the three countries 
+0.44 and 0.74 respectively, p value < 0.001).
+
+To broadly assess the extent to which such discrepancies in incidence 
+would impact the quantification of transmissibility throughout the 
+epidemic, we estimated the time-varying transmissibility, measured by 
+the reproduction number $R_t$ (the average number of secondary cases 
+infected by each individual infected at time $t$),
+using the incidence from each of the three data sources `r
+incidrcite`. $R_t$ was estimated independently for each country using 
+the R package EpiEstim [@cori2013new] with a sliding time window of 4
+weeks. There were substantial differences in the estimates of the $R_t$ 
+according to the incidence data source used (Figure 1B). 
+The correlation between the mean R estimates on sliding 4-week windows 
+from ProMED or HealthMap data with the estimates from WHO data varied 
+from weak (0.27, between reproduction number from WHO and ProMED in 
+Guinea ) to very strong (0.81, between reproduction number from WHO
+and HealthMap in Sierra Leone).
 
 
-The weekly incidence time series derived from ProMED and HealthMap
-data are highly correlated with the WHO incidence data (Pearson's 
-correlation coefficient 0.44 and 0.74 respectively, p value < 0.001). 
-The digital surveillance data differ significantly from the WHO data 
-at the peak of the epidemic approximately in the first few months of 
-2015. While the reasons for this discrepancy are not entirely clear, 
-they could for instance reflect the susceptibility of digital 
-surveillance to variability in reporting during the course of the 
-epidemic. At the same time, it is important to remember
-that the WHO data used here are an extensively cleaned
-version of the data collected during the epidemic [@who2014ebola, 
-@team2015west], published well after the epidemic was declared to be 
-over. During the epidemic, the first situation report by the WHO 
-was published only at the
-end of August 2014 [@whositrep], reporting on cases between January 
-and August 2014. On the other hand, the first post
-on ProMED on Ebola cases in Guinea appeared in March 2014
-[@pmfirstebola]
 
 
 ```{r echo = FALSE, fig.cap = incidrcap, fig.align = "center"}
 knitr::include_graphics("ms-figures/who-hm-promed-comparison-20-1.png")
 ```
 
-The estimates of the reproduction number are strongly influenced by
-the choice of the time window (`r rcorrcite`). The correlation between 
-mean R estimates from ProMED or HealthMap data with the estimates from 
-WHO data varied from weak (0.13, time window of 2 weeks) to very strong 
-(0.90, time window of 6 weeks).
-
+In the following, we use ProMED data as our main data source, 
+unless otherwise specified. 
 
 
 ## Short term projections
 
-To project incidence at time $t$, we fitted the daily incidence up to 
-day $t - 1$ to a spatially explicit branching process model (see
-Methods). 
-To estimate the time-varying reproduction number for 
-each country, we divided the duration from day 1 to day $t - 1$ 
-into time windows of equal width. 
-Assuming that transmissibility in each location stays constant 
-within each time window, we estimated 
-a single reproduction number for each location for each time window. 
-We varied the length of this time window from 2 weeks to 4 weeks 
-to obtain different models. The forecast horizon was varied from
-4 weeks to 8 weeks. The model fitting was done in a Bayesian framework 
-and 1000 trajectories were simulated using a joint sample of all model 
-parameters (reproduction numbers for each location in each time window
-and parameters of the gravity model). 
+To project incidence at time $t$ in location $j$ ($I_{j, t}$), 
+we fitted a spatially explicit branching process model to the daily
+incidence in all locations up to 
+$t - 1$, using an extension of the renewal equation as the likelihood 
+[@fraser2007estimating]:
+
+\begin{equation}
+I_{j, t} \sim Poisson\left(\sum_{i = 1}^n\left({p_{i \rightarrow j} R_{i, t}
+\sum^{s = 1}^t{I_{i, t - s} \omega_s}}\right)\right)
+(\#eq:model)
+\end{equation}
+where the matrix $p_{i \rightarrow j}$ characterises the spatial
+spread between locations $i$ and $j$ based on a gravity model
+[@zipf1946p]. $R_{i, t}$ (the reproduction number) reflects 
+transmissibility in location $i$ at time $t$, and $\omega$ is the
+typical infectiousness profile of a case over time after infection 
+(see Methods for details).
+
 
 ```{r echo = FALSE, warning = FALSE}
 g28cite <- fig_nums(name = "promed28",
@@ -147,18 +151,32 @@ who28cite <- fig_nums(name = "who28",
 
 ```
 
+The ability of the model to robustly predict future outbreak
+trajectory depended on the 
+data source (see Figures 2, 3 and 4  for ProMED HealthMap and WHO data respectively)
+as well as on  the time window used for inference and the time horizon
+used for predictions (alternative time window in SI.XX). Overall,
+using a 2- week time window for inference based on ProMED data, and
+projecting ahead for 4 weeks, 53.3% of observed incidence across all 
+countries in the forecast horizon were included in the 95% credible 
+intervals (95%CrI).  Using data from Healthmap and  WHO respectively,  
+this figure was XXX% and 69.5%.
 
-```{r stfigcap, echo = FALSE, warning = FALSE, message = FALSE}
-mapcite <- fig_nums(name = "spatial",
-                    display = "cite")
+As expected,  the robustness of projections decreased over the 
+projection horizon (Figure 5). In the first week of the projection
+window, 73.1% of observed values (across the three countries) were 
+within the 95%CrI. The mean value of the relative mean absolute error
+(see Methods for details) in this period was XXX (Inter Quartile
+Range, IQR: 0.18 - 0.69), suggesting that on average our central one 
+week ahead predictions were about a third off either way of the 
+observations. To further assess the potential tendency of our model 
+to systematically under or over predict observations, we used a bias 
+measure ranging from -1 for a model which always under-predicts, to 
+1 for a model which always over-predicts (see Methods). 
+The median bias for one-week ahead projections was 0.03 (IQR -0.25 -
+0.4) indicating little systematic bias. 
 
-mapcap <- fig_nums(name = "spatial",
-                   caption = "Spatial spread of the epidemic. The
-observed and predicted spread of the epidemic in two weeks in late
-2014. The color shows the observed and predicted incidence on a
-logarithmic scale.")
 
-```
 
 We also estimated retrospective transmissibilty using all the available 
 data. The retrospective estimates of R agree reasonably well with the 

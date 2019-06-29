@@ -13,7 +13,7 @@ For instance, population mobility across borders played a critical
 role in the spread of Ebola in West Africa during the 
 2013-2016 Ebola epidemic [@ebfactors].
 A more recent example is the 2016 Yellow Fever outbreak in 
-Angola. Infected travellers from Angola reached China  
+Angola. Infected travellers from Angola reached China,
 representing the first ever reported cases of Yellow fever in Asia
 [@wasserman2016yellow].
 
@@ -25,11 +25,11 @@ individuals or launching vaccination campaigns. However,
 any data collection method involves trade-offs between
 speed, accuracy and costs. Data collected through
 conventional surveillance such as through public health infrastructure,
-are generally quite reliable but are resource intensive and are 
-made available for upstream
+are generally reliable but are resource intensive and are 
+therefore typically available for upstream
 analysis with an (understandable) delay.
 
-With the rapid growth of the internet, there has been a 
+With the rapid growth of the internet has fostered a
 corresponding increase in tools for internet based 
 disease detection that lie at the other end of the spectrum.
 Digital disease surveillance consists of monitoring 
@@ -39,7 +39,12 @@ could be formal such as advisories posted by a ministry of
 health, or informal such as blogs or tweets. Digital 
 surveillance tools can play a significant role 
 in the rapid recognition of public health emergencies
-[@grein2000rumors, @anema2014digital]. 
+[@grein2000rumors, @anema2014digital].Digital 
+surveillance makes data collection less expensive 
+and time consuming but the acquired data are 
+often less reliable than those collected through 
+ground surveillance.
+
 
 The Program for Monitoring Emerging Diseases 
 (ProMED, www.promedmail.org) was 
@@ -74,14 +79,16 @@ real-time.
 Collating timely data, while critical, is only the first 
 step in the disease surveillance process. Compiling the data, 
 conducting analysis, and generating reports that are 
-easily understood are equally important. For instance, the 
+easily understood and actionable are equally important. 
+For instance, the 
 spread of Zika to the Americas was reported 
 in March 2014 by one of the subject matter experts at the 
-Program on Monitoring Emerging Diseases (ProMED) [@promedzika], 
+ProMED [@promedzika], 
 well before the
 epidemic surfaced in South America in February 2015.
 However, lacking an easy to use and openly accessible tool 
-to visualize the risk, this information did not have any 
+to quantify and visualize the risk associated with this report, 
+it did not have any 
 significant impact on public health resource allocation and 
 decision making.
 While there has been a
@@ -95,31 +102,32 @@ framework that can automatically combine such data with other
 streams of  
 information analyse them in a statistically robust manner, 
 and produce actionable reports, particularly in real time 
-during an outbreak where such information would be most useful.
+during an outbreak where such analyses would be most useful.
 
 
-We have developed 
-a system to estimate and visualize risks posed by
+In this study, we propose a new statistical framework
+to estimate and visualize risks posed by
 outbreak events using digital surveillance data. 
-It relies on a simple methodological
+Our approach relies on a relatively simple statistical
 framework that integrates multiple data streams to
-quantify spatial heterogeneity in the risk of disease spread 
-and
-estimate, for a given country, where the risk comes from. 
+predict the future incidence trajectory, and 
+quantify spatial heterogeneity in the risk of disease spread. 
 In this paper, we present the model implemented in this system and as
 a case study, we report the analysis of  ProMED and HealthMap data
-for the 2014-16 West African Ebola epidemic.  
+for the 2013-16 West African Ebola epidemic.  
 To assess the robustness of the digital surveillance data, 
 we also applied the framework to the data 
-collated by the WHO and made available at the end of the
+collated by the World Health Organisation (WHO) and made available at the end of the
 epidemic. We present a comparison of the ProMED/HealthMap 
 data with the retrospective WHO data and the results of 
-the spatiotemporal analysis carried out on the two data sources.
+the spatiotemporal analysis carried out on these three data sources.
 
-In using only data available through ProMED/HealthMap to analyse 
-this epidemic, we provide a realistic appraisal of their 
-strengths and weaknesses, especially if used in near real-time 
-forecasting. 
+Our analysis based solely on epidemic data 
+available through ProMED/HealthMap provides a 
+realistic appraisal of their strengths and 
+weaknesses, especially if used in near real-time 
+forecasting.
+ 
 
 
 
