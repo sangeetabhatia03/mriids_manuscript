@@ -1,20 +1,7 @@
 # Model Validation {#assess}
 
-To forecast incidence 
-beginning at day $t$, we fitted the model to the daily
-incidence series up to day
-$t - 1$. Transmissibility was assumed to stay constant in the
-time frame over which we were projecting. We used 1000 samples from the 
-posterior distribution for the effective reproduction
-number estimated in the last time window before the point of
-projection for forward projections. Similarly 1000 samples from the
-posterior distribution for $\gamma$ and $p_{stay}$ were
-used to estimate the relative flow. All model parameters were sampled
-jointly. We projected 
-incidence using the random samples thus drawn in equation 
-\@ref(eq:likelihood) over a 2 week, 4 week and 6 week horizon.
 
-Given the retrospective nature of our analysis, we then validated 
+Given the retrospective nature of our analysis, we validated 
 the incidence projected using our model 
 against observed incidence. In addition to the 
 accuracy of the projected incidence, the uncertainty associated 
@@ -23,7 +10,7 @@ interval) is an important indicator of model performance. A
 narrow prediction interval that contains the observed values
 is preferable over wide prediction intervals. To asses the 
 performance of the model along both these dimensions, 
-we used three different metrics drawn from the literature.
+we used four different metrics drawn from the literature.
 
 In the remainder of this paper, we use the following notation. 
 For a location \(j\), let \(I_{j, t}\) be the observed incidence 
@@ -38,20 +25,20 @@ That is, \(\hat{I}_{j, t} =
 \hat{I}^N_{j, t}, 
 \}\) is the set of
 \(N\) draws from the Poisson distribution with mean 
-\(\lambda_{j, t}\)  \@ref(eq:lambdajt). 
+\(\lambda_{j, t}\)  \@ref(eq:lambdajt) (here N = 1000).
 
  
 ## Relative mean absolute error
 
 The relative mean absolute error (rmae) is a widely used 
 measure of model accuracy  [@tofallis2015better]. 
-The relative mean absolute error (rmae)
+The relative mean absolute error
 at location \(j\) at time \(t\) is defined as:
 
 \[
   rmae_{j, t}(I_{j, t}, \hat{I}_{j, t}) = 
  \frac{
- \sum_{s = 1}^N{\lvert I_{j, t} - \hat{I}_{j, t} \rvert}
+ \sum_{s = 1}^N{\lvert I_{j, t} - \hat{I}^s_{j, t} \rvert}
  }
  { N *  (I_{j, t} + 1)}.
  \]
@@ -72,14 +59,14 @@ We use the log of this quantity as an assessment metric.
  log(Q_{j, t}(I_{j, t}, \hat{I}_{j, t})) = 
  log\left(
  \frac
- {\sum_{i = 1}^N{\hat{I}_{j, t}}/N}
+ {\sum_{s = 1}^N{\hat{I}^s_{j, t}}/N}
  {I_{j, t} + 1}
  \right).
 \]
 
 ## Sharpness
 
-As its name suggests, sharpness is a measure of the spread 
+Sharpness is a measure of the spread 
 (or uncertainty) of the
 forecasts. Following [@funk2017assessing], we used the median
 absolute deviation about the median (MADM) to evaluate sharpness.
@@ -121,14 +108,13 @@ The above formulation can better be understood by considering
 the following extreme scenarios. If every projected value 
 \(\hat{I}_{j, t}\) is greater 
 than the observed value \(I_{j, t}\), then the Heaviside 
-function is 1 for \(i = 1, 2, \dots N\) and 
+function is 1 for all \(i = 1, 2, \dots N\), and therefore
 \(mean(H(\hat{I}_{j, t} - I_{j, t}))\) is 1. The bias
 for a model that always over-predicts is therefore 1. 
 On the other hand, if the model systematically under-predicts,
 then \(mean(H(\hat{I}_{j, t} - I_{j, t}))\) is 0 and the bias 
-score is -1. For a model
-for which all predictions match the observed values exactly, 
-the bias score is 0.
+is -1. For a model for which all predictions match the observed values 
+exactly, the bias is 0.
 
 
 

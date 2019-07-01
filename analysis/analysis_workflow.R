@@ -73,8 +73,8 @@ for (ds in c("ProMED", "HealthMap", "WHO")) {
          "analysis/sensitivity_specificity_alerts.R"
       )
   )
-}  
-  
+}
+
 
 
 
@@ -97,6 +97,54 @@ for (ds in "WHO") {
     source(
         here::here(
             "analysis/forecasts_metrics_consolidate.R"
-            )
+       )
     )
+}
+
+
+## Proportion of observations in CrI by week.
+
+
+for (ds in c("HealthMap", "WHO")) {
+  datasource <- ds
+  message("Working on ", datasource)
+  forecasts <- list.files(
+    path = all_files[[datasource]]$outdir,
+    pattern = glob2rx("^consolidated_forecasts_samples*Rds"),
+    full.names = FALSE
+  )
+
+  forecasts <- stringr::str_remove_all(
+     forecasts,
+     "consolidated_forecasts_samples_"
+  )
+  pars <- data.frame(forecast = forecasts) %>%
+    tidyr::separate(
+    col = forecast,
+    into = c(
+      "tproj",
+      "twindow",
+      "n.dates.sim"
+    ),
+    convert = TRUE
+  )
+
+  for (row in 1:nrow(pars)) {
+      params <-
+          list(
+              tproj = pars$tproj[row],
+              twindow = pars$twindow[row],
+              n.dates.sim = pars$n.dates.sim[row],
+              incid = all_files[[ds]]$incidfile,
+              outdir = all_files[[ds]]$outdir,
+              indir = all_files[[ds]]$outdir
+          )
+           for (place in places) {
+               params$place <- place
+               message(params)
+               source("analysis/prop_in_ci_by_week.R")
+           }
+
+     }
+
 }

@@ -1,6 +1,49 @@
 # Material and methods
+
+## Processing ProMED/HealthMap data feed
+
+We used a set of curated ProMED and HealthMap records on the human 
+cases of Ebola in West Africa. 
+The dates in the feeds ranged from March 2014 to October 2016.
+The data set recorded the cumulative number of suspected/confirmed
+cases and suspected/confirmed deaths by country at various dates
+in this period. We derived the country specific daily and 
+weekly incidence time series from these data after the 
+following data cleaning and pre-processing:
+
++ We first extracted the total case
+counts as a sum of suspected and confirmed cases. 
+
++ Each unique record 
+in ProMED/HealthMap data is associated with a unique alert id.  Where
+multiple records were associated with the same alert id, we merged
+them by assigning the median of the case numbers to the record. In
+some instances, cumulative case count was inconsistent in that it
+failed to be monotonically increasing. Any record of a 
+cumulative case number lower than a previous record was removed.
+
++ Finally, cumulative incidence on days with no records was
+filled in using log-linear interpolation. 
+
+Further details and result of 
+each step of the pre-processing of Promed and 
+Healthmap data are presented in the supplementary text.
+
+## Data collated by WHO
+
+We used the incidence data collated by the WHO during the West 
+African Ebola epidemic made available by [@garske20160308], 
+later referred to as the ``WHO data'' in the interest of brevity. 
+The cleaned version of the WHO data consisted of cases reported
+between December 2013 and October 2015 in the three most affected
+countries - Guinea, Sierra Leone and Liberia. The location of
+residence of cases was geo-coded to the second administrative level. 
+We aggregated the WHO data to national level to match the spatial
+resolution of ProMED and HealthMap that were only available at the 
+country level.
+
 ## Statistical model
-Our model relies on a well-established and simple framework 
+Our model relies on a well-established statistical framework 
 that assumes the daily incidence, $I_t$ , can be approximated with a
 Poisson process following the renewal equation
 [@fraser2007estimating]. 
@@ -34,13 +77,13 @@ given by the equation
 \end{align}
 
 where $R_{i, t}$ is the reproduction number at location $i$ at time
-$t$ and $p_{i \rightarrow j}$ is the probability of moving from
-location $i$ to location $j$. $R_{i, t}$ is
+$t$ and $p_{i \rightarrow j}$ is the probability of a case moving from
+location $i$ to location $j$ while they are infectious. $R_{i, t}$ is
 affected by a number of factors e.g., the intrinsic
 transmissibility of a pathogen or the health care capacity at location
-$i$ (which could influence the capacity to isolate cases). 
-The model can be easily extended to explicitly incorporate the
-dependence of the reproduction number on these factors. 
+$i$ (which could influence for example the capacity to isolate cases). 
+The model could be easily extended to explicitly incorporate the
+dependence of the reproduction number on such factors. 
 
 The probability of moving between locations is derived from the
 relative flow of populations between locations.
@@ -49,17 +92,19 @@ model; here we used a gravity model [@grosche2007175], [@zipf1946p].
 Under a gravity model, the flow of individuals from area $i$ to area $j$,
 $\phi_{i \rightarrow j}$, is proportional to the product of the
 populations of the two locations, $N_i$ and $N_j$ and inversely
-proportional to the distance between them $d_{i, j}$, all quantities
-are raised to some power.
+proportional to the distance between them $d_{i, j}$, with all quantities
+raised to some power:
 \[
   \phi_{i \rightarrow j} =  \frac{N_i^{\alpha}N_j^{\beta}}{d_{i, j}^{\gamma}}.
 \]
-The exponent $\gamma$ modulates the effect of distance on the flow of
-populations. A large value of $\gamma$ indicates that the
+
+Here, we fixed $\alpha$ = $\beta$ = 1. The exponent $\gamma$, which modulates 
+the effect of distance on the flow of
+populations, was estimated. A large value of $\gamma$ indicates that the
 distances travelled by populations tend to be short.
 
 The relative risk of spread at a location $j$ from a location $i$
-is thus the population flow into location $j$ from location $i$.
+is thus proportional to the population flow into location $j$ from location $i$.
 
 \[
   r_{i \rightarrow j}^{spread} = \frac{\phi_{i \rightarrow
@@ -69,17 +114,18 @@ is thus the population flow into location $j$ from location $i$.
 
 The probability of movement from location $i$ to location $j$ is 
 then given by
-\[  p_{i \rightarrow j} = (1 - p_{stay}^i) r_{i \rightarrow j}^{spread},\]
+\[  p_{i \rightarrow j} = (1 - p_{stay}) r_{i \rightarrow j}^{spread},\]
 
-where $p_{stay}^i$ is the probability of staying at location
-$i$. 
+where $p_{stay}$ is the probability that a case remains in 
+location $i$ throughout their infectious period.
+
 
 \subsection{Statistical inference of model parameters}
 
 The parameters of the full model are: 
 
 1.  $R_{i, t}$, the reproduction number at time $t$ in location $i$,
-2.  $p_{stay}^i$, the probability of staying in location $i$, and 
+2.  $p_{stay}$, the probability of staying in location $i$, and 
 3.  $\gamma$, the exponent of the distance in the gravity model. 
 
 
@@ -92,8 +138,8 @@ locations and model parameters is, as in equation \@ref(#eq:likelihood):
 \begin{equation}
 \begin{aligned} 
 P(I_{j, t} \mid & p_{stay}, \gamma, \omega \\
-& R_{1, t}, R_{2, t}, \dots , R_{n,t}, \\ 
-& I_{1, 1}, I_{1, 2} \dots I_{1, t}, \\
+& R_{i, t}_{i = 1, 2, \dots n}, \\ 
+& I_{1, }, I_{1, 2} \dots I_{1, t}, \\
 & I_{2, 1}, I_{2, 2} \dots I_{2, t}, \\
 & I_{n, 1}, I_{n, 2} \dots I_{n, t}) = 
 e^{-\lambda_{j, t}}
@@ -105,9 +151,10 @@ where $\lambda_{j, t}$ is given by
 
 \begin{equation}
 \lambda_{j, t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i, t} \sum_{s
-        = 1}^t{I_{i, t - s} \omega_{s}} \right)}.
+        = 1}^T{I_{i, T - s} \omega_{s}} \right)},
 (\#eq:lambdajt)		
 \end{equation}
+where $T$ is the duration of the outbreak so far.
 
 Thus the likelihood of the parameters is proportional to
 
@@ -118,13 +165,13 @@ Thus the likelihood of the parameters is proportional to
 Therefore the joint posterior distribution of the model parameters 
 given the observed data is:
 
-\[P(\{p_{stay}^i\}, \gamma, \{R_{i, t}\} 
+\[P(\{p_{stay}\}, \gamma, \{R_{i, t}\} 
    \mid 
    \{I_{j, t}\}) 
    \propto  
-   \mathcal{L} \times P(\{R_{i,t}\}) P(\{p_{stay}^i\}) P(\gamma).\]
+   \mathcal{L} \times P(\{R_{i,t}\}) P(\{p_{stay}\}) P(\gamma).\]
 
-$P(\{p_{stay}^i\})$,  $P(\gamma)$, and $P(\{R_{i, t}\})$ 
+$P(\{p_{stay}\})$,  $P(\gamma)$, and $P(\{R_{i, t}\})$ 
 represent the prior distributions on the parameters. 
 
 Here, we have assumed a single $p_{stay}$ for all 
@@ -151,7 +198,7 @@ and the variance 1.5, was chosen so the 95% prior probability
 interval contains the extremes of this interval.
 
 For the gravity model parameters $p_{stay}$ and $\gamma$, we 
-choose uninformative uniform priors. 
+chose uninformative uniform priors. 
 Since $p_{stay}$ is a probability,
 the prior was a uniform distribution on the interval $[0, 1]$.
 For simplicity, and in the absence of 
@@ -159,11 +206,34 @@ data to inform these,
 we assumed the exponents $\alpha$ and $\beta$ on the
 populations to be 1.
 $\gamma$ was allowed to vary between 1 and 2 in the results presented
-in the main text. We did sensitivity analysis by letting gamma vary 
-between 1 and 10. The results of this analysis are presented in the SI.
+in the main text. We performed sensitivity analysis by letting gamma vary 
+between 1 and 10. The results of this analysis are presented in the
+SI.
 
-Model fitting was done in a Bayesian framework using MCMC
-methods as implemented in the software Stan [@carpenter2017stan] 
+Both $p_{stay}$ and $\gamma$ were assumed to be constant for the time 
+frame over which model was fitted and across all countries.
+
+Model fitting was done in a Bayesian framework using a Markov Chain 
+Monte Carlo (MCMC) approach as implemented in the software Stan [@carpenter2017stan] 
 and its R interface rstan [@rstan]. Convergence of MCMC chains was 
 confirmed using visual inspections of various diagnostics reported by 
 R package ggmcmc [@ggmcmc].
+
+For each model (i.e., for each choice of the time window), we made 
+forward projections every 7\textsuperscript{th} day, over a 2 week, 
+4 week and 6 week horizon. To forecast incidence from day $t$ onwards, 
+we fitted the model to the daily incidence series up to day $t-1$.
+We then sampled XXX parameter sets  (reproduction numbers for each 
+location in each time window and parameters of the gravity model) 
+from the joint posterior distribution, and for each parameter set, 
+simulated XXX  future epidemic trajectories were simulated 
+according to equation (1), assuming that future $R_t$ is equal to the 
+last estimated $R_t$ value.
+
+Each choice of time window (2, 4 or 6 weeks) for estimating 
+$R_{t}$ corresponded to a different model. As we estimated a 
+reproduction number in each time window for each location, a shorter 
+time window introduced more parameters in the model. At each point of 
+projection where more than one model was fitted, we estimated Bayes 
+factors (Kass and Raftery 1995) for model comparison using R package 
+bridgesampling (Gronau and Singmann 2018). 

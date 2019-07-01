@@ -20,11 +20,11 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj: 413
+  tproj: 21
   twindow: 14
   N: 55
   day0: 2014-03-21
-  indir: data/stanfits
+  indir: data/promed_stanfits_gamma_ul_10
 ---
 
 ```{r setup, eval = TRUE}

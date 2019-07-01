@@ -20,59 +20,29 @@ The orange line depicts the identity function.")
 
 ```
 
-## Processing ProMED/HealthMap data feed
 
-We used a set of curated ProMED and HealthMap records on the human 
-cases of Ebola in West Africa. 
-The dates in the feeds ranged from March 2014 to October 2016.
-The data set recorded the cumulative number of suspected/confirmed
-cases and suspected/confirmed deaths by country at various dates
-in this period. We derived the country specific daily and 
-weekly incidence time series from these data after the 
-following data cleaning and pre-processing:
-
-+ We first extracted the total case
-counts as a sum of suspected and confirmed cases. 
-+ Each unique record 
-in ProMED/HealthMap data is associated with a unique alert id.  Where
-multiple records were associated with the same alert id, we merged
-them by assigning the median of the case numbers to the record. In
-some instances, cumulative case count was inconsistent in that it
-failed to be monotonically increasing. Any record of a 
-cumulative case number lower than a previous record was removed.
-+ Finally, cumulative incidence on days with no records was
-filled in using linear or log-linear interpolation. 
-
-Further details and result of 
-each step of the pre-processing of Promed and 
-Healthmap data are presented in the supplementary text.
-
-## Data collated by WHO
-
-We used the incidence data collated by the WHO during the West 
-African Ebola epidemic made available by [@garske20160308], 
-later referred to as the ``WHO data'' in the interest of brevity. 
-The cleaned version of the WHO data consisted of cases reported
-between December 2013 and October 2015 in three most affected
-countries - Guinea, Sierra Leone and Liberia. The location of
-residence of cases was geo-coded to the second administrative level. 
-We aggregated the WHO data to national level to match the spatial
-resolution of ProMED and HealthMap that were only available at the 
-country level.
 
 
 ## Comparison of incidence trends from different sources
 
 ```{r echo = FALSE, warning = FALSE}
-incidrcite <- fig_nums(name = "incidrcompare",
-                       display = "cite")
-incidrcap <- fig_nums(name = "incidrcompare",
-                      caption = "Comparison of daily incidence
+incidrcite <- fig_nums(
+    name = "incidrcompare",
+    display = "cite"
+)
+incidrcap <- fig_nums(
+    name = "incidrcompare",
+    caption = "Comparison of daily incidence
 trends and R estimates from ProMED, HealthMap and WHO data (A) Daily
-incidence series derived from ProMED (blue), HealthMap (black) and WHO data (orange). The interpolated points for ProMED and HealthMap are shown in lighter shade of blue and black respectively. WHO data were aggergated to country level. (B) The mean
-time-varying reproduction number estimated using the WHO data, ProMED (blue) and
-HealthMap (black) data. The shaded region depicts the 95% CrI for the R estimates.
-The reprodcution number was estimated using EpiEstim with a time window of 28 days.")
+incidence series derived from ProMED (blue), HealthMap (black) and
+WHO data (orange). The interpolated points for ProMED and HealthMap
+are shown in lighter shade of blue and black respectively. WHO data
+were aggergated to country level. (B) The mean
+time-varying reproduction number estimated using the WHO data, ProMED
+(blue) and HealthMap (black) data. The shaded region depicts the
+95% CrI for the R estimates.
+The reprodcution number was estimated using EpiEstim with a time
+window of 28 days.")
 
 ```
 
@@ -89,7 +59,8 @@ highlighting that the WHO data used here are an extensively cleaned
 version of the data collected during the epidemic [@who2014ebola], 
 [@team2015west], published more than a year after the epidemic was declared to be 
 over. However, despite these discrepancies, the weekly incidence
-derived from ProMED and HealthMap was moderately to highly correlated with that
+derived from ProMED and HealthMap was moderately to highly correlated 
+with that
 reported by WHO later (Pearson's 
 correlation coefficient aggregated across the three countries 
 0.44 and 0.74 respectively, p value < 0.001).
@@ -134,6 +105,7 @@ I_{j, t} \sim Poisson\left(\sum_{i = 1}^n\left({p_{i \rightarrow j} R_{i, t}
 \sum^{s = 1}^t{I_{i, t - s} \omega_s}}\right)\right)
 (\#eq:model)
 \end{equation}
+
 where the matrix $p_{i \rightarrow j}$ characterises the spatial
 spread between locations $i$ and $j$ based on a gravity model
 [@zipf1946p]. $R_{i, t}$ (the reproduction number) reflects 
@@ -153,16 +125,16 @@ who28cite <- fig_nums(name = "who28",
 
 The ability of the model to robustly predict future outbreak
 trajectory depended on the 
-data source (see Figures 2, 3 and 4  for ProMED HealthMap and WHO data respectively)
-as well as on  the time window used for inference and the time horizon
-used for predictions (alternative time window in SI.XX). Overall,
-using a 2- week time window for inference based on ProMED data, and
-projecting ahead for 4 weeks, 53.3% of observed incidence across all 
-countries in the forecast horizon were included in the 95% credible 
-intervals (95%CrI).  Using data from Healthmap and  WHO respectively,  
-this figure was XXX% and 69.5%.
+data source (see Figures 2, 3 and 4  for ProMED HealthMap and WHO data 
+respectively) as well as on  the time window used for inference and 
+the time horizon used for predictions (alternative time window in
+SI.XX). Overall, using a 2-week time window for inference based on 
+ProMED data, and projecting ahead for 4 weeks, 53.3% of observed 
+incidence across all three countries in the forecast horizon were included 
+in the 95% credible intervals (95% CrI).  Using data from Healthmap and 
+WHO respectively, this figure was XXX% and 69.5%.
 
-As expected,  the robustness of projections decreased over the 
+As expected, the robustness of projections decreased over the 
 projection horizon (Figure 5). In the first week of the projection
 window, 73.1% of observed values (across the three countries) were 
 within the 95%CrI. The mean value of the relative mean absolute error
@@ -176,23 +148,41 @@ measure ranging from -1 for a model which always under-predicts, to
 The median bias for one-week ahead projections was 0.03 (IQR -0.25 -
 0.4) indicating little systematic bias. 
 
+The uncertainty associated 
+with the forecasts (which can be measured by the sharpness, i.e. the 
+deviation from the median, see Methods for details) is also an important 
+indicator of model performance. The mean sharpness in the first week
+of the projetion window is 2 (IQR 0 - 3.57) meaning that on average
+our individual projected one-week ahead epidemic trajectories are 2 cases 
+away from the median projection.
+
+In the second, third and fourth weeks of the projection window, the 
+percentage of observed values within the 95% CrI were  63%,  57.7% and 
+53.1% respectively. Similarly,  the relative error increases up to 
+2.16 (75th quantile) in week 4, the median bias up to XXX and the 
+median sharpness up to XXX. 
 
 
-We also estimated retrospective transmissibilty using all the available 
-data. The retrospective estimates of R agree reasonably well with the 
-real time estimates of R (bottom two panels `r g28cite`). The model is
-able to capture well the broad trends in the progress of the epidemic 
-within each country (top panel `r g28cite`) as well as the
-spatio-temporal spread (`r mapcite`). 
-The forecasts and R estimates using WHO data are shown in `r who28cite`.
+We examined whether the model performance varied depending on the
+country and the phase of the epidemic, defined as ``growing'' 
+when the 5.5th percentile of the posterior distribution of $R_t$ is
+above 1, ``declining'' when the 97.5th percentile of the posterior 
+distribution of $R_t$ is less than 1, and ``neither'' in all other 
+cases. In general, the model performance was better in the declining 
+phase of the epidemic, with 50% of the observations contained in the 
+95% CrI (Table 1). The bias and scores of the model (Figure 6 A) 
+indicate that in the growing phase, the model tends to over-predict 
+with the forecasts becoming less sharp (Figure 6 B) as the projections 
+are made over longer time frames. In the declining phase on the other 
+hand, the model tends to under-predict but predictions are generally 
+sharper.
 
-The results presented in the main text were obtained using a time 
-window of 14 days. Results from the model using other time windows and 
-projection horizon are presented in the supplementary text.
+
 
 ```{r figcaps, echo = FALSE}
-g28cap <- fig_nums(name = "promed28",
-                   caption = "Observed and predicted
+g28cap <- fig_nums(
+    name = "promed28",
+    caption = "Observed and predicted
 incidence, and reproduction number estimates from ProMED data.
 The top panel shows the weekly incidence derived from ProMED
 data and the 4 weeks incidence forecast on log scale.
@@ -209,8 +199,9 @@ In each case, the solid gray line is the median
 estimate and the shaded region represents the 95% CrI.")
 
 
-who28cap <- fig_nums(name = "who28",
-                   caption = "Observed and predicted
+who28cap <- fig_nums(
+    name = "who28",
+    caption = "Observed and predicted
 incidence, and reproduction number estimates from the WHO data.
 The top panel shows the weekly incidence derived from the WHO
 data and the 4 weeks incidence forecast on log scale.
@@ -238,33 +229,20 @@ knitr::include_graphics("ms-figures/who_projections-viz-fixed-country-14-1._14.p
 ```
 
 
-```{r echo = FALSE, fig.cap = mapcap, fig.align = "center"}
-knitr::include_graphics("ms-figures/promed_mli_nonzero.png")
-```
-
 ```{r echo = FALSE, warning = FALSE}
-parscite <- fig_nums(name = "pstayandgamma",
-                     display = "cite")
+parscite <- fig_nums(
+    name = "pstayandgamma",
+    display = "cite")
 
-parscap <- fig_nums(name = "pstayandgamma",
-                    caption = "Estimates of mobility model parameters 
+parscap <- fig_nums(
+    name = "pstayandgamma",
+    caption = "Estimates of mobility model parameters 
 during the epidemic.
 The solid yellow line represents the median obtained using WHO
 data and the blue line represents the median using ProMED data.
 The shaded regions represent the 95% CrI.")
 ```
-The parameters of the mobility model ($p_{stay}$ and $\gamma$) 
-were estimated using the incidence data coupled with the population 
-estimates and the 
-geographical distances. $p_{stay}$ is the probability
-of an individual to stay within a country and $\gamma$ is a measure of
-the influence of distance between two locations on the flow between 
-them. Both the parameters were 
-assumed to be constant for the time frame over which model was fitted 
-and across all countries. It is interesting to note that the change in 
-parameter estimates over the course 
-of the epidemic (`r parscite`) suggests a decreased probability of 
-travel across national borders.
+
 
 
 ```{r echo = FALSE, fig.cap = parscap, fig.align = "center", fig.width = 3.4}
@@ -296,30 +274,7 @@ proptabcap <- tab_nums(name = "propinci",
 95% CrI of the projected incidence.")
 ```
 
-An intuitive measure of model accuracy is the proportion of
-observed values that are contained in the distribution of simulated 
-values. `r proptabcite` shows the proportion of observed incidence 
-values in the 95% CrI of the simulated trajectories. The model
-performance varies depending on the phase of the epidemic and the 
-country. In general, the model accuracy is better in the declining 
-phase of the epidemic (defined as the window in which the 975th 
-percentile of the
-posterior distribution of the reproduction number is less than 1). 
 
-In addition to the 
-accuracy of the projected incidence, the uncertainty associated 
-with the forecasts (e.g., measured by the width of the prediction
-interval) is an important indicator of model performance. A 
-narrow prediction interval that contains the observed values
-is preferable over wide prediction intervals. To asses the 
-performance of the model along both these dimensions, 
-we used different metrics - bias, sharpness, and relative error,
-drawn from the literature. These are explained in detail in the
-SI. Briefly, sharpness is a measure of the spread of forecasts with a 
-value of 0 indicating perfect agreement across simulated
-trajectories. Bias measures the tendency of a model to systematically 
-under or over predict. The bias score for a model is 1 if it always 
-over-predicts and  -1 if it always under-predicts. 
 
 
 ```{r proponci, echo = FALSE, message = FALSE, fig.cap = proptabcap}
@@ -329,39 +284,68 @@ here::here("data/processed/promed_propinci_byphase.csv") %>%
         flextable::flextable(cwidth = 1) 
 ```
 
-The bias and scores of the model (`r assesscite` A) indicate that in the
-growing phase, the model tends to over-predict with the forecasts
-becoming less sharp (`r assesscite` B) as the projections are made over
-longer time frames. In 
-the declining phase (defined similarly as the window in which the 
-0.975th R percentile is less than 1), the model tends to 
-under-predict.
 
-Across all metrics, there is a strong trend of decreased model
-performance as the forecast horizon increases. The bias in forecasts
-at week 1 is closer to 0 at every time point. Similarly the forecasts
-at week 1 are more sharp (sharpness close to 0) than at week 4. 
-The length of the time window used to estimate R did not have a 
-significant impact on the model performance.
 
-The choice of time window (2, 4 or 6 weeks) for estimating R
-corresponded to a different model. As we estimated a reproduction
-number in each time window for each location, a shorter time window 
-introduced more parameters in the model. At each point of projection
-where more than one model was fitted, we estimated Bayes factor 
-[@kass1995bayes] for model comparison using R package bridgesampling 
-[@bridgeasampling]. Our analysis suggests that the preference for
-increased model complexity changed during the course of the epidemic. 
-In the early phase, we did not find strong evidence for using a smaller 
-time window (more complex model) while in the later phase, there was 
-decisive support for small time window over a longer one. This finding
-lends support to the intuition that in an unfolding outbreak, the more 
-recent past is a better indicator of the short term future, especially 
-in a rapidly changing situation.
+Fitting the model with alternative time windows (2, 4 or 6 weeks) 
+modifies the model complexity as the number of non-overlapping time 
+windows, and thus parameters, over the course of the epidemic
+increases with shorter time windows. An analysis of models using 
+different window sizes, showed in XXXX suggested s that overall the 
+length of the time window used to estimate R did not have a
+significant impact on the model performance. We also found that while 
+in the later phase of the epidemic, there was decisive support for 
+smaller time window, in the early phase, we did not find strong 
+evidence for using a smaller time window..
+
+
+In addition to measuring how well our model predicted the future 
+incidence in the three mainly affected country, we examined whether 
+it was able to accurately predict the presence/absence of cases in 
+other countries. We found that our approach allowed to robustly
+predict the presence or absence of cases in all countries up to a week 
+in advance in many cases (Figure XX).  Assuming that an alert is
+raised based the 97.5th percentile of the forward projections, we 
+classified an alert for a given week as either a true alert (if both 
+the observed and projected incidence in that week were non-zero), 
+a false alert (if the projected incidence is non-zero observed 
+incidence was zero), ora missed alert (if observed incidence was non 
+zero but the projected incidence was zero).  We chose to base the
+alert on the upper limit of the 95% CrI to maximise sensitivity, i.e. 
+minimise the number of missed alerts. In several instances, a single 
+false alert or a string of false alerts is followed by a true alert 
+suggesting that the model is able to capture and even anticipate the 
+spatial spread of the epidemic. For instance, in July 2014, a false 
+alert is raised in Nigeria and cases are in fact observed in Nigeria
+in the following week.
 
 
 
 ```{r assess, echo = FALSE, fig.cap = assesscap, fig.align = "center"}
 knitr::include_graphics("ms-figures/forecasts_assess_14.png")
 ```
+
+In addition to providing operational outputs such as the predicted s
+hort term incidence in currently affected countries or the risk of 
+spread to neighbouring countries, our method also provides near
+real-time estimates of parameters underlying the transmission model. 
+First, the reproduction number $R_t$ for each affected country is 
+estimated over the time-window of inference, here over the most recent 
+two weeks (Figures 2-4, second row). We found that these near
+real-time estimates of $R_t$ were in good agreement with retrospective 
+estimates obtained using the entire incidence time-series (Figure 2-4, 
+bottom row, correlation coefficients varying between 0.93 and 0.99).
+
+The risk of spatial spread in our model relies on estimating movement 
+pattern of infectious cases. Our method also provides estimates of the 
+parameters of the underlying gravity model (see Methods), $p_{stay}$, 
+the probability of a case staying within a country throughout their 
+infectious period, and $\gamma$, a measure of the extent to which
+distance between two locations affects the flow between them. 
+The real- time estimates of these two parameters over the course of 
+the epidemic, shown in Figure 7,suggest that while the relative flow 
+between locations did not vary substantially over time, the
+probability of travel across national borders may have decreased after 
+the initial phase of the epidemic. Figure 7 also illustrates how 
+accumulating data throughout the course of the epidemic allows 
+estimating such parameters more precisely. 
 

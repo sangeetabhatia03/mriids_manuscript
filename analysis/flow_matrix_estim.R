@@ -91,22 +91,26 @@ gravity_model_flow <- function(N_from,
 }
 
 ## Common params
-common_params <- function() {
-  mobility <- list(K = 1,
-                   pow_N_from = 1,
-                   pow_N_to = 1)
-  metadatafile <- "data/processed/all_african_centroids.csv"
-  centroids <- read.csv(metadatafile)
-  distances <- readRDS("data/processed/allafrica_distances.rds")
+common_params <- function(metadatafile = "data/processed/all_african_centroids.csv",
+                          dist_obj = "data/processed/allafrica_distances.rds",
+                          countries_col = "ISO3",
+                          pop_col = "pop") {
+    mobility <- list(
+        K = 1,
+        pow_N_from = 1,
+        pow_N_to = 1)
+
+  centroids <- readr::read_csv(metadatafile)
+  distances <- readRDS(dist_obj)
   distvec <- distances[lower.tri(distances)]
 
   ## ----pops----------------------------------------------------------------
   idx <- lower_tri_idx(nrow(distances))
-  n_from <- centroids$pop[idx[, 1]]
-  n_to <- centroids$pop[idx[, 2]]
+  n_from <- pull(centroids, pop_col)[idx[, 1]]
+  n_to <- pull(centroids, pop_col)[idx[, 2]]
   params <- list(
     mobility = mobility,
-    countries = centroids$ISO3,
+    countries = dplyr::pull(centroids,countries_col),
     distvec = distvec,
     n_from = n_from,
     n_to = n_to
@@ -116,8 +120,12 @@ common_params <- function() {
 
 
 flow_mat <- function(gamma,
-                     pstay) {
-  params <- common_params()
+                     pstay,
+                     metadatafile = "data/processed/all_african_centroids.csv",
+                     dist_obj = "data/processed/allafrica_distances.rds",
+                     countries_col = "ISO3",
+                     pop_col = "pop") {
+  params <- common_params(metadatafile, dist_obj, countries_col, pop_col)
   mobility <- params$mobility
   mobility$pow_dist <- gamma
   flowmat  <-

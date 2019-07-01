@@ -106,13 +106,19 @@ weekly_prop <- purrr::map2_dfc(
 
 df <- data.frame(
   tproj = params$tproj,
-  twindow = params$twindow
+  twindow = params$twindow,
 ) %>%
   cbind(weekly_prop)
 
 outfile <- paste0(
-  params$place,
-  "_prop_in_ci_by_week.csv"
+    params$place,
+    "_",
+    params$tproj,
+    "_",
+    params$twindow,
+    "_",
+    params$n.dates.sim,
+   "_prop_in_ci_by_week.csv"
 )
 
 here::here(

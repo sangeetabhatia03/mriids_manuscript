@@ -54,7 +54,19 @@ pars <- arrange(pars, tproj)
 ## While creating these, we sample from pstay and
 ## gamma an create the indices so that a joint
 ## sample can be extracted from R.
+
 source("analysis/flow_matrix_estim.R")
+
+metadatafile <- here::here(
+   "data/centroids_produced_by_wes_fixed.csv"
+)
+
+
+dist_obj <- here::here(
+   "data/who_distance_all_hzs.rds"
+)
+
+
 for (fit in fitfiles) {
   message("working on ", fit)
   fitobj <-
@@ -94,7 +106,11 @@ for (fit in fitfiles) {
     function(x, y, z) {
       df <- flow_mat(
         gamma = x,
-        pstay = y
+        pstay = y,
+        metadatafile = metadatafile,
+        dist_obj = dist_obj,
+        countries_col = "N3",
+        pop_col = "Pop"
       )
       readr::write_rds(
         x = df,
@@ -117,13 +133,6 @@ purrr::pwalk(
   function(tproj, twindow) {
     rmarkdown::render(
       "analysis/extract_mcmc_draws.Rmd",
-      output_file = paste0(
-        "extract_mcmc_draws_",
-        tproj,
-        "_",
-        twindow
-      ),
-
       params = list(
         tproj = tproj,
         twindow = twindow,
@@ -141,12 +150,6 @@ purrr::pwalk(
   function(tproj, twindow) {
     rmarkdown::render(
       "analysis/projection_using_fitted.Rmd",
-      output_file = paste0(
-        "projection_using_fitted_",
-        tproj,
-        "_",
-        twindow
-      ),
       params = list(
         tproj = tproj,
         twindow = twindow,

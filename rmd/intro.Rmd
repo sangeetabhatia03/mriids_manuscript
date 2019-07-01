@@ -1,4 +1,5 @@
 # Introduction
+
 Increasing globalization of 
 commerce, finance, production, and services
 has fostered rapid global movement of people, animals, plants, 
@@ -18,7 +19,7 @@ representing the first ever reported cases of Yellow fever in Asia
 [@wasserman2016yellow].
 
 Early detection of infectious disease outbreaks through passive or
-active surveillance data can help public 
+active surveillance can help public 
 health officials initiate interventions such as 
 removing contaminated food sources, isolating affected 
 individuals or launching vaccination campaigns. However, 
@@ -29,7 +30,7 @@ are generally reliable but are resource intensive and are
 therefore typically available for upstream
 analysis with an (understandable) delay.
 
-With the rapid growth of the internet has fostered a
+The rapid growth of the internet has fostered a
 corresponding increase in tools for internet based 
 disease detection that lie at the other end of the spectrum.
 Digital disease surveillance consists of monitoring 
@@ -37,13 +38,13 @@ online information sources to collate relevant
 information about diseases. The sources of information 
 could be formal such as advisories posted by a ministry of 
 health, or informal such as blogs or tweets. Digital 
-surveillance tools can play a significant role 
-in the rapid recognition of public health emergencies
-[@grein2000rumors, @anema2014digital].Digital 
 surveillance makes data collection less expensive 
 and time consuming but the acquired data are 
 often less reliable than those collected through 
-ground surveillance.
+ground surveillance. Thus, digital 
+surveillance tools can play a significant role 
+in the rapid recognition of public health emergencies
+[@grein2000rumors], [@anema2014digital].
 
 
 The Program for Monitoring Emerging Diseases 
@@ -117,8 +118,8 @@ a case study, we report the analysis of  ProMED and HealthMap data
 for the 2013-16 West African Ebola epidemic.  
 To assess the robustness of the digital surveillance data, 
 we also applied the framework to the data 
-collated by the World Health Organisation (WHO) and made available at the end of the
-epidemic. We present a comparison of the ProMED/HealthMap 
+collated by the World Health Organisation (WHO) and made available at 
+the end of the epidemic. We present a comparison of the ProMED/HealthMap 
 data with the retrospective WHO data and the results of 
 the spatiotemporal analysis carried out on these three data sources.
 
@@ -127,8 +128,6 @@ available through ProMED/HealthMap provides a
 realistic appraisal of their strengths and 
 weaknesses, especially if used in near real-time 
 forecasting.
- 
-
 
 
 

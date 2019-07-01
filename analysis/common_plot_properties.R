@@ -11,6 +11,13 @@ mriids_plot_theme <- list(
         "ProMED.FALSE" = "#229de2",
         "ProMED" = "#229de2"
     ),
+    phase_color_scale = c(
+        "Growing" = "#cb5683",
+        "Declining" = "#71a659",
+        "Neither" = "#8975ca",
+        "Overall" = "#000000"
+    ),
+
     theme = theme_classic(),
-    legend = theme(legend.position = "none") 
+    legend = theme(legend.position = "none")
 )

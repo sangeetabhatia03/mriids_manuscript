@@ -1,7 +1,11 @@
 library(dplyr)
 ## observations
 
-weekly_incid <- readr::read_csv(here::here(all_files[[datasource]]$weekly_incidfile))
+weekly_incid <- readr::read_csv(
+  here::here(
+    all_files[[datasource]]$weekly_incidfile
+    )
+  )
 
 forecasts_files <- list.files(
   path = all_files[[datasource]]$outdir,
@@ -15,7 +19,8 @@ names(forecasts_files) <- stringr::str_replace(
 ) %>%
   stringr::str_replace(".csv", "")
 
-all_forecasts <- purrr::map_dfr(forecasts_files,
+all_forecasts <- purrr::map_dfr(
+  forecasts_files,
   ~ readr::read_csv(here::here(
     all_files[[datasource]]$outdir,
     .x
@@ -41,8 +46,12 @@ all_forecasts$week_of_year <-
     lubridate::week(all_forecasts$date)
   )
 
-all_forecasts <- group_by(all_forecasts, country, tproj) %>%
-    mutate(week_of_projection = seq_len(n()))
+
+
+all_forecasts <- dplyr::group_by(
+  all_forecasts,
+  country, tproj, time_window, n.dates.sim) %>%
+  mutate(week_of_projection = seq_len(n()))
 
 
 ## Save this for mapping later.

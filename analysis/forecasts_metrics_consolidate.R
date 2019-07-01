@@ -17,7 +17,7 @@ message("Reading from and writing to ", all_files[[datasource]]$outdir)
 pattern <- "*daily_metrics*csv"
 infiles <- list.files(
   path = paste0(all_files[[datasource]]$outdir, "/metrics/daily"),
-  pattern = glob2rx(pattern),
+  pattern = glob2rx(pattern)
 )
 
 names(infiles) <- stringr::str_remove_all(
@@ -27,6 +27,7 @@ names(infiles) <- stringr::str_remove_all(
 
 indir <- paste0(all_files[[datasource]]$outdir, "/metrics/daily")
 daily_metrics <- consolidate_metrics(infiles, indir)
+
 
 
 ##  Weekly Metrics

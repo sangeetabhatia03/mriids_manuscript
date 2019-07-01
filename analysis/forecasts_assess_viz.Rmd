@@ -23,9 +23,9 @@ params:
   twindow : 14
   n.dates.sim : 28
   places: !r c("SLE", "LBR", "GIN")
-  indir: data/healthmap_gamma_ul_10_output
-  outdir: data/healthmap_gamma_ul_10_output/
-  datasource: HealthMap
+  indir: data/output
+  outdir: data/output/
+  datasource: ProMED
 ---
 
 ```{r setup, eval = TRUE}
@@ -42,7 +42,7 @@ knitr::opts_chunk$set(
   echo = FALSE,
   warning = FALSE,
   message = FALSE,
-  dev = "png",
+  dev = "pdf",
   ## fig.width = 7,
   ## dev.args = list(pointsize = 6),
   fig.path = here::here(params$outdir),
@@ -52,7 +52,7 @@ knitr::opts_chunk$set(
     params$twindow,
     "_",
     params$n.dates.sim,
-    "_assess.png"
+    "_assess.pdf"
   )
 )
 ```
@@ -65,6 +65,40 @@ weekly_metrics <- readr::read_csv(
     params$indir,
     "weekly_metrics.csv"
   )
+) %>% select(-logaccuracy)
+```
+
+
+## Proportion of observations in CI by week.
+
+```{r}
+infiles <- paste0(
+  params$places,
+  "_prop_in_ci_by_week.csv"
+)
+
+infiles <- here::here(
+  paste0(
+    params$indir,
+    "/metrics/weekly"
+  ),
+  infiles
+)
+names(infiles) <- params$places
+
+prop_in_ci_by_week <- purrr::map_dfr(
+  infiles,
+  ~ readr::read_csv(.x, col_names = FALSE),
+  .id = "country"
+)
+
+colnames(prop_in_ci_by_week) <- c(
+  "country",
+  "tproj",
+  "twindow",
+  "n.dates.sim",
+  "week_of_projection",
+  "prop_in_ci"
 )
 ```
 
@@ -74,7 +108,7 @@ Join it with R estimate categorisation.
 
 epidemic_phase <- readr::read_csv(
   file = here::here(
-    params$outdir,               
+    params$outdir,
     paste0(
       params$datasource,
       "_rquantiles_projection.csv"
@@ -87,18 +121,19 @@ epidemic_phase <- epidemic_phase[
 ]
 
 epidemic_phase <- epidemic_phase[rep(
-    seq_len(nrow(epidemic_phase)),
-    each = params$n.dates.sim), ]
+  seq_len(nrow(epidemic_phase)),
+  each = params$n.dates.sim
+), ]
 
 ## Fix the dates.
 epidemic_phase <- dplyr::group_by(
-    epidemic_phase,
-    tproj,
-    country
-    ) %>%
-    dplyr::mutate(
+  epidemic_phase,
+  tproj,
+  country
+) %>%
+  dplyr::mutate(
     date = seq(from = min(date), length.out = params$n.dates.sim, by = "1 day")
-)
+  )
 
 
 
@@ -114,6 +149,13 @@ weekly_metrics <- weekly_metrics[
 ]
 ```
 
+Overall performace
+
+```{r}
+weekly_metrics_overall <- weekly_metrics
+weekly_metrics_overall$ci <- "Overall"
+weekly_metrics <- rbind(weekly_metrics, weekly_metrics_overall)
+```
 ## Fix column classes
 ```{r forecasts-assess-viz-4 }
 
@@ -126,20 +168,78 @@ weekly_metrics$week_of_projection <- factor(weekly_metrics$week_of_projection)
 
 weekly_metrics$ci <- forcats::fct_recode(
   weekly_metrics$ci,
-  "Neither" = "ci_includes_1",
   "Growing" = "ll_greater_than_1",
-  "Declining" = "ul_less_than_1"
+  "Declining" = "ul_less_than_1",
+  "Neither" = "ci_includes_1",
+  "Overall" = "Overall"
+  )
+
+weekly_metrics$ci <- forcats::fct_relevel(
+  weekly_metrics$ci,
+  c("Growing",
+    "Declining",
+    "Neither",
+    "Overall"
+   )   
 )
+                                  
 weekly_metrics$tproj <- as.integer(weekly_metrics$tproj)
 weekly_metrics$twindow <- factor(weekly_metrics$twindow)
 ```
+
+
+Same for prop in ci.
+
+```{r}
+prop_in_ci_by_week <- dplyr::left_join(
+  prop_in_ci_by_week,
+  epidemic_phase,
+  by = c("tproj", "twindow", "country")
+)
+
+prop_in_ci_by_week <- prop_in_ci_by_week[
+  prop_in_ci_by_week$twindow == params$twindow &
+    prop_in_ci_by_week$n.dates.sim == params$n.dates.sim,
+]
+```
+
+Overall performance
+
+```{r}
+prop_in_ci_by_week_overall <- prop_in_ci_by_week
+prop_in_ci_by_week_overall$ci <- "Overall"
+prop_in_ci_by_week <- rbind(
+    prop_in_ci_by_week,
+    prop_in_ci_by_week_overall
+)
+
+prop_in_ci_by_week$ci <- forcats::fct_recode(
+  prop_in_ci_by_week$ci,
+  "Growing" = "ll_greater_than_1",
+  "Declining" = "ul_less_than_1",
+  "Neither" = "ci_includes_1",
+  "Overall" = "Overall"
+  )
+
+prop_in_ci_by_week$ci <- forcats::fct_relevel(
+  prop_in_ci_by_week$ci,
+  c("Growing",
+    "Declining",
+    "Neither",
+    "Overall"
+   )   
+)
+
+```
+
 
 ```{r forecasts-assess-viz-5 }
 
 summary_stats <- summarise_at(
   weekly_metrics,
-  vars(rmae:logaccuracy),
+  vars(rmae:bias),
   list(
+    avg = ~ mean(., na.rm = TRUE),
     med = ~ quantile(., 0.5, na.rm = TRUE),
     low = ~ quantile(., 0.25, na.rm = TRUE),
     high = ~ quantile(., 0.75, na.rm = TRUE)
@@ -164,6 +264,7 @@ summary_stats <- tidyr::gather(
 select(
   summary_stats,
   metric,
+  avg,
   med,
   low,
   high
@@ -177,55 +278,13 @@ select(
 
 weekly_summary_stats <- group_by(weekly_metrics, week_of_projection) %>%
   summarise_at(
-    vars(rmae:logaccuracy),
+    vars(rmae:bias),
     list(
+      avg = ~ mean(., na.rm = TRUE),
       med = ~ quantile(., 0.5, na.rm = TRUE),
       low = ~ quantile(., 0.25, na.rm = TRUE),
       high = ~ quantile(., 0.75, na.rm = TRUE)
     )
-  )
-
-weekly_summary_stats <- tidyr::gather(
-  weekly_summary_stats,
-  key = metric,
-  value = value,
-  -week_of_projection
-) %>%
-  tidyr::separate(
-    col = metric,
-    into = c("metric", "bound")
-  ) %>%
-  tidyr::spread(
-    key = bound,
-    value = value,
-    convert = TRUE
-  )
-
-weekly_summary_stats <- dplyr::mutate_if(
-  weekly_summary_stats,
-  is.numeric,
-  round,
-  3
-)
-
-weekly_summary_stats$formatted_iqr <- paste0(
-  weekly_summary_stats$med,
-  " (",
-  weekly_summary_stats$low,
-  " - ",
-  weekly_summary_stats$high,
-  ")"
-)
-
-weekly_summary_stats <- dplyr::select(
-  weekly_summary_stats,
-  week_of_projection,
-  metric,
-  formatted_iqr
-) %>%
-  tidyr::spread(
-    key = metric,
-    value = formatted_iqr
   )
 ```
 
@@ -234,15 +293,18 @@ knitr::kable(weekly_summary_stats)
 ```
 
 ## Summary stats by week and phase of epidemic
+
 ```{r forecasts-assess-viz-8}
+
 phase_weekly_summary_stats <- group_by(
   weekly_metrics,
   week_of_projection,
   ci
 ) %>%
   summarise_at(
-    vars(rmae:logaccuracy),
+    vars(rmae:bias),
     list(
+      avg = ~ mean(., na.rm = TRUE),
       med = ~ quantile(., 0.5, na.rm = TRUE),
       low = ~ quantile(., 0.25, na.rm = TRUE),
       high = ~ quantile(., 0.75, na.rm = TRUE)
@@ -313,7 +375,8 @@ pbias <- pbias +
   xlab("Week of projection") +
   ylab("Bias") +
   mriids_plot_theme$theme +
-  mriids_plot_theme$legend
+  mriids_plot_theme$legend +
+  scale_color_manual(values = mriids_plot_theme$phase_color_scale)
 
 pbias
 ```
@@ -322,6 +385,7 @@ pbias
 
 
 ```{r forecasts-assess-viz-11 }
+
 psharp <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -329,25 +393,31 @@ psharp <- ggplot(
     col = ci
   )
 ) +
-  geom_boxplot()
+    geom_boxplot() +
+    scale_y_log10(
+         breaks = scales::trans_breaks("log10", function(x) 10^x),
+         labels = scales::trans_format("log10", scales::math_format(10^.x)))
+
 
 psharp <- psharp +
   xlab("Week of projection") +
-  ylab("Sharpness") +
+  ylab("log(sharpness)") +
   mriids_plot_theme$theme +
-  mriids_plot_theme$legend
+  mriids_plot_theme$legend +
+  scale_color_manual(values = mriids_plot_theme$phase_color_scale)
 
 psharp
 ```
 
-## Relative accuracy
+## Proportion of observations in CrI
 
 
 ```{r forecasts-assess-viz-12 }
+prop_in_ci_by_week$week_of_projection <- factor(prop_in_ci_by_week$week_of_projection)
 prel <- ggplot(
-  weekly_metrics,
+  prop_in_ci_by_week,
   aes(week_of_projection,
-    logaccuracy,
+    prop_in_ci,
     col = ci
   )
 ) +
@@ -357,9 +427,10 @@ prel <- ggplot(
 ##            position = position_jitterdodge())
 prel <- prel +
   xlab("Week of projection") +
-  ylab("log relative accuracy") +
+  ylab("Proportion in 95% forecasts interval") +
   mriids_plot_theme$theme +
-  mriids_plot_theme$legend
+  mriids_plot_theme$legend +
+  scale_color_manual(values = mriids_plot_theme$phase_color_scale)
 
 prel
 ```
@@ -376,16 +447,20 @@ prelerr <- ggplot(
     col = ci
   )
 ) +
-  geom_boxplot()
+    geom_boxplot() +
+    scale_y_log10(
+         breaks = scales::trans_breaks("log10", function(x) 10^x),
+         labels = scales::trans_format("log10", scales::math_format(10^.x)))
 
 prelerr <- prelerr +
   mriids_plot_theme$theme +
-  mriids_plot_theme$legend
+  mriids_plot_theme$legend +
+  scale_color_manual(values = mriids_plot_theme$phase_color_scale)
 
 
 prelerr <- prelerr +
   xlab("Week of projection") +
-  ylab("Relative mean absolute error")
+  ylab("log(relative mean absolute error)")
 
 prelerr
 ```
@@ -416,7 +491,9 @@ prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
   prelerr + theme(legend.position = "none"),
   align = "vh",
   labels = c("A", "B", "C", "D"),
-  hjust = -1,
+  label_size = 8,
+  hjust = c(-1, 1, -3, 1),
+  vjust = c(3, 3, -2.5, 0),
   nrow = 2
 )
 

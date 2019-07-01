@@ -1,88 +1,141 @@
 # Discussion
 
-In the context of increasing threat of movement of
+In the context of increasing potential for movement of
 diseases between various regions of the world due to increased global 
-connectivity, innovative disease surveillance  solutions are urgently 
-needed. We compared the West African Ebola outbreak of 
-2014-2016 digital surveillance data from 
-ProMED/HealthMap curated by the moderators at ProMED/HealthMap with
-the data collated by the WHO and made available at the end of the 
-epidemic.
+connectivity, innovative strategies for  epidemic monitoring are 
+urgently needed. In this study, we propose a statistical framework 
+which relies on digital surveillance data from ProMED or /HealthMap to 
+1) predict the short-term epidemic trajectory in currently affected 
+countries, 2) quantifies the short-term risk of spread to other
+countries and 3) for countries at risk, quantified where the risk
+comes from. We apply our model to data collected during the
+West African Ebola epidemic of 2013-2016,  curated by the moderators
+at ProMED/HealthMap, and we compare the model’s output to those
+obtained when using the data collated by the WHO and made available at 
+the end of the epidemic.
 
-In general, we found the data from ProMED and HealthMap to be in good 
-agreement with the data collated by WHO through traditional 
-surveillance methods. In particular, retrospective estimates of 
-transmissibility over time were highly correlated across all data 
-sources. As future incidence trends are more sensitive to the accuracy of 
-transmissibility estimates than to the accuracy of incidence estimates,
-the observed agreement in transmissibility estimated from the
-different data sources suggests that digital surveillance data 
-could be used for providing accurate trends for forecast in an outbreak.
+
   
 In spite of the manual curation of the 
 data carried out by subject matter experts at ProMED and HealthMap, 
-significant quality issues remained in the data feeds. Dealing with 
-issues such as missing information and inconsistent records was a key 
-challenge in using these data. 
+substantial quality issues remained in the quality and consistency of
+the data feeds. Dealing with 
+issues such as missing data and inconsistent records will be a key 
+challenge in using these data for prospective real-time analysis. 
 
-In spite of these challenges, we 
-argue that digital surveillance tools can play a very important role
+We argue that despite these challenges, digital surveillance tools can 
+play a very important role
 in early detection of outbreaks. Particularly in an evolving outbreak 
 scenario, when information
 from traditional surveillance is limited and available with a 
-significant delay, digital surveillance data can be used to
-complement the information gap. Development of tools that can
-be plugged into the current digital surveillance ecosystem should
-therefore be an area of focus. At the same time, since the West
-African Ebola outbreak was unprecedented in extent and scope, it is 
-important to further investigate the reliability of digital
-surveillance methods and data using other outbreaks.
+significant delay, digital surveillance data could be used to
+complement the information gap. For instance, during the West African
+Ebola epidemic, the first situation report by the WHO was published
+only at the end of August 2014 (World Health Organisation 2014),
+reporting on cases between January and August 2014. On the other hand,
+the first post on ProMED on Ebola cases in Guinea appeared in March
+2014 (ProMED 2014). Development of tools that can directly be plugged
+into the current digital surveillance ecosystem should therefore be a
+growing area of focus. 
+
+In general, we found that, after systematic processing to remove 
+inconsistencies, data from ProMED and HealthMap were in good agreement 
+with the data collated by WHO through traditional surveillance
+methods. In particular, both the incidence time-series and
+retrospective national estimates of transmissibility over time were 
+well correlated across the three data sources. This suggests that 
+digital surveillance data could be used for providing robust forecasts 
+in an outbreak.
 
 We used the ProMED/HealthMap data to perform a spatiotemporal analysis 
-of the spread of the outbreak. We fitted a spatially 
+of the spread of the West African Ebola epidemic. We fitted a spatially 
 explicit branching process model to the daily incidence data derived 
-from  ProMED/HealthMap feeds. The estimated parameters were used to 
-simulate the outbreak trajectory over 4, 6 and 8 weeks. 
-The model performs well
-at short projection horizon. At longer time scale (more than 2 weeks 
-in this instance), the model performance begins to deteriorate.
-A possible explanation for this could be that we assume that the
+from  ProMED/HealthMap feeds. The estimated model parameters were used to 
+simulate the future outbreak trajectory over 4, 6 or 8 weeks. 
+The model performs well at short projection horizon, i.e. up to two 
+weeks. At a longer time scale, the model performance starts to deteriorate.
+A likely explanation for this is that our model assumes that
 transmissibility remains constant over
 the entire projection window. This assumption may not hold as we move 
-project over longer horizons for instance, due to interventions being
-implemented. Model performance also depended on the phase of the 
-epidemic in which projections were made. During a growing phase, the 
-model tended to over-predict while in a declining phase, there was a 
-tendency to under-predict. This variation could have important 
-implications if the model predictions are used to inform resource
+project over longer horizons for example, due to interventions being
+implemented. Model performance was also highly dependent on the phase of the 
+epidemic in which projections were made. During the growing phase, the 
+model tended to over-predict. This is likely due to interventions 
+implemented throughout the growing phase to reduce transmissibility, 
+leading to a reduced observed incidence compared to our model’s 
+expectation. In the declining phase on the other hand, our model 
+tended to under-predict the observed incidence. This could be
+explained by super-spreading, a phenomenon, observed in many epidemics 
+including Ebola epidemics, whereby a small number of cases generate a 
+large number of secondary infections, implying that when case numbers 
+are small, epidemic trajectory may be difficult to predict and not
+well described by our Poisson likelihood. Models using more complex 
+likelihoods, e.g. using Negative Binomial distributions, should be 
+explored in future work, but will present additional challenges as 
+analytical results underpinning the estimation of the reproduction 
+number will no longer hold. 
+
+
+
+Such variability in model performance throughout an epidemic could 
+have important implications if the model predictions are used to inform resource
 allocation. Model estimates should therefore be interpreted with caution, 
-particularly as an outbreak is observed to be declining. 
+particularly as an outbreak is observed to be declining, and if the 
+projection horizon is long.
+ 
 
 For the West African Ebola epidemic, ProMED and HealthMap data were 
 available at a coarse spatial scale with the district level
 information for cases missing in most of the records. This 
 limited our analysis to the spread of the outbreak across 
-national borders only, although our model implementation allows
-for consumption of data at any spatial scale. It would be 
-interesting to explore ways of integrating spatially coarse 
+national borders only, although our model could deal with 
+data at any spatial scale. An interesting research avenue would be to 
+explore ways of integrating spatially coarse 
 but timely data from ProMED and HealthMap with spatially resolved 
 but delayed data from ground surveillance.
 
+Using national-level data, we have shown that our model would have 
+been able to accurately predict in real-time the international spread
+of Ebola in West Africa. On occasions, our model predicted cases in 
+countries, such as Côte d'Ivoire, where ProMED did not report any
+case. However this may be due to imperfect case reporting. 
+Importantly, our model has very high sensitivity: there was only one 
+instance (in Nigeria at the tail of the epidemic) where our model 
+failed to predict cases in a country, and no instance if we consider 
+all 1, 2, 3 and 4 week ahead projections. Another interesting feature 
+of our model is that it provides, for each country identified as at
+risk, a map of where the risk comes from. This could help translating 
+data collected through digital surveillance into concrete operational 
+outputs which could assist in epidemic management and control. 
+
+
 The framework presented in this paper was developed as a proof of 
 concept to use digital surveillance data for near real time
-forecasting of the course of an outbreak. To further develop this
-system, it is important to establish an automated pipeline from data 
+forecasting of the spatio-temporal spread of an outbreak. 
+To further develop such approaches, it is important to establish an automated pipeline from data 
 collection to curation to analysis, which currently requires manual 
 intervention at each of these steps. Another factor that could enhance
-the usability of the system in near real time is to improve the
-running time of the
-fitting and forward simulation. In the current implementation, the
-running time varies from up to 30 mins with projection being done 
+the usability of our model in near real time is to improve the
+running time of the fitting and forward simulation. In the current 
+implementation, the running time varies from up to 30 mins with projection being done 
 for example, with 100 days of data to more than a day when an year of 
 incidence data are used. Although the West African Ebola epidemic was 
-of unusual duration, there is a significant scope for optimising 
+of scale and unusual duration, there is a scope for optimising 
 the model implementation.
 
+Our study provides one of the first pieces of evidence of the
+potential value of digital surveillance for real-time quantitative 
+analysis of epidemic data, with important operational and actionable 
+outputs. Importantly, many other open data sources could be included 
+in our framework to improve model performance. For example, data on 
+human mobility could be used to further inform the parametric form and 
+parameter values of our mobility model. When relevant, 
+spatially-explicit data on population-level immunity to the 
+circulating pathogen (e.g. following previous epidemics and/or due to 
+vaccination) could also be used to refine our transmission model. 
+Finally, quantitative information on the performance of health systems 
+and the ability of regions or countries to respond to an epidemic 
+could also be accounted for in future iterations of the model. 
 
 <!-- The influence of -->
 <!-- factors such as healthcare capacity of a location can be incorporated -->

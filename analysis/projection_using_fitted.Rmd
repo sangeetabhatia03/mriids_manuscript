@@ -24,8 +24,6 @@ params:
   twindow : 28
   n.dates.sim : 28
   day0: 2014-03-22
-  nsamples: 900
-  N: 55
   indir: data/who_stanfits
   outdir: data/who_output
 ---
@@ -36,6 +34,7 @@ params:
 library(dplyr)
 library(rstan)
 library(mRIIDS)
+
 ```
 
 ## Read incidence data
@@ -93,6 +92,7 @@ projecting as the R for the window over which we project. So we will
 just pick out the relevant row from the samples.
 
 ```{r rpred}
+
 last_window <- tail(trng_dates, 1)
 r_pred <- purrr::map_dfr(r_samples, ~ filter(.x,
                                              date == last_window))

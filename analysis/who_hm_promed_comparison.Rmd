@@ -856,12 +856,16 @@ p_all
 
 ```{r who-hm-promed-comparison-23 }
 
-readr::write_csv(x = all_R,
-                 path = here::here("data/output", "Rt_who_pm_hm.csv"))
+readr::write_csv(
+           x = all_R,
+           path = here::here("data/output", "Rt_who_pm_hm.csv")
+       )
 
-readr::write_csv(x = coeffs,
-                 path = here::here("data/output",
-                                   "Rt_who_pm_hm_correlation.csv"))
+readr::write_csv(
+           x = coeffs,
+           path = here::here("data/output",
+                             "Rt_who_pm_hm_correlation.csv")
+       )
 
 ```
 ```{r}

@@ -1,7 +1,7 @@
 twindow <- 14
 n.dates.sim <- 28
-nsim <- 1000
-datasource <- "ProMED"
+nsim <- 100
+datasource <- "DRC"
 places <- c("LBR", "GIN", "SLE")
 all_files <- list(
   WHO = list(
@@ -29,5 +29,11 @@ all_files <- list(
     weekly_incidfile = "data/processed/16042019_healthmap_loglinear_weekly.csv",
     stanfits_dir = "data/healthmap_stanfits_gamma_ul_10",
     outdir = "data/healthmap_gamma_ul_10_output"
+  ),
+
+  DRC = list(
+    incidfile = "data/incid.csv",
+    stanfits_dir = "data/ebola2018_stanfits",
+    outdir = "data/ebola2018_output"
   )
 )
