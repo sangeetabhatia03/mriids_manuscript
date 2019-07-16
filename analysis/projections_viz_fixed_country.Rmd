@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
   echo = FALSE,
   warning = FALSE,
   message = FALSE,
-  dev = "png",
+  dev = "pdf",
   ## fig.width = 7,
   ## dev.args = list(pointsize = 6),
   fig.path = here::here(paste0(params$outdir, "/")),
@@ -42,7 +42,7 @@ knitr::opts_chunk$set(
     params$twindow,
     "_",
     params$n.dates.sim,
-    ".png"
+    ".pdf"
   )
 )
 ```
@@ -120,7 +120,7 @@ rretro$country <- forcats::fct_recode(rretro$country,
   Liberia = "LBR",
   `Sierra Leone` = "SLE"
 )
-rretro$rcategory <- "R[Retrospective]"
+rretro$rcategory <- "R[retrospective]"
 rretro <- rretro[rretro$twindow == params$twindow, ]
 rused <- rused[, colnames(rretro)]
 
@@ -150,7 +150,7 @@ Read in the projections output.
 
 forecasts <- readr::read_csv(
   file = here::here(
-    all_files[[datasource]]$outdir,
+    params$outdir,
     "all_forecasts_consolidated.csv"
   )
 )
@@ -322,7 +322,8 @@ pretro <- pretro + geom_ribbon(
 )
 pretro <- pretro + geom_hline(
   yintercept = 1,
-  linetype = "dashed"
+  linetype = "dashed",
+  col = "red"
 )
 
 pretro <- pretro + xlab("") + ylab(expression(R[retrospective]))
@@ -377,7 +378,8 @@ preal <- preal + geom_ribbon(
 )
 preal <- preal + geom_hline(
   yintercept = 1,
-  linetype = "dashed"
+  linetype = "dashed",
+  col = "red"
 )
 
 preal <- preal + xlab("") + ylab(expression(R[t - 1]))
@@ -410,7 +412,7 @@ preal
 rboth$rcategory <- factor(rboth$rcategory,
   levels = c(
     "R[t - 1]",
-    "R[Retrospective]"
+    "R[retrospective]"
   )
 )
 
@@ -418,7 +420,7 @@ pboth <- ggplot(rboth) +
   geom_line(aes(date, `50%`)) +
   facet_grid(rcategory ~ country,
     scales = "free_y",
-    ## switch = "y",
+    switch = "y",
     labeller = label_parsed
   ) +
   mriids_plot_theme$theme +
@@ -427,7 +429,7 @@ pboth <- ggplot(rboth) +
     strip.background = element_blank(),
     strip.text.x = element_blank(),
     panel.spacing = unit(2, "lines"),
-    ## strip.placement = "outside"
+    strip.placement = "outside"
   ) +
   ylab(NULL)
 
@@ -444,7 +446,8 @@ pboth <- pboth + geom_ribbon(
 )
 pboth <- pboth + geom_hline(
   yintercept = 1,
-  linetype = "dashed"
+  linetype = "dashed",
+  col = "red"
 )
 
 pboth <- pboth + xlab("") + ylab("")
@@ -475,10 +478,8 @@ p2 <- p +
   )
 
 
+pall <- cowplot::plot_grid(p2, pboth, nrow = 2)
 
-pall <- p2 +
-  pboth +
-  plot_layout(nrow = 2, heights = c(2, 1))
 
 pall
 ```
