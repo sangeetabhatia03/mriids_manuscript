@@ -45,6 +45,20 @@ source(
       )
 )
 
+## Extract quantiles of weekly forecast samples.
+## OUTFILE weekly forecast samples and
+## weekly forecast quantiles
+for (ds in c("ProMED", "HealthMap", "WHO")) {
+  datasource <- ds
+  message("Working on ", datasource)
+  source(
+    here::here(
+       "analysis/weekly_forecasts_quantiles.R"
+      )
+  )
+}
+
+
 ## This will join the weekly forecasts with the weekly incidence
 ## Needed to calculate true/false/missing alerts.
 ## Depends on: cleaned weekly incidence file.
@@ -148,3 +162,58 @@ for (ds in c("HealthMap", "WHO")) {
      }
 
 }
+
+
+outdirs <- purrr::map(all_files, ~ .$outdir)
+
+infiles <- list.files(
+  path = as.character(outdirs),
+  pattern = "consolidated_forecasts_samples_[0-9]*_[0-9]*_[0-9]*",
+  recursive = FALSE,
+  full.names = TRUE
+)
+
+purrr::pwalk(
+    list(infiles),
+    function(infile) {
+        matches <- regmatches(
+            x = basename(infile),
+            m  = gregexpr("[[:digit:]]+", basename(infile))
+        )
+        matches <- as.integer(unlist(matches))
+        tproj <- matches[1]
+        twindow <- matches[2]
+        ndates <- matches[3]
+        predicted <- readr::read_rds(
+            path = infile
+            )
+        for (place in places) {
+            pred <- dplyr::select(predicted, starts_with(place))
+            pred <- as.matrix(pred)
+            rel_sness <- assessR:::rel_sharpness(pred)
+            outfile <- paste0(
+                place,
+                "_rel_sharpness.csv"
+            )
+            outfile <- here::here(
+                dirname(infile),
+                outfile
+            )
+            out <- data.frame(
+                tproj = tproj,
+                twindow = twindow,
+                n.dates.sim = ndates,
+                rel_sharpness = rel_sness,
+                day_of_projection = seq_len(ndates)
+            )
+            readr::write_csv(
+                x = out,
+                path = outfile,
+                append = TRUE
+             )
+
+        }
+
+    }
+)
+
