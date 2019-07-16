@@ -14,9 +14,9 @@ all_quantiles <- purrr::map_dfr(
 
 all_quantiles <- all_quantiles[all_quantiles$twindow == twindow, ]
 all_quantiles$Source <- factor(all_quantiles$Source)
-
+library(ggplot2)
 p <- ggplot(all_quantiles) +
-    geom_line(aes(
+     geom_line(aes(
         date,
         `50%`,
         col = Source
@@ -30,12 +30,14 @@ p <- p + geom_ribbon(aes(
          alpha = 0.3)
 
 p <- p + facet_wrap(~param,
-                    ncol = 1,
+                    ncol = 2,
                     scales = "free_y")
-p <- p + theme(axis.text.x = element_text(
-                   angle = 90,
-                   hjust = 0
-               ))
+p <- p + theme(
+             axis.text.x = element_text(
+                 angle = 90,
+                 hjust = 0
+             )
+         )
 p <- p + xlab("") + ylab("")
 p <- p + scale_x_date(date_labels = "%b-%Y")
 p <- p +
@@ -44,4 +46,7 @@ p <- p +
     mriids_plot_theme$legend +
     scale_color_manual(values = mriids_plot_theme$color_scale) +
     scale_fill_manual(values = mriids_plot_theme$color_scale)
+
+
+
 

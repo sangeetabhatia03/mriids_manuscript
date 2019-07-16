@@ -19,7 +19,7 @@ representing the first ever reported cases of Yellow fever in Asia
 [@wasserman2016yellow].
 
 Early detection of infectious disease outbreaks through passive or
-active surveillance can help public 
+active collection of surveillance data can help public 
 health officials initiate interventions such as 
 removing contaminated food sources, isolating affected 
 individuals or launching vaccination campaigns. However, 
@@ -115,7 +115,7 @@ predict the future incidence trajectory, and
 quantify spatial heterogeneity in the risk of disease spread. 
 In this paper, we present the model implemented in this system and as
 a case study, we report the analysis of  ProMED and HealthMap data
-for the 2013-16 West African Ebola epidemic.  
+for the 2013-16 West African Ebola epidemic. 
 To assess the robustness of the digital surveillance data, 
 we also applied the framework to the data 
 collated by the World Health Organisation (WHO) and made available at 

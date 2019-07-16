@@ -135,17 +135,17 @@ distribution of all parameters  using Markov Chain Monte Carlo
 incidence at time $t$ in location $j$ given past incidence across all 
 locations and model parameters is, as in equation \@ref(#eq:likelihood): 
 
-\begin{equation}
-\begin{aligned} 
-P(I_{j, t} \mid & p_{stay}, \gamma, \omega \\
-& R_{i, t}_{i = 1, 2, \dots n}, \\ 
-& I_{1, }, I_{1, 2} \dots I_{1, t}, \\
-& I_{2, 1}, I_{2, 2} \dots I_{2, t}, \\
-& I_{n, 1}, I_{n, 2} \dots I_{n, t}) = 
-e^{-\lambda_{j, t}}
-  \frac{I_{j, t}^{\lambda_{j, t}}}{\lambda_{j, t} !}, 
-\end{aligned}    
-\end{equation}
+<!-- \begin{equation} -->
+<!-- \begin{aligned}  -->
+<!-- P(I_{j, t} \mid & p_{stay}, \gamma, \omega \\ -->
+<!-- & R_{i, t}_{\{i = 1, 2, \dots n\}}, \\  -->
+<!-- & I_{1, }, I_{1, 2} \dots I_{1, t}, \\ -->
+<!-- & I_{2, 1}, I_{2, 2} \dots I_{2, t}, \\ -->
+<!-- & I_{n, 1}, I_{n, 2} \dots I_{n, t}) =  -->
+<!-- e^{-\lambda_{j, t}} -->
+<!--   \frac{I_{j, t}^{\lambda_{j, t}}}{\lambda_{j, t} !},  -->
+<!-- \end{aligned}     -->
+<!-- \end{equation} -->
 
 where $\lambda_{j, t}$ is given by
 

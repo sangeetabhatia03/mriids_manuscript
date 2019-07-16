@@ -4,26 +4,23 @@ In the context of increasing potential for movement of
 diseases between various regions of the world due to increased global 
 connectivity, innovative strategies for  epidemic monitoring are 
 urgently needed. In this study, we propose a statistical framework 
-which relies on digital surveillance data from ProMED or /HealthMap to 
+which relies on digital surveillance data from ProMED or HealthMap to 
 1) predict the short-term epidemic trajectory in currently affected 
-countries, 2) quantifies the short-term risk of spread to other
+countries, 2) quantify the short-term risk of spread to other
 countries and 3) for countries at risk, quantified where the risk
 comes from. We apply our model to data collected during the
-West African Ebola epidemic of 2013-2016,  curated by the moderators
+West African Ebola epidemic of 2013-2016, curated by the moderators
 at ProMED/HealthMap, and we compare the model’s output to those
 obtained when using the data collated by the WHO and made available at 
 the end of the epidemic.
 
-
-  
 In spite of the manual curation of the 
 data carried out by subject matter experts at ProMED and HealthMap, 
 substantial quality issues remained in the quality and consistency of
 the data feeds. Dealing with 
 issues such as missing data and inconsistent records will be a key 
-challenge in using these data for prospective real-time analysis. 
-
-We argue that despite these challenges, digital surveillance tools can 
+challenge in using these data for prospective real-time analysis. We 
+argue that despite these challenges, digital surveillance tools can 
 play a very important role
 in early detection of outbreaks. Particularly in an evolving outbreak 
 scenario, when information
@@ -66,16 +63,15 @@ leading to a reduced observed incidence compared to our model’s
 expectation. In the declining phase on the other hand, our model 
 tended to under-predict the observed incidence. This could be
 explained by super-spreading, a phenomenon, observed in many epidemics 
-including Ebola epidemics, whereby a small number of cases generate a 
+including Ebola epidemics [@lau2017spatial], [@agua2016exposure] 
+whereby a small number of cases generate a 
 large number of secondary infections, implying that when case numbers 
 are small, epidemic trajectory may be difficult to predict and not
 well described by our Poisson likelihood. Models using more complex 
 likelihoods, e.g. using Negative Binomial distributions, should be 
 explored in future work, but will present additional challenges as 
 analytical results underpinning the estimation of the reproduction 
-number will no longer hold. 
-
-
+number will no longer hold [@cori2013new]. 
 
 Such variability in model performance throughout an epidemic could 
 have important implications if the model predictions are used to inform resource
@@ -109,8 +105,9 @@ data collected through digital surveillance into concrete operational
 outputs which could assist in epidemic management and control. 
 
 
-The framework presented in this paper was developed as a proof of 
-concept to use digital surveillance data for near real time
+The framework presented in this paper was developed as a
+proof-of-concept 
+to use digital surveillance data for near real-time
 forecasting of the spatio-temporal spread of an outbreak. 
 To further develop such approaches, it is important to establish an automated pipeline from data 
 collection to curation to analysis, which currently requires manual 

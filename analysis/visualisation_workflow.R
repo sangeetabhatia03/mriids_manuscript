@@ -94,9 +94,10 @@ source(
 
 
 datasources <- c("ProMED", "WHO", "HealthMap")
+
 for (idx in seq_len(nrow(pars))) {
-    tw <- pars$tw[idx]
-    ndates <- pars$ndates[idx]
+  tw <- pars$tw[idx]
+  ndates <- pars$ndates[idx]
   for (place in places) {
       message("Working on ", place, " : ", tw, " : ", ndates)
       source(
@@ -106,3 +107,30 @@ for (idx in seq_len(nrow(pars))) {
       )
   }
  }
+
+
+datasources <- c("ProMED", "WHO", "HealthMap")
+ndates <- c(28, 42, 56)
+pars <- expand.grid(
+    ds = datasources,
+    ndate = ndates,
+    stringsAsFactors = FALSE
+)
+
+purrr::pwalk(
+    pars,
+    function(ds, ndate) {
+        rmarkdown::render(
+             input = "analysis/forecasts_assess_by_time_window.Rmd",
+             params = list(
+                 n.dates.sim = ndate,
+                 indir = all_files[[ds]]$outdir,
+                 outdir = paste0(
+                     all_files[[ds]]$outdir,
+                     "/"
+                 ),
+                 datasource = ds
+             )
+          )
+     }
+)

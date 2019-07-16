@@ -66,6 +66,36 @@ weekly_metrics <-dplyr::group_by(
     mutate(week_of_projection = week_projection(date))
 
 
+weekly_metrics <- select(
+    weekly_metrics,
+    -logaccuracy,
+    -sharpness
+)
+
+## Add relative sharpness
+infiles <- paste0(
+    places,
+    "_rel_sharpness.csv"
+)
+infiles <- here::here(
+    all_files[[datasource]]$outdir,
+    infiles
+    )
+names(infiles) <- places
+
+rel_sness <- purrr::map_dfr(
+    infiles, ~ readr::read_csv(.x, col_names = FALSE), .id = "country"
+    )
+
+colnames(rel_sness) <- c(
+    "country",
+    "tproj",
+    "twindow",
+    "n.dates.sim",
+    "rel_sharpness",
+    "day_of_projection"
+)
+
 
 
 readr::write_csv(
