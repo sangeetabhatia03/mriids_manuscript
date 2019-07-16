@@ -1,13 +1,13 @@
 mriids_plot_theme <- list(
 
     color_scale = c(
-        "HealthMap.FALSE" = "#000000",
-        "HealthMap" = "#000000",
-        "HealthMap.TRUE" = "#7A7A7A",
+        "HealthMap.FALSE" = "#009e73",
+        "HealthMap" = "#009e73",
+        "HealthMap.TRUE" = "#b2e1d5",
         "WHO.FALSE" = "#ffd370",
         "WHO" = "#ffd370",
         "WHO.TRUE" = "#F9F4AF",
-        "ProMED.TRUE" = "#cfeaf9",
+        "ProMED.TRUE" = "#a6d7f3",
         "ProMED.FALSE" = "#229de2",
         "ProMED" = "#229de2"
     ),
@@ -18,6 +18,6 @@ mriids_plot_theme <- list(
         "Overall" = "#000000"
     ),
 
-    theme = theme_classic(),
-    legend = theme(legend.position = "none")
+    theme = ggplot2::theme_classic(),
+    legend = ggplot2::theme(legend.position = "none")
 )
