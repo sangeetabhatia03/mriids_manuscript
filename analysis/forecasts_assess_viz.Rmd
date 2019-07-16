@@ -65,7 +65,7 @@ weekly_metrics <- readr::read_csv(
     params$indir,
     "weekly_metrics.csv"
   )
-) %>% select(-logaccuracy)
+) 
 ```
 
 
@@ -101,6 +101,8 @@ colnames(prop_in_ci_by_week) <- c(
   "prop_in_ci"
 )
 ```
+
+
 
 Join it with R estimate categorisation.
 
@@ -156,6 +158,7 @@ weekly_metrics_overall <- weekly_metrics
 weekly_metrics_overall$ci <- "Overall"
 weekly_metrics <- rbind(weekly_metrics, weekly_metrics_overall)
 ```
+
 ## Fix column classes
 ```{r forecasts-assess-viz-4 }
 
@@ -231,7 +234,7 @@ prop_in_ci_by_week$ci <- forcats::fct_relevel(
 )
 
 ```
-
+## Summary
 
 ```{r forecasts-assess-viz-5 }
 
@@ -292,6 +295,66 @@ weekly_summary_stats <- group_by(weekly_metrics, week_of_projection) %>%
 knitr::kable(weekly_summary_stats)
 ```
 
+## Proportion of observations in 95% forecasts interval by country
+
+```{r}
+prop_in_ci_by_week_summary <-
+    dplyr::group_by(
+        prop_in_ci_by_week,
+        country,
+        week_of_projection
+        ) %>% summarise(prop_in_ci = mean(prop_in_ci, na.rm = TRUE))
+
+prop_in_ci_by_week_summary <- tidyr::spread(
+    prop_in_ci_by_week_summary,
+    key = week_of_projection,
+    value = prop_in_ci
+)
+
+```
+
+```{r}
+knitr::kable(prop_in_ci_by_week_summary)
+```
+## Proportion of observations in 95% forecasts interval overall
+
+```{r}
+overall <- dplyr::group_by(
+        prop_in_ci_by_week,
+        week_of_projection
+        ) %>% summarise(prop_in_ci = mean(prop_in_ci, na.rm = TRUE))
+
+overall <- tidyr::spread(
+   overall,
+   key = week_of_projection,
+   value = prop_in_ci
+)
+```
+
+```{r}
+knitr::kable(overall)
+```
+
+## Proportion of observations in 95% forecasts interval by phase
+
+```{r}
+prop_in_ci_by_phase <- dplyr::group_by(
+   prop_in_ci_by_week,
+   country,
+   ci
+   ) %>% summarise(prop_in_ci = mean(prop_in_ci, na.rm = TRUE))
+
+prop_in_ci_by_phase <- tidyr::spread(
+   prop_in_ci_by_phase,
+   key = ci,
+   value = prop_in_ci
+)
+
+```
+
+```{r}
+knitr::kable(prop_in_ci_by_phase)
+```
 ## Summary stats by week and phase of epidemic
 
 ```{r forecasts-assess-viz-8}
