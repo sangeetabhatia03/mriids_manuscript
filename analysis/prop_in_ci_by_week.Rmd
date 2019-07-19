@@ -106,7 +106,7 @@ weekly_prop <- purrr::map2_dfc(
 
 df <- data.frame(
   tproj = params$tproj,
-  twindow = params$twindow,
+  twindow = params$twindow
 ) %>%
   cbind(weekly_prop)
 

@@ -57,14 +57,6 @@ pars <- arrange(pars, tproj)
 
 source("analysis/flow_matrix_estim.R")
 
-metadatafile <- here::here(
-   "data/centroids_produced_by_wes_fixed.csv"
-)
-
-
-dist_obj <- here::here(
-   "data/who_distance_all_hzs.rds"
-)
 
 
 for (fit in fitfiles) {
@@ -80,7 +72,7 @@ for (fit in fitfiles) {
   }
   list_of_draws <- rstan::extract(fitobj)
   nsamples <- length(list_of_draws[["gamma"]])
-  selected <- sample(seq_len(nsamples), nsim)
+  selected <- sample(seq_len(nsamples), all_files[[datasource]]$nsim)
   ## we want to sample all parameters jointly
   ## so save the indices to be used later.
   readr::write_rds(
@@ -107,10 +99,10 @@ for (fit in fitfiles) {
       df <- flow_mat(
         gamma = x,
         pstay = y,
-        metadatafile = metadatafile,
-        dist_obj = dist_obj,
-        countries_col = "N3",
-        pop_col = "Pop"
+        metadatafile = all_files[[datasource]]$metadatafile,
+        dist_obj = all_files[[datasource]]$dist_obj,
+        countries_col = "ISO3",
+        pop_col = "pop"
       )
       readr::write_rds(
         x = df,
@@ -153,7 +145,7 @@ purrr::pwalk(
       params = list(
         tproj = tproj,
         twindow = twindow,
-        n.dates.sim = n.dates.sim,
+        n.dates.sim = all_files[[datasource]]$n.dates.sim,
         day0 = day0,
         indir =
           all_files[[datasource]]$stanfits_dir,
@@ -169,23 +161,23 @@ purrr::pwalk(
 purrr::pwalk(
   pars,
   function(tproj, twindow) {
-    for (place in places) {
+    for (place in all_files[[datasource]]$places) {
       rmarkdown::render(
         "analysis/forecasts_assess.Rmd",
         output_file = paste0(
           "forecasts_assess_",
           tproj,
           "_",
-          twindow
+          twindow,
+          ".html"
         ),
-
         params = list(
           tproj = tproj,
           twindow = twindow,
           incid =
             all_files[[datasource]]$incidfile,
           n.dates.sim =
-            n.dates.sim,
+            all_files[[datasource]]$n.dates.sim,
           place = place,
           outdir =
             all_files[[datasource]]$outdir,
@@ -203,7 +195,7 @@ purrr::pwalk(
 purrr::pwalk(
   pars,
   function(tproj, twindow) {
-    for (place in places) {
+    for (place in all_files[[datasource]]$places) {
       rmarkdown::render(
         "analysis/prop_in_ci_by_week.Rmd",
         params = list(
@@ -212,7 +204,7 @@ purrr::pwalk(
           incid =
             all_files[[datasource]]$incidfile,
           n.dates.sim =
-            n.dates.sim,
+           all_files[[datasource]]$n.dates.sim,
           place = place,
           outdir =
             all_files[[datasource]]$outdir,

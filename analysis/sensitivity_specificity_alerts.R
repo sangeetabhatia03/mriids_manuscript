@@ -1,23 +1,4 @@
 library(dplyr)
-sensitivity <- function(obs, pred) {
-  sum(pred > 0 & obs > 0, na.rm = TRUE) / sum(obs > 0, na.rm = TRUE)
-}
-
-specificity <- function(obs, pred) {
-  sum(pred == 0 & obs == 0, na.rm = TRUE) / sum(obs == 0, na.rm = TRUE)
-}
-
-false_negative <- function(obs, pred) {
-  sum(pred == 0 & obs > 0, na.rm = TRUE) / sum(obs > 0, na.rm = TRUE)
-}
-
-metrics <- function(obs, pred) {
-  data.frame(
-    true_positive = sensitivity(obs = obs, pred = pred),
-    true_negative = specificity(obs = obs, pred = pred),
-    missed_alerts = false_negative(obs = obs, pred = pred)
-  )
-}
 
 incid_pred <- readr::read_csv(
   file = here::here(
@@ -32,7 +13,7 @@ metrics_central <- dplyr::group_by(
     n.dates.sim,
     country,
     week_of_projection
-    ) %>% do(metrics(.$incid, .$y))
+    ) %>% do(metrics(.$incid, .$`50%`))
 
 metrics_low <- dplyr::group_by(
   incid_pred,
@@ -40,7 +21,7 @@ metrics_low <- dplyr::group_by(
   n.dates.sim,
   country,
   week_of_projection
-) %>% do(metrics(.$incid, .$ymin))
+) %>% do(metrics(.$incid, .$`2.5%`))
 
 
 metrics_high <- dplyr::group_by(
@@ -49,7 +30,7 @@ metrics_high <- dplyr::group_by(
   n.dates.sim,
   country,
   week_of_projection
-) %>% do(metrics(.$incid, .$ymax))
+) %>% do(metrics(.$incid, .$`97.5%`))
 
 ## combine to save as 1.
 metrics_df <- dplyr::left_join(
@@ -85,29 +66,18 @@ readr::write_csv(
 
 ## Temporal trend in true, false and missed alerts.
 ## Using central estimate.
-incid_pred$alert_type_central <- dplyr::case_when(
-  incid_pred$incid == 0 & incid_pred$y > 0 ~ "False Alert",
-  incid_pred$incid > 0 & incid_pred$y > 0 ~ "True Alert",
-  incid_pred$incid > 0 & incid_pred$y == 0 ~ "Missed Alert"
+qntls <- dplyr::select(incid_pred, `2.5%`:`97.5%`)
+alerts <- purrr::map_dfr(
+    qntls,
+    function(pred) alert_type(obs = incid_pred$incid, pred = pred)
 )
-
-incid_pred$alert_type_low <- dplyr::case_when(
-  incid_pred$incid == 0 & incid_pred$ymin > 0 ~ "False Alert",
-  incid_pred$incid > 0 & incid_pred$ymin > 0 ~ "True Alert",
-  incid_pred$incid > 0 & incid_pred$ymin == 0 ~ "Missed Alert"
-)
-
-incid_pred$alert_type_high <- dplyr::case_when(
-  incid_pred$incid == 0 & incid_pred$ymax > 0 ~ "False Alert",
-  incid_pred$incid > 0 & incid_pred$ymax > 0 ~ "True Alert",
-  incid_pred$incid > 0 & incid_pred$ymax == 0 ~ "Missed Alert"
-)
-
+colnames(alerts) <- paste0("alert_using_", colnames(alerts))
+weekly_alerts <- cbind(incid_pred, alerts)
 
 readr::write_csv(
-  x =  incid_pred,
+  x =  weekly_alerts,
   path = here::here(
     all_files[[datasource]]$outdir,
-    "alerts_per_week.csv"
+    "weekly_alerts.csv"
   )
 )

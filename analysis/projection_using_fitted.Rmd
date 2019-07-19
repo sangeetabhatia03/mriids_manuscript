@@ -222,13 +222,15 @@ Also save all samples.
 
 
 ```{r writeall}
-outfile <- paste0("forecasts_samples_",
-                  params$tproj,
-                  "_",
-                  params$twindow,
-                  "_",
-                  params$n.dates.sim,
-                  ".Rds")
+outfile <- paste0(
+    "forecasts_samples_",
+    params$tproj,
+    "_",
+    params$twindow,
+    "_",
+    params$n.dates.sim,
+    ".Rds"
+)
 here::here(params$outdir,
            outfile) %>%
     readr::write_rds(x = daily_projections,
