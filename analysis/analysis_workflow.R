@@ -1,5 +1,7 @@
 library(dplyr)
 source(here::here("analysis/parameters.R"))
+source(here::here("analysis/utils.R"))
+source(here::here("analysis/flow_matrix_estim.R"))
 
 fitfiles <- list.files(
   path = all_files[[datasource]]$stanfits_dir,
@@ -18,7 +20,9 @@ pars <- data.frame(fit = fitfiles) %>%
   )
 
 pars <- arrange(pars, tproj)
-pars$n.dates.sim <- n.dates.sim
+
+
+
 
 ## Extract R used for formard simulation.
 ## Assign appropriate phase label.
@@ -48,7 +52,7 @@ source(
 ## Extract quantiles of weekly forecast samples.
 ## OUTFILE weekly forecast samples and
 ## weekly forecast quantiles
-for (ds in c("ProMED", "HealthMap", "WHO")) {
+for (ds in c("HealthMap", "WHO")) {
   datasource <- ds
   message("Working on ", datasource)
   source(
@@ -217,3 +221,39 @@ purrr::pwalk(
     }
 )
 
+
+
+
+## Importation risk.
+for (ds in c("ProMED", "HealthMap", "WHO")) {
+    datasource <- ds
+    message("Working on ", datasource)
+    fitfiles <- list.files(
+        path = all_files[[datasource]]$stanfits_dir,
+        pattern = "^[0-9]*_[0-9]*.rds",
+        full.names = FALSE
+    )
+    pars <- data.frame(fit = fitfiles) %>%
+        tidyr::separate(
+                   col = fit,
+                   into = c(
+                       "tproj",
+                       "twindow"
+                   ),
+                   convert = TRUE
+               )
+    pars <- arrange(pars, tproj)
+    all_twindows <- unique(pars$twindow)
+    for (tw in all_twindows) {
+        twindows <- tw
+        tprojs <- pars[pars$twindow == tw, "tproj"]
+        message("time_window is ", twindows)
+        source(
+            here::here(
+               "analysis/importation_risk.R"
+               )
+        )
+
+    }
+
+}

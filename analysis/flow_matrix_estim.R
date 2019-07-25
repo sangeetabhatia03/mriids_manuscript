@@ -161,8 +161,10 @@ flow_mat <- function(gamma,
   ## matrix characterising the population
   ## movement between geographical units
 
-  pij <- probability_movement(rel_risk,
-                              p_stay = pstay)
+  pij <- probability_movement(
+      rel_risk,
+      p_stay = pstay
+  )
 
   pij
 
@@ -181,5 +183,49 @@ write_output <- function(flow_matrices, outdir, prefix) {
                outfiles,
                ~ readr::write_rds(x = .x,
                                   path = .y))
+
+}
+
+flow_mat2 <- function(gamma,
+                      pstay,
+                      metadatafile = "data/processed/all_african_centroids.csv",
+                      dist_obj = "data/processed/allafrica_distances.rds",
+                      countries_col = "ISO3",
+                      pop_col = "pop") {
+  params <- common_params(metadatafile, dist_obj, countries_col, pop_col)
+  mobility <- params$mobility
+  mobility$pow_dist <- gamma
+  flowmat  <-
+    matrix(NA,
+           length(params$countries),
+           length(params$countries))
+  rownames(flowmat) <- params$countries
+  colnames(flowmat) <- params$countries
+  ## fill in the matrix from the vectors
+  flow_from_to <- flow_vector(params$n_from,
+                              params$n_to,
+                              params$distvec,
+                              model = "gravity",
+                              params = mobility)
+
+  flowmat[lower.tri(flowmat)] <- flow_from_to
+  ## fill out the upper triangle
+  flowmat <- t(flowmat)
+
+  flow_to_from <- flow_vector(params$n_to,
+                              params$n_from,
+                              params$distvec,
+                              model = "gravity",
+                              mobility)
+
+  ## fill out the lower triangle
+  flowmat[lower.tri(flowmat)] <-
+    flow_to_from
+  ## Relative risk
+  rel_risk <- flowmat / rowSums(flowmat,
+                                na.rm = TRUE)
+
+
+  rel_risk
 
 }

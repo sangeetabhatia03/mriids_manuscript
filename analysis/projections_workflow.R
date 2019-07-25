@@ -19,7 +19,7 @@ for (fit in fitfiles) {
     fit1 <- readr::read_rds(fit)
     S <- ggmcmc::ggs(fit1)
     message("Does not exist ", outfile)
-    ggmcmc(S, file = outfile)
+    ggmcmc::ggmcmc(S, file = outfile)
   }
 }
 
