@@ -148,7 +148,7 @@ p1 <- p + geom_point(
   col = "black"
 )
 
-
+p1 <- p1 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p1
 
 ## Option 2; facetted. This will allow us to see the datasource
@@ -166,16 +166,23 @@ p2 <- p + geom_point(
 
 p2 <- p2 + facet_wrap(~datasource, nrow = 3)
 
-outfile <- paste(place, tw, ndates, "non-facetted.pdf", sep = "_")
+outfile <- glue::glue("{place}_{tw}_{ndates}_non-facetted.pdf")
 message(outfile)
 ggsave(
-    filename = paste0("ms-figures/", outfile),
-    plot = p1
+    filename = here::here("ms-figures", outfile),
+    plot = p1,
+    units = mriids_plot_theme$units,
+    width = mriids_plot_theme$single_col_width,
+    height = mriids_plot_theme$single_col_height
 )
 
-outfile <- paste(place, tw, ndates, "facetted.pdf", sep = "_")
+
+outfile <- glue::glue("{place}_{tw}_{ndates}_facetted.pdf")
 message(outfile)
 ggsave(
-    filename = paste0("ms-figures/", outfile),
-    plot = p2
+    filename = here::here("ms-figures", outfile),
+    plot = p2,
+    units = mriids_plot_theme$units,
+    width = mriids_plot_theme$single_col_width,
+    height = mriids_plot_theme$single_col_height
 )
