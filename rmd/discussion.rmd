@@ -132,6 +132,7 @@ circulating pathogen (e.g. following previous epidemics and/or due to
 vaccination) could also be used to refine our transmission model. 
 Finally, quantitative information on the performance of health systems 
 and the ability of regions or countries to respond to an epidemic 
+[@healthsites], [@maina2019spatial]
 could also be accounted for in future iterations of the model. 
 
 <!-- The influence of -->

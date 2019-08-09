@@ -19,5 +19,13 @@ mriids_plot_theme <- list(
     ),
 
     theme = ggplot2::theme_classic(),
-    legend = ggplot2::theme(legend.position = "none")
+    onecol_theme = ggplot2::theme_classic(base_size = 6),
+    legend = ggplot2::theme(legend.position = "none"),
+    single_col_width = 8.7,
+    single_col_height = 8.5,
+    double_col_width = 17,
+    double_col_height = 15,
+    one_n_half_col_width = 11,
+    one_n_half_col_height = 11,
+    units = "cm"
 )

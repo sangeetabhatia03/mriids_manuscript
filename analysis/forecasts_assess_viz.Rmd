@@ -19,6 +19,8 @@ spacing: double
 bibliography: 
 biblio-style: apsr
 endnote: no
+fig_width: 8.7
+fig_height: 8
 params:
   twindow : 14
   n.dates.sim : 28
@@ -55,7 +57,7 @@ knitr::opts_chunk$set(
     "_assess.pdf"
   )
 )
-```
+ ```
 Read in the files for all places of interest and visualise.
 
 ```{r forecasts-assess-viz-2 }
@@ -63,50 +65,39 @@ Read in the files for all places of interest and visualise.
 weekly_metrics <- readr::read_csv(
   file = here::here(
     params$indir,
-    "weekly_metrics.csv"
+    glue::glue("{params$datasource}_weekly_metrics.csv")
   )
-) 
+)
+
+weekly_metrics <- weekly_metrics[
+  weekly_metrics$twindow == params$twindow &
+    weekly_metrics$n.dates.sim == params$n.dates.sim,
+  ]
+
+## to avoid problems when we split on underscore.
+weekly_metrics <-  dplyr::rename(weekly_metrics, relsharpness = "rel_sness")
+```
+
+## Overall performance
+
+```{r forecasts-assess-viz-3}
+df <- skimr::skim(weekly_metrics, rmae:bias)
+
+out <- glue::glue(
+  "{params$datasource}_weekly_metrics_summary_",
+  "{params$twindow}_{params$n.dates.sim}.csv"
+)
+readr::write_csv(x = df, path = here::here(params$outdir, out))
+```
+
+```{r forecasts-assess-viz-4}
+skimr::kable(df)
 ```
 
 
-## Proportion of observations in CI by week.
+Join weekly metrics with R estimate categorisation.
 
-```{r}
-infiles <- paste0(
-  params$places,
-  "_prop_in_ci_by_week.csv"
-)
-
-infiles <- here::here(
-  paste0(
-    params$indir,
-    "/metrics/weekly"
-  ),
-  infiles
-)
-names(infiles) <- params$places
-
-prop_in_ci_by_week <- purrr::map_dfr(
-  infiles,
-  ~ readr::read_csv(.x, col_names = FALSE),
-  .id = "country"
-)
-
-colnames(prop_in_ci_by_week) <- c(
-  "country",
-  "tproj",
-  "twindow",
-  "n.dates.sim",
-  "week_of_projection",
-  "prop_in_ci"
-)
-```
-
-
-
-Join it with R estimate categorisation.
-
-```{r forecasts-assess-viz-3 }
+```{r forecasts-assess-viz-6 }
 
 epidemic_phase <- readr::read_csv(
   file = here::here(
@@ -137,30 +128,23 @@ epidemic_phase <- dplyr::group_by(
     date = seq(from = min(date), length.out = params$n.dates.sim, by = "1 day")
   )
 
-
-
 weekly_metrics <- dplyr::left_join(
   weekly_metrics,
   epidemic_phase,
   by = c("tproj", "twindow", "country")
 )
-
-weekly_metrics <- weekly_metrics[
-  weekly_metrics$twindow == params$twindow &
-    weekly_metrics$n.dates.sim == params$n.dates.sim,
-]
 ```
 
 Overall performace
 
-```{r}
+```{r forecasts-assess-viz-7 }
 weekly_metrics_overall <- weekly_metrics
 weekly_metrics_overall$ci <- "Overall"
 weekly_metrics <- rbind(weekly_metrics, weekly_metrics_overall)
 ```
 
 ## Fix column classes
-```{r forecasts-assess-viz-4 }
+```{r forecasts-assess-viz-8 }
 
 weekly_metrics <- dplyr::mutate_if(
   weekly_metrics,
@@ -175,68 +159,25 @@ weekly_metrics$ci <- forcats::fct_recode(
   "Declining" = "ul_less_than_1",
   "Neither" = "ci_includes_1",
   "Overall" = "Overall"
-  )
+)
 
 weekly_metrics$ci <- forcats::fct_relevel(
   weekly_metrics$ci,
-  c("Growing",
+  c(
+    "Growing",
     "Declining",
     "Neither",
     "Overall"
-   )   
+  )
 )
-                                  
+
 weekly_metrics$tproj <- as.integer(weekly_metrics$tproj)
 weekly_metrics$twindow <- factor(weekly_metrics$twindow)
 ```
 
-
-Same for prop in ci.
-
-```{r}
-prop_in_ci_by_week <- dplyr::left_join(
-  prop_in_ci_by_week,
-  epidemic_phase,
-  by = c("tproj", "twindow", "country")
-)
-
-prop_in_ci_by_week <- prop_in_ci_by_week[
-  prop_in_ci_by_week$twindow == params$twindow &
-    prop_in_ci_by_week$n.dates.sim == params$n.dates.sim,
-]
-```
-
-Overall performance
-
-```{r}
-prop_in_ci_by_week_overall <- prop_in_ci_by_week
-prop_in_ci_by_week_overall$ci <- "Overall"
-prop_in_ci_by_week <- rbind(
-    prop_in_ci_by_week,
-    prop_in_ci_by_week_overall
-)
-
-prop_in_ci_by_week$ci <- forcats::fct_recode(
-  prop_in_ci_by_week$ci,
-  "Growing" = "ll_greater_than_1",
-  "Declining" = "ul_less_than_1",
-  "Neither" = "ci_includes_1",
-  "Overall" = "Overall"
-  )
-
-prop_in_ci_by_week$ci <- forcats::fct_relevel(
-  prop_in_ci_by_week$ci,
-  c("Growing",
-    "Declining",
-    "Neither",
-    "Overall"
-   )   
-)
-
-```
 ## Summary
 
-```{r forecasts-assess-viz-5 }
+```{r forecasts-assess-viz-11 }
 
 summary_stats <- summarise_at(
   weekly_metrics,
@@ -277,7 +218,7 @@ select(
 ## Summary stats by week
 
 
-```{r forecasts-assess-viz-6 }
+```{r forecasts-assess-viz-12 }
 
 weekly_summary_stats <- group_by(weekly_metrics, week_of_projection) %>%
   summarise_at(
@@ -291,73 +232,14 @@ weekly_summary_stats <- group_by(weekly_metrics, week_of_projection) %>%
   )
 ```
 
-```{r forecasts-assess-viz-7}
+```{r forecasts-assess-viz-13 }
 knitr::kable(weekly_summary_stats)
 ```
 
-## Proportion of observations in 95% forecasts interval by country
 
-```{r}
-prop_in_ci_by_week_summary <-
-    dplyr::group_by(
-        prop_in_ci_by_week,
-        country,
-        week_of_projection
-        ) %>% summarise(prop_in_ci = mean(prop_in_ci, na.rm = TRUE))
+## Summary stats by week and phase of epidemic
 
-prop_in_ci_by_week_summary <- tidyr::spread(
-    prop_in_ci_by_week_summary,
-    key = week_of_projection,
-    value = prop_in_ci
-)
-
-```
-
-```{r}
-knitr::kable(prop_in_ci_by_week_summary)
-```
-## Proportion of observations in 95% forecasts interval overall
-
-```{r}
-overall <- dplyr::group_by(
-        prop_in_ci_by_week,
-        week_of_projection
-        ) %>% summarise(prop_in_ci = mean(prop_in_ci, na.rm = TRUE))
-
-overall <- tidyr::spread(
-   overall,
-   key = week_of_projection,
-   value = prop_in_ci
-)
-```
-
-```{r}
-knitr::kable(overall)
-```
-
-## Proportion of observations in 95% forecasts interval by phase
-
-```{r}
-prop_in_ci_by_phase <- dplyr::group_by(
-   prop_in_ci_by_week,
-   country,
-   ci
-   ) %>% summarise(prop_in_ci = mean(prop_in_ci, na.rm = TRUE))
-
-prop_in_ci_by_phase <- tidyr::spread(
-   prop_in_ci_by_phase,
-   key = ci,
-   value = prop_in_ci
-)
-
-```
-
-```{r}
-knitr::kable(prop_in_ci_by_phase)
-```
-## Summary stats by week and phase of epidemic
-
-```{r forecasts-assess-viz-8}
+```{r forecasts-assess-viz-20 }
 
 phase_weekly_summary_stats <- group_by(
   weekly_metrics,
@@ -420,12 +302,12 @@ phase_weekly_summary_stats <- dplyr::select(
   )
 ```
 
-```{r forecasts-assess-viz-9}
+```{r forecasts-assess-viz-21 }
 knitr::kable(phase_weekly_summary_stats)
 ```
 ## Bias
 
-```{r forecasts-assess-viz-10 }
+```{r forecasts-assess-viz-22 }
 pbias <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -444,27 +326,28 @@ pbias <- pbias +
 pbias
 ```
 
-## Sharpness
+## Relative Sharpness
 
 
-```{r forecasts-assess-viz-11 }
+```{r forecasts-assess-viz-23 }
 
 psharp <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
-    sharpness,
+    relsharpness,
     col = ci
   )
 ) +
-    geom_boxplot() +
-    scale_y_log10(
-         breaks = scales::trans_breaks("log10", function(x) 10^x),
-         labels = scales::trans_format("log10", scales::math_format(10^.x)))
+  geom_boxplot() 
+  ## scale_y_log10(
+  ##   breaks = scales::trans_breaks("log10", function(x) 10^x),
+  ##   labels = scales::trans_format("log10", scales::math_format(10^.x))
+  ## )
 
 
 psharp <- psharp +
   xlab("Week of projection") +
-  ylab("log(sharpness)") +
+  ylab("sharpness") +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
   scale_color_manual(values = mriids_plot_theme$phase_color_scale)
@@ -475,12 +358,11 @@ psharp
 ## Proportion of observations in CrI
 
 
-```{r forecasts-assess-viz-12 }
-prop_in_ci_by_week$week_of_projection <- factor(prop_in_ci_by_week$week_of_projection)
+```{r forecasts-assess-viz-24 }
 prel <- ggplot(
-  prop_in_ci_by_week,
+  weekly_metrics,
   aes(week_of_projection,
-    prop_in_ci,
+    propinci,
     col = ci
   )
 ) +
@@ -502,7 +384,7 @@ prel
 ## Relative mean absolute error
 
 
-```{r forecasts-assess-viz-13 }
+```{r forecasts-assess-viz-25 }
 prelerr <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -510,10 +392,11 @@ prelerr <- ggplot(
     col = ci
   )
 ) +
-    geom_boxplot() +
-    scale_y_log10(
-         breaks = scales::trans_breaks("log10", function(x) 10^x),
-         labels = scales::trans_format("log10", scales::math_format(10^.x)))
+  geom_boxplot() +
+  scale_y_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(10^.x))
+  )
 
 prelerr <- prelerr +
   mriids_plot_theme$theme +
@@ -529,16 +412,16 @@ prelerr
 ```
 
 
-```{r forecasts-assess-viz-14 }
-outfile <- here::here(
-  params$outdir,
-  paste0(
-    "forecasts_assess_",
-    params$datasource,
-    params$twindow,
-    ".png"
-  )
-)
+```{r forecasts-assess-viz-26 }
+## outfile <- here::here(
+##   params$outdir,
+##   paste0(
+##     "forecasts_assess_",
+##     params$datasource,
+##     params$twindow,
+##     ".pdf"
+##   )
+## )
 
 ## Affix legend manually otherwise I can't get rid of the
 ## annoying legend title.

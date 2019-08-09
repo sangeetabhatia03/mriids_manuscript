@@ -18,7 +18,7 @@ fitfiles <- paste(
 )
 
 rquantile_files <- expand.grid(
-  places,
+  all_files[[datasource]]$places,
   fitfiles,
   stringsAsFactors = FALSE
 )
@@ -41,7 +41,7 @@ rquantiles <- purrr::map_dfr(rquantile_files,
       all_files[[datasource]]$stanfits_dir,
       x
     )
-    out <- readr::read_rds(x)
+    out <- readRDS(x)
     out <- slice(out, n())
     out
   },
@@ -107,7 +107,7 @@ infiles <- paste0(
 )
 
 infiles <- purrr::cross2(
-    places,
+    all_files[[datasource]]$places,
     infiles
     ) %>%
     purrr::map_chr(~ paste0(.x[[1]], .x[[2]]))
@@ -117,7 +117,7 @@ names(infiles) <- infiles
 
 rretro <- purrr::map_dfr(
   infiles,
-  ~ readr::read_rds(
+  ~ readRDS(
         here::here(
            all_files[[datasource]]$stanfits_dir,
            .x

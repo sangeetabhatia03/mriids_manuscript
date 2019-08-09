@@ -1,7 +1,28 @@
 library(dplyr)
 source(here::here("analysis/parameters.R"))
 source(here::here("analysis/utils.R"))
+source(here::here("analysis/common_plot_properties.R"))
 source(here::here("analysis/flow_matrix_estim.R"))
+
+
+for (ds in c("ProMED", "HealthMap", "WHO")) {
+    message("Working on ", datasource)
+    tall <- readr::read_csv(
+        here::here(all_files[[ds]]$weekly_incidfile)
+        )
+    tall <- dplyr::select(tall, -interpolated)
+    wide <- tidyr::spread(
+        tall, key = country, value = incid, fill = 0
+        )
+    outdir <- dirname((all_files[[ds]]$weekly_incidfile))
+    outfile <- basename(all_files[[ds]]$weekly_incidfile)
+    outfile <- glue::glue("wide_{outfile}")
+    outfile <- glue::glue("{outdir}/{outfile}")
+    outfile <- here::here(outfile)
+    readr::write_csv(x = wide, path = outfile)
+}
+
+
 
 fitfiles <- list.files(
   path = all_files[[datasource]]$stanfits_dir,
@@ -225,6 +246,55 @@ purrr::pwalk(
 
 
 ## Importation risk.
+first_weekly_alert <- readr::read_csv(
+  file = here::here(
+    all_files[[datasource]]$outdir,
+    glue::glue("{datasource}_date_of_first_weekly_alert.csv")
+  )
+)
+
+
+out <- split(
+    first_weekly_alert,
+    list(
+        first_weekly_alert$time_window,
+        first_weekly_alert$n.dates.sim,
+        first_weekly_alert$alert_type
+    ),
+    sep = "_"
+)
+
+purrr::iwalk(
+    out,
+    function(df, out) {
+        message("Working on ", out)
+        df <- dplyr::select(df, twindow = time_window, tproj)
+        purrr::pwalk(
+            df,
+            function(twindow, tproj) {
+                expect <- glue::glue(
+                    "{datasource}_importation_risk_quantiles_{tproj}_{twindow}.csv"
+                )
+                expect <- here::here(
+                    all_files[[datasource]]$outdir, expect
+                )
+                if (file.exists(expect)) {
+                    message("already exists ", expect)
+                    return
+                } else {
+                    tryCatch({
+                        source("analysis/importation_risk2.R", local = TRUE)
+                    }, error = function(e) {
+                        message(e)
+                        return
+                    }
+                   )
+                }
+            }
+        )
+    }
+)
+
 for (ds in c("ProMED", "HealthMap", "WHO")) {
     datasource <- ds
     message("Working on ", datasource)

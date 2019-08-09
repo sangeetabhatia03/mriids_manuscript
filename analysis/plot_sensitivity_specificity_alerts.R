@@ -14,8 +14,8 @@ incid_pred <- incid_pred[incid_pred$time_window == twindow &
                            incid_pred$n.dates.sim == n.dates.sim, ]
 
 ## Only retain countries where we didn't always observe and predict 0.
-incid_pred <- filter(incid_pred, !is.na(incid))
-nonna_alerts <- filter(incid_pred, incid != 0 | ymin != 0)
+incid_pred <- dplyr::filter(incid_pred, !is.na(incid))
+nonna_alerts <- dplyr::filter(incid_pred, incid != 0 | ymin != 0)
 
 
 
@@ -71,7 +71,7 @@ nonna_alerts <- dplyr::left_join(
 ## This is not really important but retaining only columns we need
 ## for clarity.
 
-df_to_plot <- select(
+df_to_plot <- dplyr::select(
   nonna_alerts,
   date_of_projection,
   country,
@@ -81,7 +81,7 @@ df_to_plot <- select(
 )
 
 
-yaxis_levels <- group_by(
+yaxis_levels <- dplyr::group_by(
   forced_y_level,
   country
 ) %>%
@@ -94,7 +94,7 @@ p <- ggplot(
   df_to_plot,
   aes(date_of_projection, forced_y, col = alert_type_high)
 ) +
-  geom_point(size = 1.1, shape = 15) +
+  geom_point(size = 0.5, shape = 15) +
     scale_colour_manual(
         values = c(
             `Missed Alert` = "red",
@@ -107,13 +107,17 @@ p <- ggplot(
       labels = yaxis_levels$country
     )
 
-p <- p + mriids_plot_theme$theme +
+p <- p + mriids_plot_theme$onecol_theme +
     mriids_plot_theme$legend +
     theme(
         axis.text.y = element_text(
             angle = 90,
             hjust = 0.5,
-            size = 10
+            size = 4
+        ),
+        axis.text.x = element_text(
+            size = 4,
+            angle = 0
         )
     ) +
   scale_x_date(date_breaks = "3 months") +
@@ -129,7 +133,7 @@ p <- p +
       y = forced_y,
       label = label
     ),
-    size = 2,
+    size = 1,
     inherit.aes = FALSE
   ) +
   coord_cartesian(
@@ -151,15 +155,70 @@ p2 <- p +
 ggsave(
     filename = here::here(
         all_files[[datasource]]$outdir,
-        paste0(
-            "alerts_per_week_high_",
-            datasource,
-            "_",
-            twindow,
-            "_",
-            n.dates.sim,
-            ".pdf"
-        )
+        glue::glue(
+            "alerts_per_week_high_{datasource}",
+            "_{twindow}_{n.dates.sim}.pdf"
+            )
         ),
-    plot = p2
+    plot = p2,
+    units = mriids_plot_theme$units,
+    width = mriids_plot_theme$single_col_width,
+    height = mriids_plot_theme$single_col_height
 )
+
+
+### ROC
+
+infile <- here::here(
+    all_files[[datasource]]$outdir,
+    glue::glue("{datasource}_trp_fpr.csv")
+  )
+roc <- readr::read_csv(infile)
+df <- dplyr::filter(roc, time_window == twindow)
+df$n.dates.sim <- factor(df$n.dates.sim)
+
+palette <- c(
+    "28" = "#0078fb",
+    "42" = "#e2b200",
+    "56" = "#ff8b8c"
+)
+
+roc_p <- ggplot(df, aes(x = fpr, y = tpr)) +
+        geom_line(aes(col = n.dates.sim))
+
+roc_p <- roc_p + xlim(0, 1) + ylim(0, 1)
+roc_p <- roc_p + xlab("False Positive Rate") + ylab("True Positive Rate")
+roc_p <- roc_p + geom_abline(slope = 1, intercept = 0, alpha = 0.3)
+roc_p <- roc_p + scale_color_manual(values = palette)
+roc_p <- roc_p + mriids_plot_theme$onecol_theme
+roc_p <- roc_p + mriids_plot_theme$legend
+
+plot <- cowplot::plot_grid(
+    roc_p,
+    p2,
+    align = "hv",
+    nrow = 1,
+    ncol = 2,
+    rel_widths = c(1, 1.5),
+    labels = "AUTO",
+    label_size = 8
+    )
+
+filename <- glue::glue("{datasource}_roc_alerts_{twindow}.pdf")
+filename <- here::here(all_files[[datasource]]$outdir, filename)
+
+cowplot::save_plot(
+    filename = filename,
+    plot,
+    base_height = 3.5,
+    base_width = 7
+)
+
+
+## Which threshold gives max sensitivity
+out <- split(roc, list(roc$time_window, roc$n.dates.sim))
+for (o in out) {
+    idx <- which.max(o$tpr)
+    message(o$time_window[1], " ", o$n.dates.sim[1])
+    message(o$threshold[idx], " ", o$tpr[idx], " ", o$fpr[idx])
+}

@@ -5,7 +5,7 @@ citation_package: natbib
 keep_tex: false
 fig_caption: true
 latex_engine: pdflatex
-title: 
+title: Model performance using daily or weekly forecasts
 author:
 - name: Sangeeta Bhatia
 affiliation: Imperial College London
@@ -27,6 +27,7 @@ params:
   place: LBR
   outdir: data/output
   indir: data/output
+  weekly: TRUE
 ---
 
 ```{r setup, eval = TRUE}
@@ -44,8 +45,7 @@ Read in the forecasts and the observed incidence.
 
 ```{r incid}
 
-incid <- here::here(params$incid) %>%
-    readr::read_csv()
+incid <- readr::read_csv(here::here(params$incid))
 
 idx <- seq(
     from = params$tproj + 1,
@@ -58,10 +58,8 @@ observed <- incid[idx, ]
 ```
 
 ```{r pred}
-predicted <- readr::read_rds(
-  path = here::here(
-    params$outdir,
-    paste0(
+if (weekly) {
+    infile <- paste0(
       "consolidated_forecasts_samples_",
       params$tproj,
       "_",
@@ -70,6 +68,22 @@ predicted <- readr::read_rds(
       params$n.dates.sim,
       ".Rds"
     )
+} else {
+    infile <- paste0(
+      "weekly_forecasts_samples_",
+      params$tproj,
+      "_",
+      params$twindow,
+      "_",
+      params$n.dates.sim,
+      ".Rds"
+    )
+}
+
+predicted <- readr::read_rds(
+  path = here::here(
+    params$outdir,
+   infile
   )
 )
 ```
@@ -78,17 +92,16 @@ in assessR.
 
 ```{r reshape}
 
-pred <- select(predicted, starts_with(params$place)) %>%
+pred <- dplyr::select(predicted, dplyr::starts_with(params$place)) %>%
     as.matrix
-obs <- pull(observed, params$place)
+obs <- dplyr::pull(observed, params$place)
 ```
 
 Calculate performance along the four metrics we have selected.
 
 ```{r}
 rmae <- assessR::rel_mae(obs, pred)
-## avg_res <- assessR::avg_residual(obs, pred)
-sness <- assessR::sharpness(pred)
+sness <- assessR::rel_sharpness(pred)
 bs <- assessR::bias(obs, pred)
 ```
 
@@ -97,9 +110,11 @@ And the proportion of observed values in 95% CI.
 ```{r propinci, eval = TRUE}
 minmax <- apply(pred, 1, quantile, c(0.025, 0.975))
 minmax <- t(minmax)
-propinci <- assessR:::prop_in_ci(obs,
-                                 min = minmax[, 1],
-                                 max = minmax[, 2])
+propinci <- assessR:::prop_in_ci(
+                          obs,
+                          min = minmax[, 1],
+                          max = minmax[, 2]
+                      )
 df <- data.frame(
     tproj = params$tproj,
     twindow = params$twindow,

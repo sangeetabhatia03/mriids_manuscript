@@ -1,26 +1,24 @@
 ## provide a named list of files
-compile_forecasts <- function(infiles, twindow, country, n.dates.sim) {
+compile_forecasts <- function(infiles, twindow, n.dates.sim) {
     message("Reading ", infiles)
     df <- purrr::map_dfr(
         infiles,
         ~ readr::read_csv(.x),
         .id = "datasource"
         )
-    df <- df[df$country == country &
-             df$time_window == twindow &
+    df <- df[df$time_window == twindow &
              df$n.dates.sim == n.dates.sim, ]
     df
 }
 
 ## named list of weekly incidence files
-compile_incidence <- function(infiles, country) {
+compile_incidence <- function(infiles) {
    message("Reading ", infiles)
    df <- purrr::map_dfr(
         infiles,
         ~ readr::read_csv(.x),
         .id = "datasource"
         )
-    df <- df[df$country == country, ]
     df
 }
 
@@ -28,7 +26,7 @@ library(dplyr)
 library(ggplot2)
 library(scales)
 
-source(here::here("analysis/common_plot_properties.R"))
+
 
 indirs <- purrr::map(
     datasources,
@@ -40,14 +38,16 @@ infiles <- purrr::map(
 )
 names(infiles) <- datasources
 
-forecasts <- compile_forecasts(infiles, tw, place, ndates)
+forecasts <- compile_forecasts(infiles, tw, ndates)
 forecasts$tproj <- as.integer(forecasts$tproj)
 forecasts$time_window <- as.integer(forecasts$time_window)
+forecasts <- forecasts[forecasts$country %in% c("GIN", "LBR", "SLE"), ]
 forecasts$country <- forcats::fct_recode(forecasts$country,
   Guinea = "GIN",
   Liberia = "LBR",
   `Sierra Leone` = "SLE"
-)
+  )
+
 forecasts <- dplyr::mutate_at(
   forecasts,
   c("y", "ymin", "ymax"),
@@ -73,8 +73,8 @@ infiles <- purrr::map(
     ~ here::here(all_files[[.x]]$weekly_incidfile)
 )
 names(infiles) <- datasources
-incid <- compile_incidence(infiles, place)
-
+incid <- compile_incidence(infiles)
+incid <- incid[incid$country %in% c("GIN", "LBR", "SLE"), ]
 incid$country <- forcats::fct_recode(incid$country,
   Guinea = "GIN",
   Liberia = "LBR",
@@ -145,28 +145,16 @@ p1 <- p + geom_point(
   aes(date,
     incid
     ),
+  shape = ".",
+  size = 1.5,
   col = "black"
 )
-
+p1 <- p1 + facet_wrap(~country, nrow = 3)
 p1 <- p1 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p1
 
-## Option 2; facetted. This will allow us to see the datasource
-## specific incidence as well.
 
-p2 <- p + geom_point(
-  data = incid,
-  aes(date,
-      incid,
-      col = interaction(
-          datasource,
-          interpolated)
-    )
-)
-
-p2 <- p2 + facet_wrap(~datasource, nrow = 3)
-
-outfile <- glue::glue("{place}_{tw}_{ndates}_non-facetted.pdf")
+outfile <- glue::glue("{tw}_{ndates}_non-facetted.pdf")
 message(outfile)
 ggsave(
     filename = here::here("ms-figures", outfile),
@@ -177,12 +165,3 @@ ggsave(
 )
 
 
-outfile <- glue::glue("{place}_{tw}_{ndates}_facetted.pdf")
-message(outfile)
-ggsave(
-    filename = here::here("ms-figures", outfile),
-    plot = p2,
-    units = mriids_plot_theme$units,
-    width = mriids_plot_theme$single_col_width,
-    height = mriids_plot_theme$single_col_height
-)

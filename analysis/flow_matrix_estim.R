@@ -121,11 +121,9 @@ common_params <- function(metadatafile = "data/processed/all_african_centroids.c
 
 flow_mat <- function(gamma,
                      pstay,
-                     metadatafile = "data/processed/all_african_centroids.csv",
-                     dist_obj = "data/processed/allafrica_distances.rds",
-                     countries_col = "ISO3",
-                     pop_col = "pop") {
-  params <- common_params(metadatafile, dist_obj, countries_col, pop_col)
+                     params
+                     ) {
+
   mobility <- params$mobility
   mobility$pow_dist <- gamma
   flowmat  <-

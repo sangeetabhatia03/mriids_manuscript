@@ -3,7 +3,7 @@ library(ggmcmc)
 library(rstan)
 
 source(here::here("analysis/parameters.R"))
-
+source(here::here("analysis/utils.R"))
 ## 1. Get a list of all fitted objects.
 fitfiles <- list.files(
   path = all_files[[datasource]]$stanfits_dir,
@@ -57,6 +57,12 @@ pars <- arrange(pars, tproj)
 
 source("analysis/flow_matrix_estim.R")
 
+params <- common_params(
+    metadatafile = all_files[[datasource]]$metadatafile,
+    dist_obj = all_files[[datasource]]$dist_obj,
+    countries_col = "ISO3",
+    pop_col = "pop"
+)
 
 
 for (fit in fitfiles) {
@@ -93,27 +99,24 @@ for (fit in fitfiles) {
     y = pstay_samples,
     z = selected
   )
+
   purrr::pwalk(
     l,
     function(x, y, z) {
+      outfile <- glue::glue("flow_matrices/flow_{z}_{fit}")
+      outfile <- here::here(
+          all_files[[datasource]]$stanfits_dir,
+          outfile
+          )
+      if (file.exists(outfile)) return
       df <- flow_mat(
         gamma = x,
         pstay = y,
-        metadatafile = all_files[[datasource]]$metadatafile,
-        dist_obj = all_files[[datasource]]$dist_obj,
-        countries_col = "ISO3",
-        pop_col = "pop"
+        params
       )
       readr::write_rds(
         x = df,
-        path = here::here(
-          all_files[[datasource]]$stanfits_dir,
-          paste("flow_matrices/flow",
-            z,
-            fit,
-            sep = "_"
-          )
-        )
+        path = outfile
       )
     }
   )
@@ -157,27 +160,67 @@ purrr::pwalk(
 )
 
 ##  Forecast metrics
+source(
+    here::here(
+       "analysis/forecasts_samples_consolidate.R"
+      )
+)
+
+## This bit depends on the time window, tproj as well as n.dates.si.
+## Update pars.
+forecasts_files <- list.files(
+  path = all_files[[datasource]]$outdir,
+  pattern = "^weekly_forecasts_samples_[0-9]*_[0-9]*_[0-9]*.Rds",
+  full.names = FALSE
+)
+forecasts_files <- stringr::str_remove_all(forecasts_files, "weekly_forecasts_samples_")
+
+pars2 <- data.frame(forecast = forecasts_files) %>%
+  tidyr::separate(
+    col = forecast,
+    into = c(
+      "tproj",
+      "twindow",
+      "ndates"
+    ),
+    convert = TRUE
+  )
 
 purrr::pwalk(
-  pars,
-  function(tproj, twindow) {
+  pars2,
+  function(tproj, twindow, ndates) {
     for (place in all_files[[datasource]]$places) {
       rmarkdown::render(
         "analysis/forecasts_assess.Rmd",
-        output_file = paste0(
-          "forecasts_assess_",
-          tproj,
-          "_",
-          twindow,
-          ".html"
-        ),
         params = list(
           tproj = tproj,
           twindow = twindow,
           incid =
             all_files[[datasource]]$incidfile,
-          n.dates.sim =
-            all_files[[datasource]]$n.dates.sim,
+          n.dates.sim = ndates,
+          place = place,
+          outdir =
+            all_files[[datasource]]$outdir,
+          indir =
+            all_files[[datasource]]$outdir
+        )
+      )
+    } ## end of for
+  }
+)
+
+purrr::pwalk(
+  pars2,
+  function(tproj, twindow, ndates) {
+    for (place in all_files[[datasource]]$places) {
+      rmarkdown::render(
+        "analysis/weekly_forecasts_assess.Rmd",
+        params = list(
+          tproj = tproj,
+          twindow = twindow,
+          incid =
+            all_files[[datasource]]$weekly_wide,
+          n.dates.sim = ndates,
           place = place,
           outdir =
             all_files[[datasource]]$outdir,

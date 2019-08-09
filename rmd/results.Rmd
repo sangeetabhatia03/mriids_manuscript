@@ -15,10 +15,10 @@ discrepancy, including potential variability in digital surveillance
 reporting to during the course of the epidemic. It is also worth 
 highlighting that the WHO data used here are an extensively cleaned 
 version of the data collected during the epidemic [@who2014ebola], 
-[@team2015west], published more than a year after the epidemic was declared to be 
-over. However, despite these discrepancies, the weekly incidence
-derived from ProMED and HealthMap was moderately to highly correlated 
-with that reported by WHO later (Pearson's 
+[@team2015west], published more than a year after the epidemic was 
+declared to be over. However, despite these discrepancies, the weekly 
+incidence derived from ProMED and HealthMap was moderately to highly 
+correlated with that reported by WHO later (Pearson's 
 correlation coefficient aggregated across the three countries 
 0.44 and 0.74 respectively, p value < 0.001).
 
@@ -39,13 +39,19 @@ from weak (0.27, between reproduction number from WHO and ProMED in
 Guinea ) to very strong (0.81, between reproduction number from WHO
 and HealthMap in Sierra Leone).
 
+Since HealthMap uses ProMED alerts in addition to other online data 
+sources, ProMED represents the more conservative data source between the 
+two. Therefore we present the results based on ProMED data in the main
+text. The analysis based on HealthMap data are presented in the 
+Supplementary Information (SI).
+
 In the following, we use ProMED data as our main data source, 
 unless otherwise specified. 
 
 
-## Short term projections
+## Short term forecasts
 
-To project incidence at time $t$ in location $j$ ($I_{j, t}$), 
+To forecast incidence at time $t$ in location $j$ ($I_{j, t}$), 
 we fitted a spatially explicit branching process model to the daily
 incidence in all locations up to 
 $t - 1$, using an extension of the renewal equation as the likelihood 
@@ -67,12 +73,16 @@ typical infectiousness profile of a case over time after infection
 
 The ability of the model to robustly predict future outbreak
 trajectory depended on the 
-data source (see `r g28cap` for forcasts using ProMED data and 
-SI Figures 2, 3 and 4  for HealthMap and WHO data 
-respectively) as well as on  the time window used for inference and 
+data source (see `r g28cite` for forcasts using ProMED data and 
+`r section_nums("healthmap")` and `r section_nums("who")` 
+for HealthMap and WHO data respectively. A comparison of the forecasts
+using the three data sources is shown in `r fig_nums("all_ds_14_28")`.) 
+as well as on the time 
+window used for inference and 
 the time horizon used for predictions (alternative time window in
-SI.XX). Overall, using a 2-week time window for inference based on 
-ProMED data, and projecting ahead for 4 weeks, 62.75% of observed 
+`r pm_28_28_cite` and `r pm_42_28_cite`). 
+Overall, using a 2-week time window for inference based on 
+ProMED data, and forecasting ahead for 4 weeks, 62.75% of observed 
 incidence across all three countries in the forecast horizon were included 
 in the 95% forecast intervals.  Using data from Healthmap and 
 WHO respectively, this figure was 62.75% and 73.5%.
@@ -94,23 +104,24 @@ The mean bias for one-week ahead projections was 0.05 (IQR -0.25 -
 0.4) indicating little systematic bias. 
 
 The uncertainty associated with the forecasts (which can be measured 
-by the sharpness, i.e. the 
-deviation from the median, see Methods for details) is also an important 
+by relative sharpness, i.e. the 
+relative deviation from the median of simulated trajectories, see Methods for 
+details) is also an important 
 indicator of model performance. The mean sharpness in the first week
-of the projetion window is 2.6 (IQR 0 - 3.57) meaning that on average
-our individual projected one-week ahead epidemic trajectories are 2 
-cases away from the median projection.
+of the forecast window is 0.13 (IQR 0.05 - 0.15) meaning that on average
+our individual projected one-week ahead epidemic trajectories are
+within 13% of the median projection.
 
 In the second, third and fourth weeks of the projection window, the 
 percentage of observed values within the 95% forecasts interval 
 were  65.2%,  58.5% and 
 54.6% respectively. Similarly, the mean relative error increases up to 
 7.35 (IQR 0.25 - 2.15) in week 4, the mean bias up to 0.08 (IQR -0.53 -
-0.94) and the mean sharpness up to 11.83 (IQR 0 - 5.89).
+0.94) and the mean sharpness up to 0.17 (IQR 0.07 - 0.24).
 
 
 We examined whether the model performance varied depending on the
-country and the phase of the epidemic, defined as "growing" 
+country and the phase of the epidemic, defined as "growing"
 when the 97.5th percentile of the posterior distribution of $R_t$ is
 above 1, "declining" when the 97.5th percentile of the posterior 
 distribution of $R_t$ is less than 1, and "neither" in all other 
@@ -127,13 +138,12 @@ generally sharper.
 Fitting the model with alternative time windows (2, 4 or 6 weeks) 
 modifies the model complexity as the number of non-overlapping time 
 windows, and thus parameters, over the course of the epidemic
-increases with shorter time windows. An analysis of models using 
-different window sizes, showed in XXXX suggested that overall, the 
+increases with shorter time windows. A comparison of 
+performance metrics analysis of models using 
+different window sizes, showed in 
+`r si_fig_nums(""pm_model_perf_all_windows"")` suggested that overall, the 
 length of the time window used to estimate $R_t$ did not have a
-significant impact on the model performance. We also found that while 
-in the late phase of the epidemic, there was decisive support for 
-smaller time window, in the early phase, we did not find strong 
-evidence for using a smaller time window.
+significant impact on the model performance. 
 
 
 In addition to measuring how well our model predicted the future 
@@ -141,24 +151,28 @@ incidence in the three mainly affected country, we examined whether
 it was able to accurately predict the presence/absence of cases in 
 other countries. We found that our approach allowed to robustly
 predict the presence or absence of cases in all countries up to a week 
-in advance in many cases (`r alertscite`).  Assuming that an alert is
-raised based the 97.5th percentile of the forecasts, we 
+in advance in many cases (`r alertscite`). 
+ For any given threshold (percentile of the forecasts interval), we
 classified an alert for a given week as either a true alert (if both 
 the observed and projected incidence in that week were non-zero), 
 a false alert (if the forecasted incidence is non-zero observed 
 incidence was zero), or a missed alert (if observed incidence was non 
-zero but the projected incidence was zero).  We chose to base the
-alert on the upper limit of the 95% forecasts interval to maximise 
-sensitivity, i.e. minimise the number of missed alerts. In several 
+zero but the projected incidence was zero). The ROC curve 
+(`r fig_nums("roc_alerts")`A) shows that at all thresholds, the model achieves 
+high sensitivity. To maximise 
+sensitivity, i.e. minimise the number of missed alerts, we chose to 
+base the alert on the upper limit of the 95% forecasts interval. 
+With this threshold, the sensitivity of the model is 99.6% and the 
+specificity is 15%. In several 
 instances, a single false alert or a string of false alerts is
-followed by a true alert 
+followed by a true alert ((`r fig_nums("roc_alerts")`B).
 suggesting that the model is able to capture and even anticipate the 
 spatial spread of the epidemic. For instance, in July 2014, a false 
 alert is raised in Nigeria and cases are in fact observed in Nigeria
 in the following week.
 
-In addition to providing operational outputs such as the predicted s
-hort term incidence in currently affected countries or the risk of 
+In addition to providing operational outputs such as the predicted 
+short term incidence in currently affected countries or the risk of 
 spread to neighbouring countries, our method also provides near
 real-time estimates of parameters underlying the transmission model. 
 First, the reproduction number $R_t$ for each affected country is 
@@ -166,7 +180,8 @@ estimated over the time-window of inference, here over the most recent
 two weeks (`r g28cite`, second row). We found that these near
 real-time estimates of $R_t$ were in good agreement with retrospective 
 estimates obtained using the entire incidence time-series (`r g28cite`, 
-bottom row, correlation coefficients varying between 0.93 and 0.99).
+bottom row, correlation coefficients varying between 0.93 and 0.99 for
+the three countries).
 
 The risk of spatial spread in our model relies on estimating movement 
 pattern of infectious cases. Our method also provides estimates of the 
