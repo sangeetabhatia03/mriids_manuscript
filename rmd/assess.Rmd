@@ -1,10 +1,9 @@
 # Model Validation {#assess}
 
-
 Given the retrospective nature of our analysis, we validated 
 the incidence projected using our model 
 against observed incidence. In addition to the 
-accuracy of the projected incidence, the uncertainty associated 
+robustness of the projected incidence, the uncertainty associated 
 with the forecasts (e.g., measured by the width of the prediction
 interval) is an important indicator of model performance. A 
 narrow prediction interval that contains the observed values
@@ -48,35 +47,22 @@ simulated incidence trajectories and normalised by the observed
 incidence. We add \(1\) to the observed value to prevent division by
 \(0\).
 
-## Relative accuracy
-
-Relative accuracy is defined as the ratio of the predicted 
-value (averaged across the simulated trajectories) 
-and the observed value [@tofallis2015better]. 
-We use the log of this quantity as an assessment metric. 
-
-\[
- log(Q_{j, t}(I_{j, t}, \hat{I}_{j, t})) = 
- log\left(
- \frac
- {\sum_{s = 1}^N{\hat{I}^s_{j, t}}/N}
- {I_{j, t} + 1}
- \right).
-\]
 
 ## Sharpness
 
 Sharpness is a measure of the spread 
 (or uncertainty) of the
-forecasts. Following [@funk2017assessing], we used the median
+forecasts. Adapting the definition proposed by [@funk2017assessing],
+we used the relative median
 absolute deviation about the median (MADM) to evaluate sharpness.
 The sharpness \(s_{j, t}\) at time \(t\) at location \(j\)
 is
 \[
 s_{j, t}(\hat{I}_{j, t}) = 
-median(\left |\hat{I}_{j, t}  - median(\hat{I}_{j, t}) 
+median(\left | \frac{\hat{I}^s_{j, t}  - median(\hat{I}_{j, t})}{median(\hat{I}_{j, t})} 
 \right |).\]
 
+We add 1 ti $\hat{I}_{j, t}$ to prevent division by 0.
 A sharpness value of 0 indicates that the predicted incidence
 trajectories are identical across all simulations. 
 The larger the sharpness, the more spread there is in the 
@@ -115,6 +101,3 @@ On the other hand, if the model systematically under-predicts,
 then \(mean(H(\hat{I}_{j, t} - I_{j, t}))\) is 0 and the bias 
 is -1. For a model for which all predictions match the observed values 
 exactly, the bias is 0.
-
-
-

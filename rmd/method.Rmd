@@ -46,7 +46,7 @@ country level.
 Our model relies on a well-established statistical framework 
 that assumes the daily incidence, $I_t$ , can be approximated with a
 Poisson process following the renewal equation
-[@fraser2007estimating]. 
+[@fraser2007estimating]:
 
 \[
   I_{t} \sim 
@@ -206,9 +206,9 @@ data to inform these,
 we assumed the exponents $\alpha$ and $\beta$ on the
 populations to be 1.
 $\gamma$ was allowed to vary between 1 and 2 in the results presented
-in the main text. We performed sensitivity analysis by letting gamma vary 
-between 1 and 10. The results of this analysis are presented in the
-SI.
+in the main text. We performed a sensitivity analysis where $\gamma$
+has a uniform prior between 1 and 10. The results of this analysis are 
+presented in the SI.
 
 Both $p_{stay}$ and $\gamma$ were assumed to be constant for the time 
 frame over which model was fitted and across all countries.
@@ -216,17 +216,19 @@ frame over which model was fitted and across all countries.
 Model fitting was done in a Bayesian framework using a Markov Chain 
 Monte Carlo (MCMC) approach as implemented in the software Stan [@carpenter2017stan] 
 and its R interface rstan [@rstan]. Convergence of MCMC chains was 
-confirmed using visual inspections of various diagnostics reported by 
+confirmed using visual inspections of the diagnostics (Potential Scale
+Reduction Factor [@gelman1992inference] 
+and Geweke Diagnostics [@geweke]) reported by 
 R package ggmcmc [@ggmcmc].
 
 For each model (i.e., for each choice of the time window), we made 
 forward projections every 7\textsuperscript{th} day, over a 2 week, 
 4 week and 6 week horizon. To forecast incidence from day $t$ onwards, 
 we fitted the model to the daily incidence series up to day $t-1$.
-We then sampled XXX parameter sets  (reproduction numbers for each 
+We then sampled 1000 parameter sets (reproduction numbers for each 
 location in each time window and parameters of the gravity model) 
 from the joint posterior distribution, and for each parameter set, 
-simulated XXX  future epidemic trajectories were simulated 
+simulated one future epidemic trajectory 
 according to equation (1), assuming that future $R_t$ is equal to the 
 last estimated $R_t$ value.
 

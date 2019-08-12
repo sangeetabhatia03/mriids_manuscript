@@ -1,0 +1,39 @@
+# Figures {#figures}
+
+
+
+
+
+```{r echo = FALSE, fig.cap = incidrcap, fig.align = "center"}
+knitr::include_graphics("ms-figures/who-hm-promed-comparison.pdf")
+```
+
+
+```{r echo = FALSE, fig.cap = g28cap, fig.align = "center"}
+knitr::include_graphics("ms-figures/ProMED_14_28.pdf")
+```
+
+
+
+
+```{r echo = FALSE, fig.cap = parscap, fig.align = "center", fig.width = 3.4}
+knitr::include_graphics("ms-figures/gamma_pstay_over_tproj_14.pdf")
+```
+
+
+
+```{r assess, echo = FALSE, fig.cap = assesscap, fig.align = "center"}
+knitr::include_graphics("ms-figures/ProMED_14_28_assess.pdf")
+```
+
+
+
+
+```{r alerts, echo = FALSE, fig.cap = alertscap, fig.align = "center"}
+knitr::include_graphics("ms-figures/alerts_per_week_high_ProMED_14_28.pdf")
+```
+
+
+```{r}
+flextable::flextable(readr::read_csv(here::here("rmd/ProMED_propinci_14_28.csv")))
+```
