@@ -12,28 +12,34 @@ weekly incidence time series from these data after the
 following data cleaning and pre-processing:
 
 + We first extracted the total case
-counts as a sum of suspected and confirmed cases. 
+counts as a sum of suspected and confirmed cases (ProMED and HealthMap
+data did not record probable cases). 
 
 + Each unique record 
 in ProMED/HealthMap data is associated with a unique alert id.  Where
 multiple records were associated with the same alert id, we merged
-them by assigning the median of the case numbers to the record. In
-some instances, cumulative case count was inconsistent in that it
-failed to be monotonically increasing. Any record of a 
-cumulative case number lower than a previous record was removed.
+them by assigning the median of the case numbers to the record. 
+
++ In some instances, cumulative case count was inconsistent in that it
+failed to be monotonically increasing. We identified consecutive dates
+( $t_k$ and $t_{k + 1}$ where the cumulative case count was not
+increasing. If removing either $t_k$ or $t_{k + 1}$ made the
+cumulative case count increasing, we adopted this option. If however
+removing either both or none of them resulted in a increasing series,
+we removed both $t_k$ and $t_{k + 1}$. These rules were applied
+iteratively until the cumulative case count was consistent.
 
 + Finally, cumulative incidence on days with no records was
 filled in using log-linear interpolation. 
 
-Further details and result of 
-each step of the pre-processing of Promed and 
-Healthmap data are presented in the supplementary text.
+An example of the pre-processing of ProMED feed is presented in the 
+supplementary text (`r si_fig_nums("pm_preprocessing")`).
 
 ## Data collated by WHO
 
 We used the incidence data collated by the WHO during the West 
 African Ebola epidemic made available by [@garske20160308], 
-later referred to as the ``WHO data'' in the interest of brevity. 
+referred to as the ``WHO data'' in the interest of brevity. 
 The cleaned version of the WHO data consisted of cases reported
 between December 2013 and October 2015 in the three most affected
 countries - Guinea, Sierra Leone and Liberia. The location of
@@ -42,7 +48,13 @@ We aggregated the WHO data to national level to match the spatial
 resolution of ProMED and HealthMap that were only available at the 
 country level.
 
+## Demographic Data
+
+We used LandScan\textsuperscript{TM} 2015 dataset grid [@landscan] for 
+population estimates and centroids for all countries on African mainland.
+
 ## Statistical model
+
 Our model relies on a well-established statistical framework 
 that assumes the daily incidence, $I_t$ , can be approximated with a
 Poisson process following the renewal equation
@@ -66,19 +78,19 @@ outbreak between  $n$ different locations.
 The number of incident cases at a location $j$ at time $t$ is
 given by the equation
 \begin{align}
-  I_{j, t} \sim 
+  I_{j}^{t} \sim 
   Pois\left( 
   \sum_{i = 1}^{n} 
   {\left( p_{i \rightarrow j}
-  R_{i, t} \sum_{s = 1}^{t}{I_{i, t - s} \omega_{s}}
+  R_{i}^{t} \sum_{s = 1}^{t}{I_{i}^{t - s} \omega_{s}}
   \right)} 
   \right),
   (\#eq:likelihood)
 \end{align}
 
-where $R_{i, t}$ is the reproduction number at location $i$ at time
+where $R_{i}^{t}$ is the reproduction number at location $i$ at time
 $t$ and $p_{i \rightarrow j}$ is the probability of a case moving from
-location $i$ to location $j$ while they are infectious. $R_{i, t}$ is
+location $i$ to location $j$ while they are infectious. $R_{i}^{t}$ is
 affected by a number of factors e.g., the intrinsic
 transmissibility of a pathogen or the health care capacity at location
 $i$ (which could influence for example the capacity to isolate cases). 
@@ -114,64 +126,64 @@ is thus proportional to the population flow into location $j$ from location $i$.
 
 The probability of movement from location $i$ to location $j$ is 
 then given by
-\[  p_{i \rightarrow j} = (1 - p_{stay}) r_{i \rightarrow j}^{spread},\]
+\[ p_{i \rightarrow j} = (1 - p_{stay}) r_{i \rightarrow j}^{spread},\]
 
 where $p_{stay}$ is the probability that a case remains in 
-location $i$ throughout their infectious period.
+a location $i$ throughout their infectious period. $p_{stay}$ is
+assumed to be the same across all locations.
 
 
-\subsection{Statistical inference of model parameters}
+<!-- \subsection{Statistical inference of model parameters} -->
 
 The parameters of the full model are: 
 
-1.  $R_{i, t}$, the reproduction number at time $t$ in location $i$,
-2.  $p_{stay}$, the probability of staying in location $i$, and 
+1.  $R_{i}^{t}$, the reproduction number at time $t$ in location $i$,
+2.  $p_{stay}$, the probability of staying in a location, and 
 3.  $\gamma$, the exponent of the distance in the gravity model. 
 
 
 We used a Bayesian approach, and sampled from the joint posterior
-distribution of all parameters  using Markov Chain Monte Carlo
+distribution of all parameters using Markov Chain Monte Carlo
 (MCMC). The likelihood of the
 incidence at time $t$ in location $j$ given past incidence across all 
-locations and model parameters is, as in equation \@ref(#eq:likelihood): 
-
-<!-- \begin{equation} -->
-<!-- \begin{aligned}  -->
-<!-- P(I_{j, t} \mid & p_{stay}, \gamma, \omega \\ -->
-<!-- & R_{i, t}_{\{i = 1, 2, \dots n\}}, \\  -->
-<!-- & I_{1, }, I_{1, 2} \dots I_{1, t}, \\ -->
-<!-- & I_{2, 1}, I_{2, 2} \dots I_{2, t}, \\ -->
-<!-- & I_{n, 1}, I_{n, 2} \dots I_{n, t}) =  -->
-<!-- e^{-\lambda_{j, t}} -->
-<!--   \frac{I_{j, t}^{\lambda_{j, t}}}{\lambda_{j, t} !},  -->
-<!-- \end{aligned}     -->
-<!-- \end{equation} -->
-
-where $\lambda_{j, t}$ is given by
+locations and model parameters is:
 
 \begin{equation}
-\lambda_{j, t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i, t} \sum_{s
-        = 1}^T{I_{i, T - s} \omega_{s}} \right)},
+P \left( 
+I_{j}^{t} \mid p_{stay}, \gamma, \omega, 
+{\langle R_{i}^{t} \rangle}_{\{i = 1, 2, \dots n\}}, 
+ {\langle I_{i}^{0} \rangle}_{\{i = 1, 2, \dots n\}}, \hdots {\langle I_{i}^{t} \rangle}_{\{i = 1, 2, \dots n\}} \right) 
+ =  e^{-\lambda_{j}^{t}} \frac{(I_{j}^{t})^{\lambda_{j}^{t}}}{\lambda_{j}^{t} !},
+\end{equation}
+
+where $\lambda_{j}^{t}$ is given by
+
+\begin{equation}
+\lambda_{j}^{t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i}^{t} \sum_{s
+        = 1}^T{I_{i}^{T - s} \omega_{s}} \right)},
 (\#eq:lambdajt)		
 \end{equation}
 where $T$ is the duration of the outbreak so far.
 
 Thus the likelihood of the parameters is proportional to
 
-\[\mathcal{L} = P(\{I_{j, t}\} \mid p_{stay}, \gamma, \{R_{i, t}\}) = 
+\[\mathcal{L} = P \left({\langle I_{j}^{t} \rangle}_{j = 1, 2 \dots n}
+ \mid p_{stay}, \gamma, {\lanlge R_{j}^{t} \rangle}_{j = 1, 2 \dots n}\right) = 
  \prod_{t = 1}^{t}{e^{-\lambda_{i, t}} 
- \frac{I_{i, t}^{\lambda_{i, t}}}{\lambda_{i, t} !}}.\]
+ \frac{I_{i}^{t}^{\lambda_{i}^{t}}}{\lambda_{i}^{t} !}}.\]
 
 Therefore the joint posterior distribution of the model parameters 
 given the observed data is:
 
-\[P(\{p_{stay}\}, \gamma, \{R_{i, t}\} 
+\[P(\{p_{stay}\}, \gamma, {\langle R_{j}^{t}\rangle}_{j = 1, 2, \dots n}
    \mid 
-   \{I_{j, t}\}) 
-   \propto  
-   \mathcal{L} \times P(\{R_{i,t}\}) P(\{p_{stay}\}) P(\gamma).\]
+   {\langle I_{j}^{t}\rangle)}_{j = 1, 2, \dots n} 
+   \propto 
+   \mathcal{L} \times 
+   P\left(\langle R_{j}^{t}\rangle_{j = 1, 2, \dots n}\right) 
+   P\left( p_{stay} \right) P\left( \gamma \right).\]
 
-$P(\{p_{stay}\})$,  $P(\gamma)$, and $P(\{R_{i, t}\})$ 
+$P\left( p_{stay} \right)$,  $P\left( \gamma \right)$, and $P\left(\langle R_{j}^{t}\rangle_{j = 1, 2, \dots n}\right)$ 
 represent the prior distributions on the parameters. 
 
 Here, we have assumed a single $p_{stay}$ for all 
@@ -184,7 +196,8 @@ within a time window, we estimated  a single reproduction number for
 each location. We varied the length of this
 time window to obtain different models, with short time windows 
 increasing the number of parameters in the model. A comparison of the
-different models is presented in Results.
+different models is presented in Results 
+(`r si_fig_nums("pm_model_perf_all_windows")`).
 
 We assumed a Gamma distributed serial interval with mean 14.2 
 days and standard deviation 9.6 days [@team2015west]. 
@@ -208,10 +221,7 @@ populations to be 1.
 $\gamma$ was allowed to vary between 1 and 2 in the results presented
 in the main text. We performed a sensitivity analysis where $\gamma$
 has a uniform prior between 1 and 10. The results of this analysis are 
-presented in the SI.
-
-Both $p_{stay}$ and $\gamma$ were assumed to be constant for the time 
-frame over which model was fitted and across all countries.
+presented in the SI (`r section_nums("gamma_ul_section")`).
 
 Model fitting was done in a Bayesian framework using a Markov Chain 
 Monte Carlo (MCMC) approach as implemented in the software Stan [@carpenter2017stan] 
@@ -219,7 +229,8 @@ and its R interface rstan [@rstan]. Convergence of MCMC chains was
 confirmed using visual inspections of the diagnostics (Potential Scale
 Reduction Factor [@gelman1992inference] 
 and Geweke Diagnostics [@geweke]) reported by 
-R package ggmcmc [@ggmcmc].
+R package ggmcmc [@ggmcmc]. An example report produced by [@ggmcmc] is
+included in the Supplementary Material.
 
 For each model (i.e., for each choice of the time window), we made 
 forward projections every 7\textsuperscript{th} day, over a 2 week, 
@@ -230,12 +241,4 @@ location in each time window and parameters of the gravity model)
 from the joint posterior distribution, and for each parameter set, 
 simulated one future epidemic trajectory 
 according to equation (1), assuming that future $R_t$ is equal to the 
-last estimated $R_t$ value.
-
-Each choice of time window (2, 4 or 6 weeks) for estimating 
-$R_{t}$ corresponded to a different model. As we estimated a 
-reproduction number in each time window for each location, a shorter 
-time window introduced more parameters in the model. At each point of 
-projection where more than one model was fitted, we estimated Bayes 
-factors (Kass and Raftery 1995) for model comparison using R package 
-bridgesampling (Gronau and Singmann 2018). 
+last estimated $R_t$ value in each location.
