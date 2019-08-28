@@ -94,7 +94,7 @@ p <- ggplot(
   df_to_plot,
   aes(date_of_projection, forced_y, col = alert_type_high)
 ) +
-  geom_point(size = 0.5, shape = 15) +
+  geom_point(size = 0.25, shape = 15) +
     scale_colour_manual(
         values = c(
             `Missed Alert` = "red",
@@ -112,11 +112,9 @@ p <- p + mriids_plot_theme$onecol_theme +
     theme(
         axis.text.y = element_text(
             angle = 90,
-            hjust = 0.5,
-            size = 4
+            hjust = 0.5
         ),
         axis.text.x = element_text(
-            size = 4,
             angle = 0
         )
     ) +
@@ -124,22 +122,22 @@ p <- p + mriids_plot_theme$onecol_theme +
   xlab("") + ylab("")
 
 ## Week labels on the right
-forced_y_level$date <- max(df_to_plot$date_of_projection) + 21
-p <- p +
-  geom_text(
-    data = forced_y_level,
-    aes(
-      x = date,
-      y = forced_y,
-      label = label
-    ),
-    size = 1,
-    inherit.aes = FALSE
-  ) +
-  coord_cartesian(
-    xlim = range(df_to_plot$date_of_projection),
-    clip = "off"
-  )
+forced_y_level$date <- max(df_to_plot$date_of_projection) + 2
+## p <- p +
+##   geom_text(
+##     data = forced_y_level,
+##     aes(
+##       x = date,
+##       y = forced_y,
+##       label = label
+##     ),
+##     size = 1,
+##     inherit.aes = FALSE
+##   ) +
+##   coord_cartesian(
+##     xlim = range(df_to_plot$date_of_projection),
+##     clip = "off"
+##   )
 
 ## Faint horizontal lines
 lines <- forced_y_level[forced_y_level$week_of_projection == 1, ]
@@ -210,8 +208,8 @@ filename <- here::here(all_files[[datasource]]$outdir, filename)
 cowplot::save_plot(
     filename = filename,
     plot,
-    base_height = 3.5,
-    base_width = 7
+    base_height = mriids_plot_theme$double_col_height / 5,
+    base_width = mriids_plot_theme$double_col_width / 2.5
 )
 
 

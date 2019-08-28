@@ -84,6 +84,16 @@ for (ds in c("HealthMap", "WHO")) {
 }
 
 
+for (ds in c("ProMED", "HealthMap", "WHO")) {
+  datasource <- ds
+  message("Working on ", datasource)
+  source(
+      here::here(
+         "analysis/forecasts_quantiles_consolidate.R"
+      )
+  )
+}
+
 ## This will join the weekly forecasts with the weekly incidence
 ## Needed to calculate true/false/missing alerts.
 ## Depends on: cleaned weekly incidence file.
@@ -120,11 +130,11 @@ for (ds in c("ProMED", "HealthMap", "WHO")) {
 ## Compiling various files
 ## Compile forecast samples. Needed by forecast_assess tasks.
 ## Outfiles: consolidated_tproj_twindow_n.dates.sim.Rds
-source(
-    here::here(
-       "analysis/forecasts_samples_consolidate.R"
-      )
-)
+# source(
+#     here::here(
+#        "analysis/forecasts_samples_consolidate.R"
+#       )
+# )
 
 ## Consolidates metrics for all countries.
 ## Outfile 1: daily_metrics.csv
@@ -264,6 +274,7 @@ out <- split(
     sep = "_"
 )
 
+
 purrr::iwalk(
     out,
     function(df, out) {
@@ -294,6 +305,63 @@ purrr::iwalk(
         )
     }
 )
+
+
+## Importation Risk right before the first case was observed.
+incid <- readr::read_csv(all_files[[datasource]]$incidfile)
+incid_tall <- tidyr::gather(incid, country, value, -date)
+first_case <- dplyr::group_by(
+    incid_tall,
+    country
+) %>% filter(value > 0) %>% summarise(date_first_obs = min(date))
+
+first_case <- dplyr::ungroup(first_case)
+tprojs <- match(x = first_case$date_first_obs, table = incid$date)
+## Nearest multiple of 7.
+first_case$tproj <- round(tprojs / 7) * 7
+
+first_case <- first_case[complete.cases(first_case), ]
+
+first_case <- first_case[rep(1:nrow(first_case), each = 3), ]
+first_case$twindow <- rep(c(14, 28, 42), length.out = nrow(first_case))
+
+first_case <- dplyr::filter(first_case, tproj >= twindow + 7)
+first_case$date <- incid$date[first_case$tproj]
+
+readr::write_csv(
+    x = first_case,
+    path = here::here(
+        all_files[[datasource]]$outdir,
+        glue::glue("{datasource}_first_observed_case.csv")
+    )
+)
+
+purrr::pmap(
+    first_case,
+    function(country, date, tproj, twindow) {
+        expect <- glue::glue(
+            "{datasource}_importation_risk_quantiles_{tproj}_{twindow}.csv"
+        )
+        expect <- here::here(
+            all_files[[datasource]]$outdir, expect
+        )
+        if (file.exists(expect)) {
+            message("already exists ", expect)
+            return
+        } else {
+            tryCatch({
+                source("analysis/importation_risk2.R", local = TRUE)
+            }, error = function(e) {
+                message(e)
+                return
+            }
+          )
+        }
+    }
+    )
+
+
+
 
 for (ds in c("ProMED", "HealthMap", "WHO")) {
     datasource <- ds

@@ -21,16 +21,23 @@ biblio-style: apsr
 endnote: no
 params:
   infile: data/raw/promed_2014-2016-renamed.csv
-  outfile: 17062019_promed_loglinear
+  outfile: 27062019_promed_loglinear
   ofinterest: data/processed/all_african_centroids.csv
+  datasource: ProMED
 ---
 
 
 ```{r data-cleanup-1, include=FALSE}
-knitr::opts_chunk$set(fig.width = 12, fig.height = 6, echo = FALSE,
-                      warning = FALSE, message = FALSE,
-                      fig.path = "figures/")
-
+source(here::here("analysis/common_plot_properties.R"))
+knitr::opts_chunk$set(
+  dev = "pdf",                      
+  fig.width = mriids_plot_theme$single_col_width / 2.5,
+  fig.height = mriids_plot_theme$single_col_height / 2.5,
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.path = "figures/"
+)
 ```
 
 
@@ -45,51 +52,48 @@ library(mRIIDS)
 
 ```{r data-cleanup-2 }
 
-species   <- "Humans"
-disease   <- "Ebola"
+species <- "Humans"
+disease <- "Ebola"
 case.type <- "scc"
-wafrica <- c("Sierra Leone",
-              "Liberia",
-              "Guinea",
-             "Senegal",
-             ## "Ghana",
-             "Mali",
-             "Nigeria")
-
-
+wafrica <- c(
+  "Sierra Leone",
+  "Liberia",
+  "Guinea",
+  "Senegal",
+  ## "Ghana",
+  "Mali",
+  "Nigeria"
+)
 ```
-
-
 
 Visualising the raw data.
 
 
 
-```{r data-cleanup-3}
+```{r data-cleanup-3 }
 
 feed <- here::here(params$infile) %>%
-             read.csv(stringsAsFactors = FALSE) %>%
-    filter(Species == species &
-           Disease == disease &
-           Country %in% wafrica)
+  read.csv(stringsAsFactors = FALSE) %>%
+  filter(Species == species &
+    Disease == disease &
+    Country %in% wafrica)
 
 feed <- janitor::clean_names(feed)
 ## Janitor renames healthmap to health_map. Fix.
 feed <- dplyr::rename(feed,
-                      healthmap_alert_id = health_map_alert_id)
-
-
-
+  healthmap_alert_id = health_map_alert_id
+)
 ```
 
 Strip the date of the time stamp
-```{r data-cleanup-4}
+
+```{r data-cleanup-4 }
 feed <- tidyr::separate(feed,
-                        issue_date,
-                        sep = " ",
-                        into = c("issue_date", "time"),
-                        remove = TRUE
-                        )
+  issue_date,
+  sep = " ",
+  into = c("issue_date", "time"),
+  remove = TRUE
+)
 ```
 
 
@@ -98,8 +102,7 @@ Split the data by country.
 
 ```{r data-cleanup-5 }
 by.location <- feed %>%
-    split(.$country) 
-
+  split(.$country)
 ```
 
 ### Raw data by case category
@@ -107,40 +110,54 @@ by.location <- feed %>%
 ```{r data-cleanup-6 }
 ## Deaths are not used anywhere. No use plotting them
 raw_p <- purrr::map(by.location, function(x) {
-    x <- select(x, issue_date, sc, cc, country) %>%
-        tidyr::gather(case_type,
-                      count, -c(issue_date, country)) 
-    x$issue_date <- as.Date(x$issue_date,
-                            format = "%m/%d/%y")
-    p <- ggplot(x ,
-                aes(issue_date, count, col = case_type)) +
-        geom_point()
-    p <- p + theme_classic()
-    p <- p + xlab("") + ylab("Cases")
-    p <- p + theme(panel.border=element_blank(), axis.line = element_line())
-    p <- p + theme(axis.text.x = element_text(angle = 80, hjust = 1))
-    p <- p + theme(legend.title = element_blank())
-    p <- p + xlab("")
-    p <- p + scale_x_date(date_labels =  "%b %Y")
-    p <- p + ggtitle(x$country[1])
-    p <- p + scale_color_discrete(
-                         breaks = c("sc", "sd", "cc", "cd"),
-                         labels = c("SC", "SD", "CC", "CD"))
-    p
-})
-
+  x <- select(x, issue_date, sc, cc, country) %>%
+    tidyr::gather(
+      case_type,
+      count, -c(issue_date, country)
+    )
+  x$issue_date <- as.Date(x$issue_date,
+    format = "%m/%d/%y"
+  )
+  p <- ggplot(
+    x,
+    aes(issue_date, count, col = case_type)
+  ) +
+    geom_point(size = 0.5)
+  p <- p + mriids_plot_theme$onecol_theme
+  p <- p + xlab("") + ylab("Cases")
+  p <- p + theme(panel.border = element_blank(), axis.line = element_line())
+  ##p <- p + theme(axis.text.x = element_text(angle = 80, hjust = 1))
+  p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+  p <- p + theme(legend.title = element_blank())
+  p <- p + xlab("")
+  p <- p + scale_x_date(date_labels = "%b %Y")
+  ##p <- p + ggtitle(x$country[1])
+  p <- p + scale_color_discrete(
+    breaks = c("sc", "sd", "cc", "cd"),
+    labels = c("SC", "SD", "CC", "CD")
+  )
+  p
+ }
+)
 ```
 
 ## 
 
 ```{r data-cleanup-7 }
-ggpubr::ggarrange(plotlist = raw_p, common.legend = TRUE) %>%
-    ggpubr::ggexport(filename = here::here("data/output/figures",
-                                           paste0(params$outfile,
-                                                  "_raw.png")),
-                     res = 144,
-                     width = 960,
-                     height = 540)
+ggpubr::ggarrange(plotlist = raw_p, common.legend = TRUE) 
+  ## ggpubr::ggexport(
+  ##   filename = here::here(
+  ##     "figures/",
+  ##     paste0(
+  ##       params$outfile,
+  ##       "_raw.pdf"
+  ##     )
+  ##   ),
+  ##   res = ,
+  ##   width = mriids_plot_theme$single_col_width,
+  ##   height = mriids_plot_theme$single_col_height,
+    
+  ## )
 ```
 # Data clean-up
 
@@ -151,80 +168,87 @@ confirmed cases.
 ```{r data-cleanup-8 }
 
 cum_cases <- purrr::map(by.location, function(df) {
-    mRIIDS:::update_cases_column(df, case.type) 
+  mRIIDS:::update_cases_column(df, case.type)
 })
 
 
 outfile <- paste0(params$outfile, "_cumulative.csv")
 
 bind_rows(cum_cases) %>%
-    select(country, date, cases) %>%
-readr::write_csv(
-                 path = here::here("data/processed",
-                                   outfile))
-
-    
+  select(country, date, cases) %>%
+  readr::write_csv(
+    path = here::here(
+      "data/processed",
+      outfile
+    )
+  )
 ```
 
 ## Merge duplicate alerts
 
 ```{r data-cleanup-9 }
-cols.to.keep <- c("location", "country", "disease", "species",
-                  "healthmap_alert_id", "headline", "url",
-                  "alert_tag", "feed_name", "lon", "lat")
+cols.to.keep <- c(
+  "location", "country", "disease", "species",
+  "healthmap_alert_id", "headline", "url",
+  "alert_tag", "feed_name", "lon", "lat"
+)
 ## These are columns we generate ourselves later on
-cols.to.keep <- c(cols.to.keep, "date", "cases") 
+cols.to.keep <- c(cols.to.keep, "date", "cases")
 ```
 
 ```{r data-cleanup-10 }
 no_dups <- purrr::map(cum_cases, function(df) {
-    mRIIDS:::merge_duplicates(df, cols.to.keep)
-})    
+  mRIIDS:::merge_duplicates(df, cols.to.keep)
+})
 ```
 
 ## Remove outliers. 
 
 ```{r data-cleanup-11 }
-use_last   <- 20
+use_last <- 20
 p.within.k <- 0.50
-k_sd       <- mRIIDS:::interval_width_for_p(use_last,
-                                            1 - p.within.k) %>%
-    sqrt %>%
-    `[`(2)
+k_sd <- mRIIDS:::interval_width_for_p(
+  use_last,
+  1 - p.within.k
+) %>%
+  sqrt() %>%
+  `[`(2)
 
 no_outliers <- purrr::map(no_dups, function(df) {
-    df <- arrange(df, date)
-    df <- filter(df, !is.na(cases)) %>% select(date, cases)
-    if (nrow(df) == 0) {
-        return(NULL)
-    } else {
-        df <- mRIIDS:::remove_last_outliers(df,
-                                            use_last = use_last,
-                                            k_sd = k_sd)
-    }     
-    message(df$country[1])
-    df
-})    
-
+  df <- arrange(df, date)
+  df <- filter(df, !is.na(cases)) %>% select(date, cases)
+  if (nrow(df) == 0) {
+    return(NULL)
+  } else {
+    df <- mRIIDS:::remove_last_outliers(df,
+      use_last = use_last,
+      k_sd = k_sd
+    )
+  }
+  message(df$country[1])
+  df
+})
 ```
 
 ## Make monotonically increasing.
 ```{r data-cleanup-12 }
 
-mono_inc <- purrr::map(no_outliers,
-                       ~ mRIIDS:::make_monotonically_increasing(.x))
-
+mono_inc <- purrr::map(
+  no_outliers,
+  ~ mRIIDS:::make_monotonically_increasing(.x)
+)
 ```
 
 ## Interpolate missing data
 Finally, interpolate missing data.
 
 ```{r data-cleanup-13 }
-interpolated <- purrr::map(mono_inc,
-                           ~ mRIIDS:::interpolate_missing_data(.x,
-                                                               method = "loglinear"))
-    
-  
+interpolated <- purrr::map(
+  mono_inc,
+  ~ mRIIDS:::interpolate_missing_data(.x,
+    method = "loglinear"
+  )
+)
 ```
 
 ## Plot
@@ -234,39 +258,56 @@ interpolated <- purrr::map(mono_inc,
 
 Common plotting logic. x must have a date and a cases column.
 
-```{r data-cleanup-14}
+```{r data-cleanup-14 }
 cases_ts <- function(x) {
-    p <- ggplot(x, aes(date, cases)) + geom_point()
-    p <- p + theme_classic() 
-    p <- p + xlab("") + ylab("Cases")
-    p <- p + theme(axis.text.x = element_text(angle = 80, hjust = 1))
-    p <- p + xlab("")
-    p <- p + scale_x_date(date_labels =  "%b %Y")
-    p     
+  p <- ggplot(x, aes(date, cases)) + geom_point(size = 0.5, col = mriids_plot_theme$color_scale[[params$datasource]])
+  p <- p + mriids_plot_theme$onecol_theme
+  p <- p + xlab("") + ylab("Cases")
+  p <- p + xlab("")
+  p <- p + scale_x_date(date_labels = "%b %Y")
+  p
 }
-
 ```
 
 ```{r data-cleanup-15 }
 total_p <- purrr::map(cum_cases, cases_ts)
+total_p <- purrr::map(total_p, function(p) {
+    p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+    p
+})
+
+    
 ```
 
 ### Remove duplicate alerts
 
 ```{r data-cleanup-16 }
-nodups_p <- purrr::map(no_dups, cases_ts) 
+nodups_p <- purrr::map(no_dups, cases_ts)
+nodups_p <- purrr::map(nodups_p, function(p) {
+        p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+        p
+})     
 ```
 
 ## Remove outliers 
 
 ```{r data-cleanup-17 }
 nooutss_p <- purrr::map(no_outliers, cases_ts)
+nooutss_p <- purrr::map(nooutss_p, function(p) {
+        p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+        p
+})      
 ```
 
 ### Make increasing
 
 ```{r data-cleanup-18 }
 monoinc_p <- purrr::map(mono_inc, cases_ts)
+monoinc_p <- purrr::map(monoinc_p, function(p) {
+        p <- p + theme(axis.text.x = element_text(hjust = 0.5))
+        p
+})     
+
 ```
 
 ### Interpolated data
@@ -275,23 +316,27 @@ This needs a slightly different viz.
 
 ```{r data-cleanup-19, eval = TRUE}
 interp_p <- purrr::map(interpolated, function(x) {
-    x$src <- "Raw"
-    idx <- which(is.na(x$cases))
-    x$src[idx] <- "Interpolated"
-    x <- select(x,
-                date = interpolated_date,
-                cases = interpolated_cases,
-                src)
-    p <- ggplot(x, aes(date, cases, col = src)) + geom_point()
-    p <- p + theme_classic() 
-    p <- p + xlab("") + ylab("Cases")
-    p <- p + theme(axis.text.x = element_text(angle = 80, hjust = 1))
-    p <- p + theme(panel.border = element_blank(),
-                   axis.line = element_line())
-    p <- p + xlab("") + theme(legend.title = element_blank())
-    p <- p + scale_x_date(date_labels =  "%b %Y")
-    p     
-})    
+  x$src <- glue::glue("{params$datasource}.FALSE")
+  idx <- which(is.na(x$cases))
+  x$src[idx] <- glue::glue("{params$datasource}.TRUE")
+  x <- select(x,
+    date = interpolated_date,
+    cases = interpolated_cases,
+    src
+  )
+  p <- ggplot(x, aes(date, cases, col = src)) + geom_point(size = 0.5)
+  p <- p + scale_color_manual(values = mriids_plot_theme$color_scale)
+  p <- p + mriids_plot_theme$onecol_theme + mriids_plot_theme$legend
+  p <- p + xlab("") + ylab("Cases")
+  p <- p + theme(axis.text.x = element_text(hjust = 0.5))
+  p <- p + theme(
+    panel.border = element_blank(),
+    axis.line = element_line()
+  )
+  p <- p + xlab("") + theme(legend.title = element_blank())
+  p <- p + scale_x_date(date_labels = "%b %Y")
+  p
+})
 ```
 
 Putting them together.
@@ -299,26 +344,27 @@ Putting them together.
 ```{r data-cleanup-20, eval = TRUE}
 
 countries <- names(by.location)
-graphs <- list(raw_p,
-               total_p,
-               nodups_p,
-               nooutss_p,
-               monoinc_p,
-               interp_p)
-purrr::map(countries, function(c){
-    cspecific <- purrr::map(graphs, ~ .x[[c]])
-    p <- ggpubr::ggarrange(plotlist = cspecific, nrow = 3, ncol = 2)
-    ggpubr::ggexport(p,
-                     filename = here::here("data/output/figures",
-                                           paste0(params$outfile,
-                                                 "_",
-                                                 c,
-                                                 ".png")),
-                     res = 72,
-                     width = 960,
-                     height = 540)
+graphs <- list(
+  raw_p,
+  total_p,
+  nodups_p,
+  nooutss_p,
+  monoinc_p,
+  interp_p
+)
+purrr::map(countries, function(c) {
+  cspecific <- purrr::map(graphs, ~ .x[[c]])
+  p <- ggpubr::ggarrange(plotlist = cspecific, nrow = 3, ncol = 2)
+  ggplot2::ggsave(
+    plot = p,
+    filename = here::here(
+      glue::glue("data/output/figures_{params$outfile}_{c}.pdf")
+    ),
+    width = mriids_plot_theme$single_col_width,
+    height = mriids_plot_theme$single_col_height,
+    units = mriids_plot_theme$units
+  )
 })
-
 ```
 
 ## Derive incidence time series from interpolated cumulative cases
@@ -330,14 +376,15 @@ take the difference.
 
 ```{r data-cleanup-21 }
 incid_tall <- purrr::map_dfr(interpolated, function(x) {
-    x <- select(x,
-                date = interpolated_date,
-                cases = interpolated_cases)
-    x$cases <- as.integer(x$cases)
-    x$incid <- c(0, diff(x$cases))
-    x <- select(x, date, incid)
-    x
-}, .id = "country")                 
+  x <- select(x,
+    date = interpolated_date,
+    cases = interpolated_cases
+  )
+  x$cases <- as.integer(x$cases)
+  x$incid <- c(0, diff(x$cases))
+  x <- select(x, date, incid)
+  x
+}, .id = "country")
 ```
 
 ## Manually fix Ghana 
@@ -345,27 +392,30 @@ incid_tall <- purrr::map_dfr(interpolated, function(x) {
 Manually fix the erroneous entry for Ghana on 2014-04-08
 
 
-```{r ghana-fix}
-incid_tall$country <- countrycode::countrycode(incid_tall$country,
-                                               'country.name',
-                                               'iso3c')
+```{r data-cleanup-22 }
+incid_tall$country <- countrycode::countrycode(
+  incid_tall$country,
+  "country.name",
+  "iso3c"
+)
 
 fix <- which(incid_tall$date == "2014-04-08" &
-             incid_tall$country == "GHA")
+  incid_tall$country == "GHA")
 incid_tall$incid[fix] <- 0
 ```
 
 Also, get rid of the first row of all 0s to get Stan started.
 
-```{r all-zeros}
+```{r data-cleanup-23 }
 
-incid_tall <- filter(incid_tall,
-                     date != "2014-03-21")
-
+incid_tall <- filter(
+  incid_tall,
+  date != "2014-03-21"
+)
 ```
 And reshape.
 
-```{r data-cleanup-22 }
+```{r data-cleanup-24 }
 incid_wide <- tidyr::spread(incid_tall, country, incid, fill = 0)
 ```
 
@@ -375,17 +425,22 @@ incid_wide <- tidyr::spread(incid_tall, country, incid, fill = 0)
 Finally, we add 0 incidence for all countries other than ones for
 which we already have data. 
 
-```{r data-cleanup-24}
+```{r data-cleanup-25 }
 ofinterest <- readr::read_csv(here::here(params$ofinterest)) %>%
-    filter(include == "TRUE")
+  filter(include == "TRUE")
 
-nodata <- setdiff(ofinterest$ISO3,
-                  countrycode::countrycode(wafrica,
-                                           'country.name',
-                                           'iso3c'))
+nodata <- setdiff(
+  ofinterest$ISO3,
+  countrycode::countrycode(
+    wafrica,
+    "country.name",
+    "iso3c"
+  )
+)
 df <- matrix(0,
-             nrow = nrow(incid_wide),
-             ncol = length(nodata))
+  nrow = nrow(incid_wide),
+  ncol = length(nodata)
+)
 colnames(df) <- nodata
 df <- data.frame(df)
 incid_wide_all <- cbind(incid_wide, df)
@@ -394,106 +449,127 @@ incid_wide_all <- cbind(incid_wide, df)
 Finally ensure that the order of countries in centroids and incid 
 files is the same.
 
-```{r data-cleanup-25, eval = TRUE}
+```{r data-cleanup-26, eval = TRUE}
 inorder <- ofinterest$ISO3
 ## Some of the countries of interest may not be present in
 ## incid_wide_all
 inorder <- intersect(inorder, colnames(incid_wide_all))
-incid_wide_all <- select(incid_wide_all,
-                         date,
-                         inorder)
+incid_wide_all <- select(
+  incid_wide_all,
+  date,
+  inorder
+)
 ```
 
 
 ## Write the output
 
-```{r data-cleanup-26 }
+```{r data-cleanup-27 }
 
 outfile <- paste0(params$outfile, "_wide.csv")
 here::here("data/processed", outfile) %>%
-    readr::write_csv(x = incid_wide_all,
-                     path = .)
-
+  readr::write_csv(
+    x = incid_wide_all,
+    path = .
+  )
 ```
  
 ## Also make note of what points were interpolated.
 
-```{r data-cleanup-27 }
+```{r data-cleanup-28 }
 incid_extracols <- purrr::map_dfr(interpolated, function(x) {
-    idx <- which(is.na(x$cases))
-    x$interpolated <- "FALSE"
-    x$interpolated[idx] <- "TRUE"
+  idx <- which(is.na(x$cases))
+  x$interpolated <- "FALSE"
+  x$interpolated[idx] <- "TRUE"
 
-    x <- select(x,
-                date,
-                interpolated)
+  x <- select(
+    x,
+    date,
+    interpolated
+  )
 },
-.id = "country")
+.id = "country"
+)
 
-incid_extracols$country <- countrycode::countrycode(incid_extracols$country,
-                                                    'country.name',
-                                                    'iso3c')
-
+incid_extracols$country <- countrycode::countrycode(
+  incid_extracols$country,
+  "country.name",
+  "iso3c"
+)
 ```
 
 Add the data that was affixed later.
 
-```{r other-countries-tall}
+```{r data-cleanup-29 }
 df <- cbind(date = incid_wide_all$date, df)
-df_tall <- tidyr::gather(df,
-                         country,
-                         incid,
-                         -date)
+df_tall <- tidyr::gather(
+  df,
+  country,
+  incid,
+  -date
+)
 
-incid_tall <- rbind(incid_tall,
-                    df_tall)
+incid_tall <- rbind(
+  incid_tall,
+  df_tall
+)
 ```
 
-```{r incidtall2}
+```{r data-cleanup-30 }
 incid_extracols <- left_join(incid_tall,
-                             incid_extracols,
-                             by = c("date",
-                                    "country"))
+  incid_extracols,
+  by = c(
+    "date",
+    "country"
+  )
+)
 
 outfile <- paste0(params$outfile, "_tall.csv")
 
 here::here("data/processed", outfile) %>%
-    readr::write_csv(x = incid_extracols,
-                     path = .)
-
+  readr::write_csv(
+    x = incid_extracols,
+    path = .
+  )
 ```
 
 ## Weekly series
 
 Add a flag to indicate if all points in the week were reconstructed.
 
-```{r data-cleanup-28 }
+```{r data-cleanup-31 }
 extra <- as.numeric(max(incid_extracols$date) -
-                    min(incid_extracols$date)) %% 7
+  min(incid_extracols$date)) %% 7
 
 dates <- sort(incid_extracols$date) %>%
-    unique
+  unique()
 
 remove <- tail(dates, extra)
 
-daily <- filter(incid_extracols,
-                ! date %in% remove)
+daily <- filter(
+  incid_extracols,
+  !date %in% remove
+)
 daily$interpolated <- as.logical(daily$interpolated)
 weeks <- cut(daily$date, breaks = "7 days")
 weekly <- split(daily, weeks) %>%
-    purrr::map_dfr( ~ dplyr::group_by(.x,
-                                      country) %>%
-                        summarise(incid = sum(incid),
-                                  interpolated = all(interpolated)),
-                   .id = "date")
+  purrr::map_dfr(~ dplyr::group_by(
+    .x,
+    country
+  ) %>%
+    summarise(
+      incid = sum(incid),
+      interpolated = all(interpolated)
+    ),
+  .id = "date"
+  )
 
 outfile <- paste0(params$outfile, "_weekly.csv")
-readr::write_csv(x = weekly,
-                 path = here::here("data/processed",
-                                   outfile))
-
-
-
-
-
+readr::write_csv(
+  x = weekly,
+  path = here::here(
+    "data/processed",
+    outfile
+  )
+)
 ```

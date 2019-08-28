@@ -1,0 +1,39 @@
+# Figures {#figures}
+
+```{r echo = FALSE, fig.cap = incidrcap, fig.align = "center"}
+knitr::include_graphics("ms-figures/who-hm-promed-comparison.pdf")
+```
+
+
+```{r echo = FALSE, fig.cap = pm28cap, fig.align = "center"}
+knitr::include_graphics("ms-figures/projections-viz-fixed-country-15-1.ProMED_14_28.pdf")
+```
+
+
+
+```{r echo = FALSE, fig.cap = all_ds_14_28, fig.align = "center"}
+knitr::include_graphics("ms-figures/14_28_non-facetted.pdf")
+```
+
+```{r echo = FALSE, fig.cap = parscap, fig.align = "center", fig.width = 3.4}
+knitr::include_graphics("ms-figures/gravity_model_pars_14.pdf")
+```
+
+
+
+```{r assess, echo = FALSE, fig.cap = assesscap, fig.align = "center"}
+knitr::include_graphics("ms-figures/forecasts-assess-viz-26-1.ProMED_14_28_assess.pdf")
+```
+
+
+```{r alerts, echo = FALSE, fig.cap = alertscap, fig.align = "center"}
+knitr::include_graphics("ms-figures/alerts_per_week_high_ProMED_14_28.pdf")
+```
+
+```{r echo = FALSE, fig.align = "center"}
+knitr::include_graphics("ms-figures/ProMED_importation_risk_first_obs_14.pdf")
+```
+
+```{r echo = FALSE}
+flextable::flextable(readr::read_csv(here::here("rmd/ProMED_propinci_14_28.csv")))
+```

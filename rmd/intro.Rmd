@@ -100,8 +100,7 @@ in using data from digital surveillance
 tools [@chowell2016elucidating], 
 there is as yet a dearth of a
 framework that can automatically combine such data with other 
-streams of  
-information analyse them in a statistically robust manner, 
+streams of information analyse them in a statistically robust manner, 
 and produce actionable reports, particularly in real time 
 during an outbreak where such analyses would be most useful.
 
@@ -119,8 +118,8 @@ for the 2013-16 West African Ebola epidemic.
 To assess the robustness of the digital surveillance data, 
 we also applied the framework to the data 
 collated by the World Health Organisation (WHO) and made available at 
-the end of the epidemic. We present a comparison of the ProMED/HealthMap 
-data with the retrospective WHO data and the results of 
+the end of the epidemic. We present a comparison of the near real-time
+ProMED/HealthMap data with the retrospective WHO data and the results of 
 the spatiotemporal analysis carried out on these three data sources.
 
 Our analysis based solely on epidemic data 

@@ -122,7 +122,7 @@ for (fit in fitfiles) {
   )
 }
 
-##  Extract stuff from stanfit objects.
+## Extract stuff from stanfit objects.
 purrr::pwalk(
   pars,
   function(tproj, twindow) {
@@ -159,12 +159,21 @@ purrr::pwalk(
   }
 )
 
-##  Forecast metrics
+## Forecast metrics
 source(
     here::here(
        "analysis/forecasts_samples_consolidate.R"
       )
 )
+beepr::beep(sound = 2)
+
+source(
+    here::here(
+       "analysis/weekly_forecasts_samples.R"
+      )
+)
+beepr::beep(sound = 2)
+
 
 ## This bit depends on the time window, tproj as well as n.dates.si.
 ## Update pars.
@@ -186,28 +195,28 @@ pars2 <- data.frame(forecast = forecasts_files) %>%
     convert = TRUE
   )
 
-purrr::pwalk(
-  pars2,
-  function(tproj, twindow, ndates) {
-    for (place in all_files[[datasource]]$places) {
-      rmarkdown::render(
-        "analysis/forecasts_assess.Rmd",
-        params = list(
-          tproj = tproj,
-          twindow = twindow,
-          incid =
-            all_files[[datasource]]$incidfile,
-          n.dates.sim = ndates,
-          place = place,
-          outdir =
-            all_files[[datasource]]$outdir,
-          indir =
-            all_files[[datasource]]$outdir
-        )
-      )
-    } ## end of for
-  }
-)
+## purrr::pwalk(
+##   pars2,
+##   function(tproj, twindow, ndates) {
+##     for (place in all_files[[datasource]]$places) {
+##       rmarkdown::render(
+##         "analysis/forecasts_assess.Rmd",
+##         params = list(
+##           tproj = tproj,
+##           twindow = twindow,
+##           incid =
+##             all_files[[datasource]]$incidfile,
+##           n.dates.sim = ndates,
+##           place = place,
+##           outdir =
+##             all_files[[datasource]]$outdir,
+##           indir =
+##             all_files[[datasource]]$outdir
+##         )
+##       )
+##     } ## end of for
+##   }
+## )
 
 purrr::pwalk(
   pars2,
@@ -235,26 +244,26 @@ purrr::pwalk(
 
 ## Proportion of observations in 95% CrI by week.
 ## Proportion in CrI each week.
-purrr::pwalk(
-  pars,
-  function(tproj, twindow) {
-    for (place in all_files[[datasource]]$places) {
-      rmarkdown::render(
-        "analysis/prop_in_ci_by_week.Rmd",
-        params = list(
-          tproj = tproj,
-          twindow = twindow,
-          incid =
-            all_files[[datasource]]$incidfile,
-          n.dates.sim =
-           all_files[[datasource]]$n.dates.sim,
-          place = place,
-          outdir =
-            all_files[[datasource]]$outdir,
-          indir =
-            all_files[[datasource]]$outdir
-        )
-      )
-    } ## end of for
-  }
-)
+# purrr::pwalk(
+#   pars,
+#   function(tproj, twindow) {
+#     for (place in all_files[[datasource]]$places) {
+#       rmarkdown::render(
+#         "analysis/prop_in_ci_by_week.Rmd",
+#         params = list(
+#           tproj = tproj,
+#           twindow = twindow,
+#           incid =
+#             all_files[[datasource]]$incidfile,
+#           n.dates.sim =
+#            all_files[[datasource]]$n.dates.sim,
+#           place = place,
+#           outdir =
+#             all_files[[datasource]]$outdir,
+#           indir =
+#             all_files[[datasource]]$outdir
+#         )
+#       )
+#     } ## end of for
+#   }
+# )

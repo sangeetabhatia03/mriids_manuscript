@@ -168,7 +168,7 @@ where $T$ is the duration of the outbreak so far.
 Thus the likelihood of the parameters is proportional to
 
 \[\mathcal{L} = P \left({\langle I_{j}^{t} \rangle}_{j = 1, 2 \dots n}
- \mid p_{stay}, \gamma, {\lanlge R_{j}^{t} \rangle}_{j = 1, 2 \dots n}\right) = 
+ \mid p_{stay}, \gamma, {\langle R_{j}^{t} \rangle}_{j = 1, 2 \dots n}\right) = 
  \prod_{t = 1}^{t}{e^{-\lambda_{i, t}} 
  \frac{I_{i}^{t}^{\lambda_{i}^{t}}}{\lambda_{i}^{t} !}}.\]
 

@@ -12,40 +12,41 @@ performance of the model along both these dimensions,
 we used four different metrics drawn from the literature.
 
 In the remainder of this paper, we use the following notation. 
-For a location \(j\), let \(I_{j, t}\) be the observed incidence 
+For a location \(j\), let $I_{j}^{t}$ be the observed incidence 
 at time \(t\) and let 
-\(\hat{I}_{j, t}\) be the set of predictions of the model at 
+\(\hat{I}_{j}^{t}\) be the set of predictions of the model at 
 time \(t\). 
-That is, \(\hat{I}_{j, t} = 
+That is, $\(\hat{I}_{j}^{t}\) = 
 \{
-\hat{I}^1_{j, t}, 
-\hat{I}^2_{j, t}, 
+\(\hat{I}_{j}^{t, 1}\), 
+\(\hat{I}_{j}^{t, 2}\), 
 \dots
-\hat{I}^N_{j, t}, 
+\(\hat{I}_{j}^{t, N}\), 
 \}\) is the set of
 \(N\) draws from the Poisson distribution with mean 
-\(\lambda_{j, t}\)  \@ref(eq:lambdajt) (here N = 1000).
+\(\lambda_{j}^{t}\)  \@ref(eq:lambdajt) (here N = 1000).
 
  
 ## Relative mean absolute error
 
 The relative mean absolute error (rmae) is a widely used 
 measure of model accuracy  [@tofallis2015better]. 
-The relative mean absolute error
-at location \(j\) at time \(t\) is defined as:
+The relative mean absolute error for the forecasts
+at a location \(j\) at time \(t\) is defined as:
 
 \[
-  rmae_{j, t}(I_{j, t}, \hat{I}_{j, t}) = 
+  rmae_{j}^{t}(I_{j}^{t}, \hat{I}_{j}^{t}) = 
  \frac{
- \sum_{s = 1}^N{\lvert I_{j, t} - \hat{I}^s_{j, t} \rvert}
+ \sum_{s = 1}^N{\lvert I_{j}^{t} - \hat{I}_{j}^{t, s} \rvert}
  }
- { N *  (I_{j, t} + 1)}.
+ { N *  (I_{j}^{t} + 1)}.
  \]
 That is the mean absolute error at time \(t\) is averaged 
 across all
 simulated incidence trajectories and normalised by the observed
 incidence. We add \(1\) to the observed value to prevent division by
-\(0\).
+\(0\). A RMAE value of $k$ means that the average error is $k$ times
+the observed value. 
 
 
 ## Sharpness
@@ -53,32 +54,32 @@ incidence. We add \(1\) to the observed value to prevent division by
 Sharpness is a measure of the spread 
 (or uncertainty) of the
 forecasts. Adapting the definition proposed by [@funk2017assessing],
-we used the relative median
+we used the relative mean
 absolute deviation about the median (MADM) to evaluate sharpness.
-The sharpness \(s_{j, t}\) at time \(t\) at location \(j\)
+The sharpness  \(s_{j}^{t}\) of forecasts at at time \(t\) at location \(j\)
 is
 \[
-s_{j, t}(\hat{I}_{j, t}) = 
-median(\left | \frac{\hat{I}^s_{j, t}  - median(\hat{I}_{j, t})}{median(\hat{I}_{j, t})} 
+s_{j}^{t}(\hat{I}_{j}^{t}) = 
+mean(\left | \frac{\hat{I}{j}^{t, s}  - median(\hat{I}_{j}^{t})}{median(\hat{I}_{j}^{t})} 
 \right |).\]
 
-We add 1 ti $\hat{I}_{j, t}$ to prevent division by 0.
-A sharpness value of 0 indicates that the predicted incidence
-trajectories are identical across all simulations. 
-The larger the sharpness, the more spread there is in the 
-forecast.
+We add 1 to $\hat{I}_{j}^{t}$ to prevent division by 0.
+A sharpness score of $k$ indicates that the avergae deviation of the predicted incidence
+trajectories is $k$ times their median. Low values of sharpness
+therefore suggest that the predicted trajectories are clustered around
+the median.
 
 ## Bias
 
 The bias of forecasts is a measure of the tendency of a model 
 to systematically under- or over-predict [@funk2017assessing]. 
 The bias of a set 
-of predictions \(\hat{I}_{j, t}\) 
+of predictions \(\hat{I}_{j}^{t}\) 
 at time \(t\) at location \(j\) is defined as
 
 \[
-b_{j, t}(I_{j, t}, \hat{I}_{j, t}) = 
-2(mean(H(\hat{I}_{j, t} - I_{j, t})) - 0.5),\]
+b_{j}^{t}(I_{j}^{t}, \hat{I}_{j}^{t}) = 
+2(mean(H(\hat{I}_{j}^{t} - I_{j}^{t})) - 0.5),\]
 
 where the mean is taken across the \(N\) draws.
 \(H(x)\) is the Heaviside step function defined as
@@ -92,12 +93,12 @@ H(x) = \begin{cases}
 
 The above formulation can better be understood by considering 
 the following extreme scenarios. If every projected value 
-\(\hat{I}_{j, t}\) is greater 
-than the observed value \(I_{j, t}\), then the Heaviside 
+\(\hat{I}_{j}^{t}\) is greater 
+than the observed value \(I_{j}^{t}\), then the Heaviside 
 function is 1 for all \(i = 1, 2, \dots N\), and therefore
-\(mean(H(\hat{I}_{j, t} - I_{j, t}))\) is 1. The bias
+\(mean(H(\hat{I}_{j}^{t} - I_{j}^{t}))\) is 1. The bias
 for a model that always over-predicts is therefore 1. 
 On the other hand, if the model systematically under-predicts,
-then \(mean(H(\hat{I}_{j, t} - I_{j, t}))\) is 0 and the bias 
+then \(mean(H(\hat{I}_{j}^{t} - I_{j}^{t}))\) is 0 and the bias 
 is -1. For a model for which all predictions match the observed values 
 exactly, the bias is 0.

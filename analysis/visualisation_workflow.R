@@ -19,12 +19,12 @@ purrr::pwalk(
    pars,
    function(tw, ndates, ds) {
        rmarkdown::render(
-           "analysis/projections_viz_fixed_country.Rmd",
+           "analysis/forecasts_viz_fixed_country.Rmd",
            params = list(
                twindow = tw,
                incid = all_files[[ds]]$weekly_incidfile,
                n.dates.sim = ndates,
-               places = places,
+               places = all_files[[ds]]$places,
                outdir =
                    all_files[[ds]]$outdir,
                datasource = ds
@@ -50,17 +50,22 @@ purrr::pwalk(
            params = list(
                twindow = tw,
                n.dates.sim = ndates,
-               places = places,
+               places = all_files[[ds]]$places,
                indir  =
                    all_files[[ds]]$outdir,
                outdir =
                    paste0(all_files[[ds]]$outdir, "/"),
                datasource = ds
            )
-         )
+       )
    }
 )
 
+source(
+    here::here(
+      "analysis/roc.R"
+    )
+  )
 
 
 ## Depends on combine_forecasts_incidence
@@ -79,7 +84,7 @@ for (idx in seq_len(nrow(pars))) {
 
 
 ## The data sources we want to combine.
-datasources <- c("ProMED", "WHO")
+datasources <- c("ProMED", "WHO", "HealthMap")
 names(datasources) <- datasources
 ## Depends on gravity_model_pars_quantiles
 ## Infile gravity_model_parameters_quantiles.csv
@@ -89,9 +94,6 @@ source(
        "analysis/plot_gravity_model_pars_quantiles.R"
     )
 )
-
-
-
 
 datasources <- c("ProMED", "WHO", "HealthMap")
 
@@ -125,9 +127,8 @@ purrr::pwalk(
              params = list(
                  n.dates.sim = ndate,
                  indir = all_files[[ds]]$outdir,
-                 outdir = paste0(
-                     all_files[[ds]]$outdir,
-                     "/"
+                 outdir = glue::glue(
+                     "{all_files[[ds]]$outdir}/"
                  ),
                  datasource = ds
              )

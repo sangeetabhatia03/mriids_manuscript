@@ -40,10 +40,11 @@ library(mRIIDS)
 ## Read incidence data
 
 ```{r incid}
-suffix <- paste0(params$tproj, 
-                 "_", 
-                 params$twindow, 
-                 ".rds")
+suffix <- paste0(
+    params$tproj, 
+    "_", 
+    params$twindow, 
+    ".rds")
 
 trng <- here::here(params$indir,
                     paste0("incid_",

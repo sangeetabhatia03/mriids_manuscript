@@ -39,10 +39,11 @@ The order of columns as the same as the order of columns in the input
 to Stan. Hence read the incidence data to get this order.
 
 ```{r incid}
-suffix <- paste0(params$tproj, 
-                 "_", 
-                 params$twindow, 
-                 ".rds")
+suffix <- paste0(
+    params$tproj, 
+    "_", 
+    params$twindow, 
+    ".rds")
 
 incid <- here::here(params$indir,
                     paste0("incid_",
