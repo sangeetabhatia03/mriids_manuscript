@@ -100,7 +100,7 @@ in using data from digital surveillance
 tools [@chowell2016elucidating], 
 there is as yet a dearth of a
 framework that can automatically combine such data with other 
-streams of information analyse them in a statistically robust manner, 
+streams of information, analyse them in a statistically robust manner, 
 and produce actionable reports, particularly in real time 
 during an outbreak where such analyses would be most useful.
 

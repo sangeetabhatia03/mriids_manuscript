@@ -224,8 +224,10 @@ has a uniform prior between 1 and 10. The results of this analysis are
 presented in the SI (`r section_nums("gamma_ul_section")`).
 
 Model fitting was done in a Bayesian framework using a Markov Chain 
-Monte Carlo (MCMC) approach as implemented in the software Stan [@carpenter2017stan] 
-and its R interface rstan [@rstan]. Convergence of MCMC chains was 
+Monte Carlo (MCMC) as implemented in the software Stan [@carpenter2017stan] 
+and its R interface rstan [@rstan]. We ran 2 MCMC chains with 3000
+iterations and burn-in of 1000 iterations.
+Convergence of MCMC chains was 
 confirmed using visual inspections of the diagnostics (Potential Scale
 Reduction Factor [@gelman1992inference] 
 and Geweke Diagnostics [@geweke]) reported by 

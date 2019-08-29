@@ -117,9 +117,10 @@ factor that could enhance the usability of our model in near real time
 is to improve the running time of the fitting and forward simulation. 
 In the current 
 implementation, the running time varies from approximately 30 mins 
-when 100 days of incidence data are being used to . 
-Although the West African Ebola epidemic was 
-of scale and unusual duration, there is a scope for optimising 
+when 100 days of incidence data are being used to approximately 335
+CPU hours using 462 days of incidence data using a 3.3 GHz Intel Xeon
+X5680 processor. Although the West African Ebola epidemic was 
+of unusual scale and duration, there is a scope for optimising 
 the model implementation.
 
 Our study provides one of the first pieces of evidence of the

@@ -37,13 +37,14 @@ The correlation between the mean R estimates on sliding 4-week windows
 from ProMED or HealthMap data with the estimates from WHO data varied 
 from weak (0.27, between reproduction number from WHO and ProMED in 
 Guinea ) to very strong (0.81, between reproduction number from WHO
-and HealthMap in Sierra Leone).
+and HealthMap in Sierra Leone, see `r si_tab_nums("rcorr", display = "c")`).
 
 Since HealthMap uses ProMED alerts in addition to other online data 
 sources, ProMED represents the more conservative data source between the 
 two. Therefore we present the results based on ProMED data in the main
-text. The analysis based on HealthMap data are presented in the 
-Supplementary Information (SI).
+text. The analysis based on HealthMap and WHO data are presented in the 
+Supplementary Information (SI) (sections 
+`r hm_section` and `r who_section`).
 
 In the following, we use ProMED data as our main data source, 
 unless otherwise specified. 

@@ -1,0 +1,227 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Model performance metrics stratified by datasource
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  datasources: !r c("ProMED", "HealthMap", "WHO")
+  indirs: !r c("data/output", "data/healthmap_output", "data/who_output")
+  twindow: 14
+  n.dates.sim: 28
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+source(here::here("analysis/common_plot_properties.R"))
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  dev = "pdf",
+  fig.width = mriids_plot_theme$single_col_width / 2.5,
+  fig.height = mriids_plot_theme$single_col_height / 2.5
+  )
+
+```
+
+Read in metrics for each datasource.
+
+```{r forecasts-assess-by-datasource-1}
+infiles <- glue::glue("{params$indirs}/{params$datasources}_weekly_metrics.csv")
+names(infiles) <- {
+  params$datasources
+}
+weekly_metrics <- purrr::map_dfr(infiles, ~ readr::read_csv(
+  file = here::here(.x)
+),
+.id = "datasource"
+)
+
+weekly_metrics <- dplyr::filter(
+  weekly_metrics,
+  twindow == params$twindow,
+  n.dates.sim == params$n.dates.sim
+  )
+weekly_metrics <-  dplyr::rename(weekly_metrics, relsharpness = "rel_sness")
+weekly_metrics$week_of_projection <- factor(weekly_metrics$week_of_projection)
+weekly_metrics <- dplyr::mutate_if(weekly_metrics, is.character, factor)
+weekly_metrics <- dplyr::mutate_at(weekly_metrics, vars(tproj, twindow, n.dates.sim), as.integer)
+```
+
+## Bias
+
+```{r forecasts-assess-by-datasource-2 }
+pbias <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    bias,
+    col = datasource
+  )
+) +
+  geom_boxplot(position = "dodge")
+
+pbias <- pbias +
+  xlab("Week of projection") +
+  ylab("Bias") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend +
+  scale_color_manual(values = mriids_plot_theme$color_scale)
+
+pbias
+```
+
+## Relative Sharpness
+
+
+```{r forecasts-assess-by-datasource-3 }
+
+psharp <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    relsharpness,
+    col = datasource
+  )
+) +
+  geom_boxplot()
+## scale_y_log10(
+##   breaks = scales::trans_breaks("log10", function(x) 10^x),
+##   labels = scales::trans_format("log10", scales::math_format(10^.x))
+## )
+
+
+psharp <- psharp +
+  xlab("Week of projection") +
+  ylab("sharpness") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend +
+  scale_color_manual(values = mriids_plot_theme$color_scale)
+
+psharp
+```
+
+## Proportion of observations in CrI
+
+
+```{r forecasts-assess-by-datasource-4 }
+propinci_perc <- group_by(
+  weekly_metrics,
+  week_of_projection,
+  datasource
+) %>% summarise(nweeks = 100 * sum(propinci) / n())
+propinci_perc <- dplyr::ungroup(propinci_perc)
+prel <- ggplot(
+  propinci_perc,
+  aes(week_of_projection,
+    nweeks,
+    fill = datasource
+  )
+) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.5)
+## geom_point(aes(fill = ci),
+##            alpha = 0.7,
+##            position = position_jitterdodge())
+prel <- prel +
+  xlab("Week of projection") +
+  ylab("% weeks") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend +
+  ylim(0, 100) +
+  scale_fill_manual(values = mriids_plot_theme$color_scale)
+
+prel
+```
+
+
+## Relative mean absolute error
+
+
+```{r forecasts-assess-by-datasource-5 }
+prelerr <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    rmae,
+    col = datasource
+  )
+) +
+  geom_boxplot() +
+  scale_y_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(10^.x))
+  )
+
+prelerr <- prelerr +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend +
+  scale_color_manual(values = mriids_plot_theme$color_scale)
+
+
+prelerr <- prelerr +
+  xlab("Week of projection") +
+  ylab("log(relative mean absolute error)")
+
+prelerr
+```
+
+
+```{r forecasts-assess-by-datasource-6 }
+## outfile <- here::here(
+##   params$outdir,
+##   paste0(
+##     "forecasts_assess_",
+##     params$datasource,
+##     params$twindow,
+##     ".pdf"
+##   )
+## )
+
+## Affix legend manually otherwise I can't get rid of the
+## annoying legend title.
+legend <- cowplot::get_legend(pbias +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_blank()
+  ))
+
+prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
+  prel + theme(legend.position = "none"),
+  prelerr + theme(legend.position = "none"),
+  align = "vh",
+  labels = c("A", "B", "C", "D"),
+  label_size = 8,
+  hjust = c(-1, 1, -3, 1),
+  vjust = c(3, 3, -2.5, 0),
+  nrow = 2
+)
+
+
+# add the legend underneath the row we made earlier. Give it 10% of the height
+# of one plot (via rel_heights).
+p <- cowplot::plot_grid(prow,
+  legend,
+  ncol = 1,
+  rel_heights = c(1, .1)
+)
+
+p
+```
+

@@ -74,6 +74,7 @@ weekly_metrics <- weekly_metrics[
     weekly_metrics$n.dates.sim == params$n.dates.sim,
   ]
 
+weekly_metrics$twindow <- as.factor(weekly_metrics$twindow)
 ## to avoid problems when we split on underscore.
 weekly_metrics <-  dplyr::rename(weekly_metrics, relsharpness = "rel_sness")
 ```
@@ -113,20 +114,22 @@ epidemic_phase <- epidemic_phase[
   epidemic_phase$twindow == params$twindow,
 ]
 
-epidemic_phase <- epidemic_phase[rep(
-  seq_len(nrow(epidemic_phase)),
-  each = params$n.dates.sim
-), ]
+## epidemic_phase <- epidemic_phase[rep(
+##   seq_len(nrow(epidemic_phase)),
+##   each = params$n.dates.sim / 7
+## ), ]
 
 ## Fix the dates.
-epidemic_phase <- dplyr::group_by(
-  epidemic_phase,
-  tproj,
-  country
-) %>%
-  dplyr::mutate(
-    date = seq(from = min(date), length.out = params$n.dates.sim, by = "1 day")
-  )
+## epidemic_phase <- dplyr::group_by(
+##   epidemic_phase,
+##   tproj,
+##   country
+## ) %>%
+##   dplyr::mutate(
+##     date = seq(from = min(date), length.out = params$n.dates.sim / 7, by = "7 days")
+##    )
+
+epidemic_phase$twindow <- as.factor(epidemic_phase$twindow)
 
 weekly_metrics <- dplyr::left_join(
   weekly_metrics,
@@ -305,6 +308,54 @@ phase_weekly_summary_stats <- dplyr::select(
 ```{r forecasts-assess-viz-21 }
 knitr::kable(phase_weekly_summary_stats)
 ```
+
+## Proportion of observations in forecast interval
+
+```{r}
+propinci <- group_by(weekly_metrics, country, ci) %>%
+    summarise(x = mean(propinci))
+
+propinci <- tidyr::spread(propinci, ci, x)
+
+```
+
+```{r}
+knitr::kable(propinci)
+```
+and across the three countries.
+
+```{r}
+propinci_all <- group_by(weekly_metrics, ci) %>%
+    summarise(x = mean(propinci))
+propinci_all <- tidyr::spread(propinci_all, ci, x)
+```
+
+
+```{r}
+knitr::kable(propinci_all)
+```
+Format and save.
+
+```{r}
+propinci_all$Country <- "All"
+propinci_all <- dplyr::select(propinci_all, Country, dplyr::everything())
+propinci$country <- countrycode::countrycode(propinci$country, "iso3c", "country.name")
+propinci <- dplyr::ungroup(propinci)
+
+propinci <- dplyr::rename(propinci, "Country" = "country")
+propinci <- rbind(propinci, propinci_all)
+propinci <- dplyr::mutate_if(propinci, is.numeric, scales::percent)
+
+readr::write_csv(
+    x = propinci,
+    path = here::here(
+        glue::glue("rmd/{params$datasource}_propinci_{params$twindow}",
+             "_{params$n.dates.sim}.csv"
+         )
+    )
+)
+
+```
 ## Bias
 
 ```{r forecasts-assess-viz-22 }
@@ -359,23 +410,30 @@ psharp
 
 
 ```{r forecasts-assess-viz-24 }
+propinci_perc <- group_by(
+    weekly_metrics,
+    week_of_projection,
+    ci
+) %>% summarise(nweeks = 100 * sum(propinci) / n())
+propinci_perc <- dplyr::ungroup(propinci_perc)
 prel <- ggplot(
-  weekly_metrics,
+  propinci_perc,
   aes(week_of_projection,
-    propinci,
-    col = ci
+    nweeks,
+    fill = ci
   )
 ) +
-  geom_boxplot()
+  geom_bar(stat = "identity", position = "dodge", width = 0.5)
 ## geom_point(aes(fill = ci),
 ##            alpha = 0.7,
 ##            position = position_jitterdodge())
 prel <- prel +
   xlab("Week of projection") +
-  ylab("Proportion in 95% forecasts interval") +
+  ylab("% weeks") +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
-  scale_color_manual(values = mriids_plot_theme$phase_color_scale)
+  ylim(0, 100) +
+  scale_fill_manual(values = mriids_plot_theme$phase_color_scale)
 
 prel
 ```

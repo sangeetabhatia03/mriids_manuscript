@@ -21,13 +21,20 @@ gravity_model_pars <-
     fitfiles,
     function(fit) {
       fitobj <-
-        readr::read_rds(here::here(
+        readRDS(here::here(
           all_files[[datasource]]$stanfits_dir,
           fit
-        ))
-      fit_summary <- rstan::summary(fitobj)
-      out <- fit_summary$summary[c("pstay", "gamma"), ]
-      out <- tibble::rownames_to_column(as.data.frame(out), var = "param")
+          )
+       )
+      if (! inherits(x = fitobj, what = "stanfit")) {
+          out <- NULL
+      } else {
+          message("working on ", fit)
+          fit_summary <- rstan::summary(fitobj)
+          out <- fit_summary$summary[c("pstay", "gamma"), ]
+          out <- tibble::rownames_to_column(as.data.frame(out), var = "param")
+
+      }
       out
     },
     .id = "parameters"

@@ -1,6 +1,6 @@
 library(captioner)
 fig_nums <- captioner(prefix = "Figure")
-
+tab_nums <- captioner(prefix = "Table")
 
 incidrcap <- fig_nums(
     name = "incidrcompare",
@@ -75,32 +75,6 @@ during this period. Similarly, if the 2.5th percentile of R was
 greater than 1, we defined the epidemic to be in a growing phase. The phase was
 set to neither where the 95% Credible Interval of the R estimates contained 1.")
 
-imp_risk_cite <- fig_nums(
-    "pm_imp_risk_28",
-    display = "cite"
-)
-
-imp_risk_cap <- fig_nums(
-    "pm_imp_risk_28",
-    caption = "Importation risk."
-)
-
-
-parscite <- fig_nums(
-    name = "pstayandgamma",
-    display = "cite")
-
-parscap <- fig_nums(
-    name = "pstayandgamma",
-    caption = "Estimates of mobility model parameters
-during the epidemic. Population movement was modelled using a gravity model
-where the flow between a location $i$ and $j$ is proportional to the product of their
-populations and inversely population to the distance between them raised to an exponent
-$gamma$. The parameter gamma thus modulates the influence of distance between the population flow.
-$p_{stay}$ represents the probability of an individual to stay in a given location during their
-infectious period. The solid lines represents the median estimates obtained using WHO (yellow), ProMED (blue)
-and HealthMap (green) data. The shaded regions represent the 95% CrI.")
-
 
 alertscite <- fig_nums(
     name = "roc_alerts",
@@ -110,8 +84,9 @@ alertscite <- fig_nums(
 alertscap <- fig_nums(
     name = "roc_alerts",
     caption = "Predicted weekly presence of cases in each country.
-The panel on the left shows the True and False alert rates using different
-thresholds for classification. For a given threshold ($x^{th}$ percentile of the
+The left panel shows the True and False alert rates using different
+thresholds for classification when forecasting ahead for 4 (blue), 6 (yellow),
+or 8 (pink) weeks .For a given threshold ($x^{th}$ percentile of the
 forecast interval), we defined a True alert for a week where the $x^{th}$ percentile of the
 the forecast interval and the observed incidence for a
 country were both greater than 0; false alert for a week where the threshold
@@ -132,3 +107,50 @@ Republic of Congo, GIN - Guinea, GNB - Guinea-Bissau, LBR - Liberia,
 MLI - Mali, NER - Niger, NGA - Nigeria, SEN - Senegal, SLE - Sierra
 Leone, TGO - Togo. Predictions used here are using the ProMED
 data, a 2-week window for inference and a 4 week forecast horizon.")
+
+
+
+parscite <- fig_nums(
+    name = "pstayandgamma",
+    display = "cite")
+
+parscap <- fig_nums(
+    name = "pstayandgamma",
+    caption = "Estimates of mobility model parameters
+during the epidemic. Population movement was modelled using a gravity model
+where the flow between a location $i$ and $j$ is proportional to the product of their
+populations and inversely population to the distance between them raised to an exponent
+$gamma$. The parameter gamma thus modulates the influence of distance between the population flow.
+$p_{stay}$ represents the probability of an individual to stay in a given location during their
+infectious period. The solid lines represents the median estimates obtained using WHO (yellow), ProMED (blue)
+and HealthMap (green) data. The shaded regions represent the 95% CrI.")
+
+
+imp_risk_cite <- fig_nums(
+    "pm_imp_risk_28",
+    display = "cite"
+)
+
+imp_risk_cap <- fig_nums(
+    "pm_imp_risk_28",
+    caption = "Risk of importation of the epidemic. For each country with non-zero incidence,
+the figure shows the relative importation risk (see Methods). Since we forecasted every
+7\textsuperscipt{th} day, the risk of importation was estimated on a date on which forecasts were
+done that was closest to the date of first case in that country reported in the data used. The estimates presented here
+use ProMED data with a 2 week window for inference. The country for which risk is estimated is shown in gray.
+Darker shades of red represent a higher relative risk. For each country, the figure shows only the risk of importation
+from other countries and does not show the risk of transmission within the country.")
+
+
+proptabcite <- tab_nums(name = "propinci", display = "cite")
+
+proptabcap <- tab_nums(
+   name = "propinci",
+   caption = "Percentage of weeks with observed incidence in 95% forecast interval.
+In forecasting ahead, we assumed transmissibility
+to be constant over the forecast horizon. If the 97.5th percentile of the R estimate used
+for forecasting was less than 1, we defined the epidemic to be in the declining phase
+during this period. Similarly, if the 2.5th percentile of R was
+greater than 1, we defined the epidemic to be in a growing phase. The phase was
+set to neither where the 95% Credible Interval of the R estimates contained 1.")
+

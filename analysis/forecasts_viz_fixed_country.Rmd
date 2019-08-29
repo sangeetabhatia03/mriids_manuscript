@@ -27,14 +27,19 @@ params:
   outdir: data/healthmap_gamma_ul_10_output
   datasource: HealthMap
 ---
+
+```{r projections-viz-fixed-country-2 }
+source(here::here("analysis/common_plot_properties.R"))
+```
+
 ```{r projections-viz-fixed-country-1, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
   warning = FALSE,
   message = FALSE,
   dev = "pdf",
-  ## fig.width = 7,
-  ## dev.args = list(pointsize = 6),
+  fig.width = 6.69,
+  fig.height = 6,
   fig.path = here::here(paste0(params$outdir, "/")),
   fig.ext = paste0(
     params$datasource,
@@ -55,9 +60,6 @@ library(scales)
 library(patchwork)
 ```
 
-```{r projections-viz-fixed-country-2 }
-source(here::here("analysis/common_plot_properties.R"))
-```
 ## Real-time R estimates
 
 Read in R estimates.
@@ -151,9 +153,11 @@ Read in the projections output.
 forecasts <- readr::read_csv(
   file = here::here(
     params$outdir,
-    "all_forecasts_consolidated.csv"
+    "all_forecasts_quantiles_consolidated.csv"
   )
 )
+forecasts$tproj <- as.integer(forecasts$tproj)
+forecasts$time_window <- as.integer(forecasts$time_window)
 
 forecasts <- filter(
   forecasts,
@@ -161,8 +165,6 @@ forecasts <- filter(
   time_window == params$twindow &
   n.dates.sim == params$n.dates.sim
 )
-forecasts$tproj <- as.integer(forecasts$tproj)
-forecasts$time_window <- as.integer(forecasts$time_window)
 
 ```
 Relabel factors to get nice facet labels.
@@ -189,7 +191,7 @@ Since we are going to take logs, maybe add 1 to everything.
 incid$incid <- incid$incid + 1
 forecasts <- dplyr::mutate_at(
   forecasts,
-  c("y", "ymin", "ymax"),
+  vars(`0%`:`100%`),
   ~ .x + 1
 )
 incid$source <- params$datasource
@@ -257,8 +259,8 @@ p <- p + geom_ribbon(
   data = forecasts,
   aes(
     x = date,
-    ymin = ymin,
-    ymax = ymax,
+    ymin = `2.5%`,
+    ymax = `97.5%`,
     group = tproj
   ),
   fill = "gray45",
@@ -269,7 +271,7 @@ p <- p + geom_line(
   data = forecasts,
   aes(
     x = date,
-    y = y,
+    y = `50%`,
     group = tproj
   ),
   col = "gray3"

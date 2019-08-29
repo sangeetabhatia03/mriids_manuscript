@@ -41,6 +41,7 @@ rquantiles <- purrr::map_dfr(rquantile_files,
       all_files[[datasource]]$stanfits_dir,
       x
     )
+    message("Reading ", x)
     out <- readRDS(x)
     out <- slice(out, n())
     out
@@ -61,7 +62,7 @@ rquantiles <- tidyr::separate(rquantiles,
   convert = TRUE
 )
 
-rquantiles <- select(
+rquantiles <- dplyr::select(
   rquantiles,
   -what,
   -var
@@ -147,7 +148,7 @@ rretro <- tidyr::separate(
               convert = TRUE
 )
 
-rretro <- select(
+rretro <- dplyr::select(
   rretro,
   -var
 )

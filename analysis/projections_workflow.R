@@ -140,6 +140,7 @@ purrr::pwalk(
 )
 
 ## Forward simulation.
+for(ndates in c(28, 42, 56)) {
 purrr::pwalk(
   pars,
   function(tproj, twindow) {
@@ -148,7 +149,7 @@ purrr::pwalk(
       params = list(
         tproj = tproj,
         twindow = twindow,
-        n.dates.sim = all_files[[datasource]]$n.dates.sim,
+        n.dates.sim = ndates,
         day0 = day0,
         indir =
           all_files[[datasource]]$stanfits_dir,
@@ -158,6 +159,7 @@ purrr::pwalk(
     )
   }
 )
+}
 
 ## Forecast metrics
 source(
