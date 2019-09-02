@@ -1,5 +1,5 @@
 book_filename: mriids_manuscript
-before_chapter_script: [rmd/figcaptions.R]
+before_chapter_script: [rmd/figcaptions.R, rmd/si_figcaptions.R]
 rmd_files: [
 "index.Rmd",
 "rmd/abstract.Rmd",
@@ -9,4 +9,8 @@ rmd_files: [
 "rmd/figures.Rmd",
 "rmd/references.Rmd",
 "rmd/method.Rmd",
-"rmd/assess.Rmd"]
+"rmd/assess.Rmd",
+"rmd/importation_risk.Rmd",
+"rmd/tables.Rmd",
+"rmd/figures.Rmd"
+]

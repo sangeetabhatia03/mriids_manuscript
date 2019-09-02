@@ -19,8 +19,6 @@ spacing: double
 bibliography: 
 biblio-style: apsr
 endnote: no
-fig_width: 8.7
-fig_height: 8
 params:
   twindow : 14
   n.dates.sim : 28
@@ -136,6 +134,18 @@ weekly_metrics <- dplyr::left_join(
   epidemic_phase,
   by = c("tproj", "twindow", "country")
 )
+```
+
+Check for NAs
+
+```{r}
+naci <- dplyr::filter(weekly_metrics, is.na(ci))
+out <- glue::glue(
+  "{params$datasource}_NA_ci_",
+  "{params$twindow}_{params$n.dates.sim}.csv"
+)
+readr::write_csv(x = naci, path = here::here(params$outdir, out))
+weekly_metrics <- dplyr::filter(weekly_metrics, !is.na(ci))
 ```
 
 Overall performace

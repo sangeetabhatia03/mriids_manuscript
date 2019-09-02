@@ -13,8 +13,8 @@ WHO data were aggregated to country level. The y-axis differs for each plot. (B)
 The mean time-varying reproduction number
 $R_t$ estimated using the WHO data (orange), ProMED (blue) and HealthMap (green) data.
 The shaded regions depicts the 95% credible intervals (95% CrI) for the $R_t$ estimates.
-The reproduction number was estimated on sliding windows of 28 days, using the  EpiEstim R
-package with a time window of 28 days. Estimates shown at time $t$ are for
+The reproduction number was estimated on sliding windows of 28 days, using the R
+package EpiEstim  [@cori2013new]. Estimates shown at time $t$ are for
 the 28-day window finishing on day t.")
 
 
@@ -86,17 +86,17 @@ alertscap <- fig_nums(
     caption = "Predicted weekly presence of cases in each country.
 The left panel shows the True and False alert rates using different
 thresholds for classification when forecasting ahead for 4 (blue), 6 (yellow),
-or 8 (pink) weeks .For a given threshold ($x^{th}$ percentile of the
+or 8 (pink) weeks. For a given threshold ($x^{th}$ percentile of the
 forecast interval), we defined a True alert for a week where the $x^{th}$ percentile of the
 the forecast interval and the observed incidence for a
 country were both greater than 0; false alert for a week where the threshold
 for a country was greater than 0 but the observed incidence
 for that country was 0; and missed alert: week where the threshold for a country was 0 but the
-observed incidence for that country was greater than 0. True alert rate is the fraction of correctly
-classified true alerts (i.e., (true alerts)/(true alerts + missed alerts).
-False alert rate is similarly the fraction of correctly classified false alerts.
-The right panel shows
-the True (green), False (yellow) and Missed (red) alerts using the 97.5th percentile of
+observed incidence for that country was greater than 0. True alert rate is the ratio of correctly
+classified true alerts to the total number of true and missed alerts (i.e., (true alerts)/(true alerts + missed alerts)).
+False alert rate is similarly the ratio of false alerts to the total number of false alerts and weeks of no alert (where the
+observed and the threshold incidence are both 0). The right panel shows
+the True (green), False (yellow) and Missed (red) alerts using the 97.5\textsuperscript{th} percentile of
 the forecast interval as threshold. The figure only shows countries on the African continent for which either the
 predicted incidence or the observed incidence was greater than 0 at least once.
 For each country, four rows are shown,
@@ -118,9 +118,9 @@ parscap <- fig_nums(
     name = "pstayandgamma",
     caption = "Estimates of mobility model parameters
 during the epidemic. Population movement was modelled using a gravity model
-where the flow between a location $i$ and $j$ is proportional to the product of their
+where the flow between locations $i$ and $j$ is proportional to the product of their
 populations and inversely population to the distance between them raised to an exponent
-$gamma$. The parameter gamma thus modulates the influence of distance between the population flow.
+$gamma$. The parameter gamma thus modulates the influence of distance on the population flow.
 $p_{stay}$ represents the probability of an individual to stay in a given location during their
 infectious period. The solid lines represents the median estimates obtained using WHO (yellow), ProMED (blue)
 and HealthMap (green) data. The shaded regions represent the 95% CrI.")
@@ -133,10 +133,11 @@ imp_risk_cite <- fig_nums(
 
 imp_risk_cap <- fig_nums(
     "pm_imp_risk_28",
-    caption = "Risk of importation of the epidemic. For each country with non-zero incidence,
+    caption = "Relative risk of importation of the epidemic. For each country with non-zero incidence,
 the figure shows the relative importation risk (see Methods). Since we forecasted every
-7\textsuperscipt{th} day, the risk of importation was estimated on a date on which forecasts were
-done that was closest to the date of first case in that country reported in the data used. The estimates presented here
+7 \textsuperscipt{th} day, the risk of importation was estimated using forecasts closest to and before the
+date of the first case in that country reported in the data used. The date on which risk was estimated for each country is
+shown in the figure. The estimates presented here
 use ProMED data with a 2 week window for inference. The country for which risk is estimated is shown in gray.
 Darker shades of red represent a higher relative risk. For each country, the figure shows only the risk of importation
 from other countries and does not show the risk of transmission within the country.")

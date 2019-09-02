@@ -354,11 +354,11 @@ graphs <- list(
 )
 purrr::map(countries, function(c) {
   cspecific <- purrr::map(graphs, ~ .x[[c]])
-  p <- ggpubr::ggarrange(plotlist = cspecific, nrow = 3, ncol = 2)
+  p <- ggpubr::ggarrange(plotlist = cspecific, nrow = 3, ncol = 2, labels = "auto", align = "hv", font.label = list(size = 6))
   ggplot2::ggsave(
     plot = p,
     filename = here::here(
-      glue::glue("data/output/figures_{params$outfile}_{c}.pdf")
+      glue::glue("analysis/figures/{params$outfile}_{c}.pdf")
     ),
     width = mriids_plot_theme$single_col_width,
     height = mriids_plot_theme$single_col_height,

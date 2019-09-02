@@ -14,13 +14,10 @@ fitfiles <- list.files(
 ## 2. Check convergence using ggmcmc
 for (fit in fitfiles) {
   outfile <- stringr::str_replace(fit, ".rds", ".pdf")
-  outfile <- paste0("ggmcmc/", outfile)
-  if (!file.exists(outfile)) {
-    fit1 <- readr::read_rds(fit)
-    S <- ggmcmc::ggs(fit1)
-    message("Does not exist ", outfile)
-    ggmcmc::ggmcmc(S, file = outfile)
-  }
+  fit1 <- readr::read_rds(fit)
+  S <- ggmcmc::ggs(fit1)
+  ggmcmc::ggmcmc(S, file = outfile)
+
 }
 
 
@@ -144,6 +141,12 @@ for(ndates in c(28, 42, 56)) {
 purrr::pwalk(
   pars,
   function(tproj, twindow) {
+    expect <- glue::glue("forecasts_{tproj}_{twindow}_{ndates}.csv")
+    expect <- here::here(all_files[[datasource]]$outdir, expect)
+    if (file.exists(expect)) {
+      message("Already exists ", expect)
+    } else {
+      message("Running for ", expect)
     rmarkdown::render(
       "analysis/projection_using_fitted.Rmd",
       params = list(
@@ -157,6 +160,7 @@ purrr::pwalk(
           all_files[[datasource]]$outdir
       )
     )
+    }
   }
 )
 }

@@ -83,10 +83,10 @@ for model calibration and a forecast horizon of 4 weeks are presented
 in the main text (alternative time windows in
 `r pm_28_28_cite` and `r pm_42_28_cite`). 
 Overall, using a 2-week time window for inference based on 
-ProMED data, and forecasting ahead for 4 weeks, 49% of observed 
+ProMED data, and forecasting ahead for 4 weeks, 48.7% of observed 
 incidence across all three countries in the forecast horizon 
 were included in the 95% forecast interval.  Using data from 
-Healthmap and WHO respectively, this figure was 62.75% and 73.5%.
+Healthmap and WHO respectively, this figure was 49.34% and 57.5%.
 We measured the robustness of the forecasts using relative mean 
 absolute error (see Methods for details). The mean value of
 relative mean absolute error over a 4 week forecast horizon was 4.84 

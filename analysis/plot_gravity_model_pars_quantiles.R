@@ -20,7 +20,7 @@ purrr::iwalk(
     all_qntls_by_tw,
     function(df, y) {
         outfile <- glue::glue(
-            "gravity_model_pars_{y}.pdf"
+            "{Sys.Date()}_gravity_model_pars_{y}.pdf"
         )
         outfile <- here::here("ms-figures", outfile)
         p <- ggplot(df) +
@@ -38,7 +38,7 @@ purrr::iwalk(
                  alpha = 0.3)
 
         p <- p + facet_wrap(~param,
-                            ncol = 1,
+                            ncol = 2,
                             scales = "free_y")
         p <- p + theme(
                      axis.text.x = element_text(
@@ -59,10 +59,10 @@ purrr::iwalk(
             plot = p,
             units = mriids_plot_theme$units,
             width = mriids_plot_theme$single_col_width,
-            height = mriids_plot_theme$single_col_height
+            height = mriids_plot_theme$single_col_height/2
         )
     }
-  )
+ )
 
 
 
