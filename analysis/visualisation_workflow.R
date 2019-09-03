@@ -96,19 +96,16 @@ source(
 )
 
 datasources <- c("ProMED", "WHO", "HealthMap")
-
+names(datasources) <- datasources
 for (idx in seq_len(nrow(pars))) {
   tw <- pars$tw[idx]
   ndates <- pars$ndates[idx]
-  for (place in places) {
-      message("Working on ", place, " : ", tw, " : ", ndates)
-      source(
-          here::here(
-             "analysis/projections_viz_all_datasources.R"
-          )
+  source(
+      here::here(
+          "analysis/projections_viz_all_datasources.R"
       )
-  }
- }
+    )
+}
 
 
 datasources <- c("ProMED", "WHO", "HealthMap")

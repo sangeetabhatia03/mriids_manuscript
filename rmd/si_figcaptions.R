@@ -68,108 +68,118 @@ log-linear interpolation (f). Interpolated points are show in light blue.
 See Methods for details.")
 
 ## ProMED
-pm_28_28_cite <- si_fig_nums(
-    name = "pm_28_28",
-    display = "cite"
+
+pm_14_42_cap <- si_fig_nums(
+    name = "pm_14_42",
+    caption = "Observed and predicted
+incidence, and reproduction number estimates from ProMED data.
+The top panel shows the weekly incidence derived from ProMED
+data and 6 weeks incidence forecast on log scale.
+The solid dots represent the observed weekly incidence where
+the light blue dots show
+weeks for which at least one data point was obtained using
+interpolation. The projections are made over 6 week windows, based on the
+reproduction number estimated in the previous 2 weeks.
+The middle figure in each panel shows the reproduction number
+used to make projections over each 4 week forecast horizon.
+The bottom figure shows the effective reproduction number estimated
+retrospectively using the full dataset up to the end.
+In each case, the solid gray line is the median
+estimate and the shaded region represents the 95% Credible Interval.
+The red horizontal dashed line indicates the $R_t = 1$ threshold.
+Results are shown for the three mainly affected countries although the
+analysis was done using data for all countries on African mainland.
+All figures in Sections 2, 3 and 4 of the Supplementary material follow
+the same layout and color convention. "
 )
 
-pm_28_28_cap <- si_fig_nums(
-    name = "pm_28_28",
-    caption = "Non-overlapping forecasts using ProMED data with 4 weeks
-  time window for calibration and 4 weeks forecast horizon."
-)
-
-pm_42_28_cite <- si_fig_nums(
-    name = "pm_42_28",
-    display = "cite"
-)
-
-pm_42_28_cap <- si_fig_nums(
-    name = "pm_42_28",
-    caption = "Non-overlapping forecasts using ProMED data with 6 weeks
-  time window for calibration and 4 weeks forecast horizon."
-)
-
-
-
-pm_model_perf_all_windows <- si_fig_nums(
-    name = "pm_model_perf_all_windows",
-    display = "cite"
-)
-
-pm_model_perf_all_windows_cap <- si_fig_nums(
-    name = "pm_model_perf_all_windows",
-    caption = "Model performance metrics for models using different
-widows for calibration."
-)
-
-model_perf_all_ds <- si_fig_nums(
-    name = "model_perf_all_ds",
-    display = "cite"
-)
-
-model_perf_all_windows_cap <- si_fig_nums(
-    name = "model_perf_all_ds",
-    caption = "Model performance metrics for models using different
-data sources."
-)
-
-## WHO
-## ds - datasource, tw - time window, fw - forecast window
-proj_fig_caption <- function(ds, tw, fw) {
+proj_fig_caption <- function(ds, tw, fw, name) {
     caption <- glue::glue(
-        "Non-overlapping projections using {ds} data with {tw} weeks window for inference and {fw} forecast horizon."
+        "Observed and predicted incidence, and reproduction number estimates from {ds} data.",
+        "The calibration window is {tw} weeks and the forecast horizon is {fw} weeks."
         )
-    name <- glue::glue("{ds}_{tw}_{fw}")
+
     out <- si_fig_nums(name = name, caption = caption)
     out
 }
 
+proj_fig_cite <- function(ds, tw, fw, name) {
+    out <- si_fig_nums(name = name, display = "cite")
+    out
+}
 
-
-
-rcorrcite <- si_fig_nums(
-    name = "rcorr",
-    display = "cite"
+pars <- expand.grid(
+    fw = c(4, 6, 8),
+    tw = c(2, 4, 6),
+    ds = c("ProMED", "HealthMap", "WHO"),
+    stringsAsFactors = FALSE
 )
-rcorrcap <- si_fig_nums(
-    name = "rcorr",
-    caption = "R estimates from ProMED,
-HealthMap and WHO data when using different time windows. (Top) Time
- window of 14 days. (Bottom) Time window of 42 days.
-The orange line depicts the identity function.")
+pars <- pars[-c(1, 2), ]
 
-who28cite <- si_fig_nums(
-    name = "who28",
-    display = "cite"
+proj_figcaps <- purrr::pmap(pars, function(fw, tw, ds) {
+    name <- glue::glue("{ds}_{tw}_{fw}")
+    proj_fig_caption(ds, tw, fw, name = name)
+  }
 )
 
-who28cap <- si_fig_nums(
-    name = "who28",
-    caption = "Observed and predicted
-incidence, and reproduction number estimates from the WHO data.
-The top panel shows the weekly incidence derived from the WHO
-data and the 4 weeks incidence forecast on log scale.
-The solid dots represent the observed weekly incidence.
-The projections are made over 4 week windows, based on the
-reproduction number estimated in the previous 2 weeks.
-The middle figure in each panel shows the reproduction number
-used to
-make projections over each 4 week projection window.
-The bottom figure shows the effective reproduction number estimated
-retrospectively using the full dataset up to the end.
-In each figure, the solid gray line is the median
-estimate and the shaded region represents the 95% CrI.")
-
-
-
-
-rcorr <- si_tab_nums(
-    name = "rcorr",
-    caption = "Pearson's correlation coefficients for
-correlation between effective time-varying reproduction number
-estimates from ProMED, HealthMap and WHO daily incidence data.
-The reproduction number was estimated on sliding windows of 28 days, using the  EpiEstim R
-package with a time window of 28 days. Estimates shown at time $t$ are for
-the 28-day window finishing on day $t$. All coefficients were statistically significant."
+proj_figcite <- purrr::pmap(pars, function(fw, tw, ds) {
+    name <- glue::glue("{ds}_{tw}_{fw}")
+    proj_fig_cite(ds, tw, fw, name = name)
+  }
 )
+
+pm_model_perf_all_windows <- si_fig_nums(
+    name = "pm_model_perf_all_windows",
+    caption = "Model performance metrics stratified by the time window used for
+model calibration. The performance metrics (anti-clockwise from top left) are
+bias, sharpness, relative mean absolute error (show on log scale) and
+the percentage of weeks for which the 95% forecast interval contained
+the observed incidence.")
+
+
+
+model_perf_all_ds <- si_fig_nums(
+    name = "model_perf_all_ds",
+    caption = "Model performance metrics stratified by datasource
+ProMED (blue), HealthMap (green), and WHO (yellow).
+The performance metrics (anti-clockwise from top left) are
+bias, sharpness, relative mean absolute error (show on log scale) and
+the percentage of weeks for which the 95% forecast interval contained
+the observed incidence.")
+
+
+
+
+pm10_params <- si_fig_nums(
+    name = "pm10_params",
+    caption = "Estimates of mobility model parameters
+during the epidemic. Population movement was modelled using a gravity model
+where the flow between locations $i$ and $j$ is proportional to the product of their
+populations and inversely population to the distance between them raised to an exponent
+$gamma$. The parameter gamma thus modulates the influence of distance on the population flow.
+Here $\\gamma$ is allowed to vary between 1 and 10. $p_{stay}$ represents the probability
+of an individual to stay in a given location during their
+infectious period. The solid lines represents the median estimates
+obtained using ProMED data. The shaded regions represent the 95% CrI."
+)
+
+pars <- expand.grid(
+    fw = c(4, 6, 8),
+    tw = c(2, 4, 6),
+    ds = "ProMED",
+    stringsAsFactors = FALSE
+)
+
+pm_figcaps <- purrr::pmap(pars, function(fw, tw, ds) {
+    name <- glue::glue("{ds}_{tw}_{fw}_10")
+    proj_fig_caption(ds, tw, fw, name = name)
+  }
+)
+
+model_perf_gamma <- si_fig_nums(
+    name = "model_perf_gamma",
+    caption = "Model performance metrics allowing $\\gamma$ to vary from
+1 to 2 or 10. The performance metrics (anti-clockwise from top left) are
+bias, sharpness, relative mean absolute error (show on log scale) and
+the percentage of weeks for which the 95% forecast interval contained
+the observed incidence.")

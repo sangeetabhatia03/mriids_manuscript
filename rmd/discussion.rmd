@@ -63,12 +63,12 @@ implemented throughout the growing phase to reduce transmissibility,
 leading to a reduced observed incidence compared to our model’s 
 expectation. In the declining phase on the other hand, our model 
 tended to under-predict the observed incidence. This could be
-explained by super-spreading, a phenomenon, observed in many epidemics 
+explained by super-spreading, a phenomenon observed in many epidemics 
 including Ebola epidemics [@lau2017spatial], [@agua2016exposure] 
 whereby a small number of cases generate a 
 large number of secondary infections, implying that when case numbers 
 are small, epidemic trajectory may be difficult to predict and not
-well described by our Poisson likelihood. Models using more complex 
+well described by Poisson likelihood. Models using more complex 
 likelihoods, e.g. using Negative Binomial distributions, should be 
 explored in future work, but will present additional challenges as 
 analytical results underpinning the estimation of the reproduction 
@@ -78,7 +78,7 @@ Such variability in model performance throughout an epidemic could
 have important implications if the model predictions are used to inform resource
 allocation. Model estimates should therefore be interpreted with caution, 
 particularly as an outbreak is observed to be declining, and if the 
-projection horizon is long.
+forecast horizon is long.
  
 For the West African Ebola epidemic, ProMED and HealthMap data were 
 available at a coarse spatial scale with the district level

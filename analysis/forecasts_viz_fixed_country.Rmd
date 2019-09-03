@@ -38,8 +38,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
   dev = "pdf",
-  fig.width = 6.69,
-  fig.height = 6,
+  fig.width = mriids_plot_theme$double_col_width / 2.5,
+  fig.height = mriids_plot_theme$double_col_height / 2.5,
   fig.path = here::here(paste0(params$outdir, "/")),
   fig.ext = paste0(
     params$datasource,
@@ -214,7 +214,7 @@ forecasts <- dplyr::filter(
 
 ```{r}
 rused <- dplyr::ungroup(rused)
-rused <- filter(
+rused <- dplyr::filter(
     rused,
     tproj %in% non_overlapping
 )
@@ -284,12 +284,16 @@ p <- p +
   xlab("") +
   ylab("log(weekly incidence)")
 
+## p <- p +
+##   scale_x_date(
+##     date_breaks = "3 month",
+##     labels = date_format("%b %Y")
+##   ) +
+##   theme(axis.text.x = element_text(angle = 90, hjust = 0))
+
 p <- p +
-  scale_x_date(
-    date_breaks = "3 month",
-    labels = date_format("%b %Y")
-  ) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 0))
+    scale_x_date(labels = mriids_plot_theme$dateformat) +
+    mriids_plot_theme$xticklabels
 
 p <- p + facet_wrap(~country, nrow = 1, scales = "fixed")
 p <- p +
@@ -329,13 +333,13 @@ pretro <- pretro + geom_hline(
 )
 
 pretro <- pretro + xlab("") + ylab(expression(R[retrospective]))
-pretro <- pretro +
-  scale_x_date(
-    date_breaks = "3 month",
-    labels = date_format("%b %Y")
-  )
-pretro <- pretro +
-  theme(axis.text.x = element_text(angle = 90, hjust = 0))
+pretro <- pretro + scale_x_date(labels = mriids_plot_theme$dateformat)
+  ## scale_x_date(
+  ##   date_breaks = "3 month",
+  ##   labels = date_format("%b %Y")
+  ## )
+## pretro <- pretro +
+##   theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
 pretro <- pretro +
   facet_wrap(~country, nrow = 1, scales = "free_y")
@@ -385,11 +389,11 @@ preal <- preal + geom_hline(
 )
 
 preal <- preal + xlab("") + ylab(expression(R[t - 1]))
-preal <- preal +
-  scale_x_date(
-    date_breaks = "3 month",
-    labels = date_format("%b %Y")
-  )
+preal <- preal + scale_x_date(labels = mriids_plot_theme$dateformat)
+  ## scale_x_date(
+  ##   date_breaks = "3 month",
+  ##   labels = date_format("%b %Y")
+  ## )
 ## Force x-axis to begin from the time we have incidence date
 ## so that maps are better aligned.
 
@@ -453,13 +457,8 @@ pboth <- pboth + geom_hline(
 )
 
 pboth <- pboth + xlab("") + ylab("")
-pboth <- pboth +
-  scale_x_date(
-    date_breaks = "3 month",
-    labels = date_format("%b %Y")
-  )
-pboth <- pboth +
-    theme(axis.text.x = element_text(angle = 90, hjust = 0))
+pboth <- pboth + scale_x_date(labels = mriids_plot_theme$dateformat)
+pboth <- pboth + mriids_plot_theme$xticklabels     
 
 pboth
 ```
@@ -490,8 +489,8 @@ pall
 pall2 <- p +
   preal +
   pretro +
-  plot_layout(nrow = 3, heights = c(2, 1, 1)) &
-  theme(axis.text.x = element_text(angle = 90, hjust = 0))
+  plot_layout(nrow = 3, heights = c(2, 1, 1)) 
+##  theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
 pall2
 ```

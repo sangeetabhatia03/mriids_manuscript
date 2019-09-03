@@ -20,20 +20,35 @@ in ProMED/HealthMap data is associated with a unique alert id.  Where
 multiple records were associated with the same alert id, we merged
 them by assigning the median of the case numbers to the record. 
 
++ To remove outliers at the end of the cumulative case count, we used
+Chebyshev inequality with sample mean [@saw1984chebyshev]. Given a set
+of observations $X_1, X_2 \dots X_n$, the formulation of Chebyshev 
+inequality by Saw et al. gives the probability that the 
+observation $X_{n+1}$ is within given sample standard deviations 
+of the sample mean. We defined $X_{n + 1}$ to be an
+outlier if the probability of observing this point given observations 
+$X_1, X_2 \dots X_n$ is less than 0.5.  Fixing this probability
+allowed us to determine $k$ such that
+\[ Pr(\mu - k \sigma \leq X_{n + 1} \leq \mu + k \sigma) \geq 0.5, \]
+where $\mu$ and $\sigma$ are the sample mean and sample standard
+deviation respectively. We deleted an observation $X_{n + 1}$ 
+as an outlier if it did lie in this interval.
+
 + In some instances, cumulative case count was inconsistent in that it
 failed to be monotonically increasing. We identified consecutive dates
-( $t_k$ and $t_{k + 1}$ where the cumulative case count was not
+($t_k$ and $t_{k + 1}$) where the cumulative case count was not
 increasing. If removing either $t_k$ or $t_{k + 1}$ made the
 cumulative case count increasing, we adopted this option. If however
 removing either both or none of them resulted in a increasing series,
 we removed both $t_k$ and $t_{k + 1}$. These rules were applied
 iteratively until the cumulative case count was consistent.
 
+
 + Finally, cumulative incidence on days with no records was
 filled in using log-linear interpolation. 
 
 An example of the pre-processing of ProMED feed is presented in the 
-supplementary text (`r si_fig_nums("pm_preprocessing")`).
+supplementary text (`r si_fig_nums("pm_data_clean", display = "c")`).
 
 ## Data collated by WHO
 
@@ -165,7 +180,7 @@ where $\lambda_{j}^{t}$ is given by
 \end{equation}
 where $T$ is the duration of the outbreak so far.
 
-Thus the likelihood of the parameters is proportional to
+The likelihood of the parameters is 
 
 \[\mathcal{L} = P \left({\langle I_{j}^{t} \rangle}_{j = 1, 2 \dots n}
  \mid p_{stay}, \gamma, {\langle R_{j}^{t} \rangle}_{j = 1, 2 \dots n}\right) = 
@@ -196,8 +211,8 @@ within a time window, we estimated  a single reproduction number for
 each location. We varied the length of this
 time window to obtain different models, with short time windows 
 increasing the number of parameters in the model. A comparison of the
-different models is presented in Results 
-(`r si_fig_nums("pm_model_perf_all_windows")`).
+performance of different models is presented in the Supplementary Material
+(`r si_fig_nums(name = "pm_model_perf_all_windows", display = "c")`).
 
 We assumed a Gamma distributed serial interval with mean 14.2 
 days and standard deviation 9.6 days [@team2015west]. 

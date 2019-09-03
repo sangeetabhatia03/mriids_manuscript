@@ -8,7 +8,7 @@
   surveillance tools (ProMED and HealthMap) to forecast short term 
   incidence trend in a spatially explicit manner. The model was  
   validated using data collected by ProMED and
-  HealthMap during the 2014-2016 West African Ebola epidemic
+  HealthMap during the 2013-2016 West African Ebola epidemic
   providing a realistic appraisal of the strengths and limitations
   of using such data for incidence forecasting. Our approach 
   should allow to forecast the risk of spatial spread of 

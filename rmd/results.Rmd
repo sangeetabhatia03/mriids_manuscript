@@ -28,23 +28,22 @@ epidemic, we estimated the time-varying transmissibility, measured by
 the reproduction number $R_t$ (the average number of secondary cases 
 infected by each individual infected at time $t$),
 using the incidence from each of the three data sources 
-`r fig_nums("incidrcompare", display = "c")`. 
+(`r fig_nums("incidrcompare", display = "c")`). 
 $R_t$ was estimated independently for each country using 
 the R package EpiEstim [@cori2013new] with a sliding time window of 4
 weeks. There were substantial differences in the estimates of the $R_t$ 
 according to the incidence data source used (Figure 1B). 
-The correlation between the mean R estimates on sliding 4-week windows 
+The correlation between the median R estimates on sliding 4-week windows 
 from ProMED or HealthMap data with the estimates from WHO data varied 
 from weak (0.27, between reproduction number from WHO and ProMED in 
 Guinea ) to very strong (0.81, between reproduction number from WHO
-and HealthMap in Sierra Leone, see `r si_tab_nums("rcorr", display = "c")`).
+and HealthMap in Sierra Leone, `r si_tab_nums("corr_coeffs", display = "c")`).
 
 Since HealthMap uses ProMED alerts in addition to other online data 
 sources, ProMED represents the more conservative data source between the 
 two. Therefore we present the results based on ProMED data in the main
 text. The analysis based on HealthMap and WHO data are presented in the 
-Supplementary Information (SI) (sections 
-`r hm_section` and `r who_section`).
+Supplementary Information (SI) (`r hm_section` and `r who_section`).
 
 In the following, we use ProMED data as our main data source, 
 unless otherwise specified. 
@@ -52,21 +51,21 @@ unless otherwise specified.
 
 ## Short term forecasts
 
-To forecast incidence at time $t$ in location $j$ ($I_{j, t}$), 
+To forecast incidence at time $t$ in location $j$ ($I_{j}^{t}$), 
 we fitted a spatially explicit branching process model to the daily
 incidence in all locations up to 
 $t - 1$, using an extension of the renewal equation as the likelihood 
 [@fraser2007estimating]:
 
 \begin{equation}
-I_{j, t} \sim Poisson\left(\sum_{i = 1}^n\left({p_{i \rightarrow j} R_{i, t}
-\sum_{s = 1}^t{I_{i, t - s} \omega_s}}\right)\right)
+I_{j}^{t} \sim Poisson\left(\sum_{i = 1}^n\left({p_{i \rightarrow j} R_{i}^{t}
+\sum_{s = 1}^t{I_{i}^{t - s} \omega_s}}\right)\right)
 (\#eq:model)
 \end{equation}
 
 where the matrix $p_{i \rightarrow j}$ characterises the spatial
 spread between locations $i$ and $j$ based on a gravity model
-[@zipf1946p]. $R_{i, t}$ (the reproduction number) reflects 
+[@zipf1946p]. $R_{i}^{t}$ (the reproduction number) reflects 
 transmissibility in location $i$ at time $t$, and $\omega$ is the
 typical infectiousness profile of a case over time after infection 
 (see Methods for details).
@@ -74,14 +73,14 @@ typical infectiousness profile of a case over time after infection
 The ability of the model to robustly predict future outbreak
 trajectory depended on the 
 data source (see `r pm28cite` for forcasts using ProMED data and 
-`r section_nums("healthmap")` and `r section_nums("who")` 
+`r hm_section` and `r who_section` 
 for HealthMap and WHO data respectively. A comparison of the forecasts
 using the three data sources is shown in `r all_ds_14_28_cite`) 
 as well as on the time window used for inference and 
 the time horizon used for predictions. Results using a 2-week window
 for model calibration and a forecast horizon of 4 weeks are presented
 in the main text (alternative time windows in
-`r pm_28_28_cite` and `r pm_42_28_cite`). 
+`r proj_figcite[[2]]` and `r proj_figcite[[5]]`). 
 Overall, using a 2-week time window for inference based on 
 ProMED data, and forecasting ahead for 4 weeks, 48.7% of observed 
 incidence across all three countries in the forecast horizon 
@@ -154,7 +153,8 @@ windows, and thus parameters, over the course of the epidemic
 increases with shorter time windows. A comparison of 
 performance metrics of the model using 
 different window sizes
-(`r pm_model_perf_all_windows`) suggest that overall, the 
+(`r si_fig_nums(name = "pm_model_perf_all_windows", display = "cite")`) 
+suggest that overall, the 
 length of the time window used to estimate $R_t$ did not have a
 significant impact on the model performance. 
 
@@ -167,7 +167,7 @@ in advance (`r alertscite`).
 For any given threshold (percentile of the forecasts interval), we
 classified an alert for a given week as either a true alert (if both 
 the observed and projected incidence in that week were non-zero), 
-a false alert (if the forecasted incidence is non-zero observed 
+a false alert (if the forecasted incidence was non-zero and observed 
 incidence was zero), or a missed alert (if observed incidence was non 
 zero but the projected incidence was zero). The ROC curve 
 (`r alertscite`A) shows that at all thresholds, the model achieves 
@@ -177,7 +177,7 @@ base the alert on the upper limit of the 95% forecasts interval.
 With this threshold, the sensitivity of the model is 99.6% and the 
 specificity is 15%. In several 
 instances, a single false alert or a string of false alerts is
-followed by a true alert ((`r alertscite`B)
+followed by a true alert (`r alertscite`B)
 suggesting that the model is able to capture and even anticipate the 
 spatial spread of the epidemic. For instance, in July 2014, a false 
 alert is raised in Nigeria and cases are in fact observed in Nigeria

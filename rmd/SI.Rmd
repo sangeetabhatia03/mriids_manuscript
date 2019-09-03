@@ -1,0 +1,352 @@
+---
+output:
+    word_document:
+citation_package: natbib
+fig_caption: no
+title: >- 
+  Supplement for: Using Digital Surveillance Tools for 
+  Near Real-Time Mapping of the Risk of International Infectious Disease
+  Spread: A Case Study
+author: "Sangeeta Bhatia, Britta Lassmann, Emily Cohn, Moritz Kraemer, Mark Herringer, John Brownstein, Larry Madoff, Anne Cori, Pierre Nouvellet"
+affiliation: Imperial College London
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+biblio-style: apsr
+endnote: no
+number_sections: yes
+toc: yes
+---
+
+```{r echo = FALSE}
+source("si_figcaptions.R")
+```
+## Overview
+
+In this supplement, we present the details of the pre-processing of
+ProMED and HealthMap feeds `r dataclean_section`, 
+the model results using ProMED, HealthMap
+and WHO data and the impact of the datasources and model parameters on
+the performance of the model. 
+We varied the length of the time window used for model fitting (see
+Methods for details). `r pm_section`, `r hm_section` and
+`r who_section` present the forecasts using ProMED, HealthMap and WHO
+data respectively using different time windows (2, 4 and 6 weeks) 
+and forecast horizons (4, 6 and 8 weeks). The time window did not have
+a strong influence on the model performance 
+(`r pm_model_perf_all_windows`). Similarly, the data used also did not
+influence the model performance (`r model_perf_all_ds`). Finally, in
+the absence of any other information to estimate the parameters of the
+gravity model, we choose an uninformative uniform prior for the
+parameter $\gamma$. We explored if allowing $\gamma$ to vary from 0 to
+10 impacted the results from the model. The results of this sensitivity analysis
+are presented in `r gamma_ul_section`.
+
+## Data cleaning
+
+```{r echo = FALSE, fig.cap = pm_data_clean, fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/27062019_promed_loglinear_Sierra Leone.pdf"))
+```
+
+### Correlation between R estimates 
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+coeffs <- readr::read_csv(
+  file = here::here(
+    "data/output",
+    "Rt_median_who_pm_hm_correlation.csv"
+  )
+)
+
+coeffs <- dplyr::select(coeffs, country:HealthMap_ProMED)
+```
+
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+ft <- flextable::flextable(coeffs)
+ft <- flextable::set_caption(ft, corr_coeffs)
+ft <- flextable::autofit(ft)
+ft
+```
+
+## Forecasts using ProMED data
+### Calibration window of 2 weeks
+#### Forecast horizon 6 weeks
+
+```{r echo = FALSE, fig.cap = pm_14_42_cap, fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_14_42.pdf"))
+```
+
+### Forecast horizon 8 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[1]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_14_56.pdf"))
+```
+
+### Calibration window of 4 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[2]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_28.pdf"))
+```
+
+
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[3]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_42.pdf"))
+```
+
+
+#### Forecast horizon 8 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[4]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_56.pdf"))
+```
+
+### Calibration window of 6 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[5]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_28.pdf"))
+```
+
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[6]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[7]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_56.pdf"))
+```
+
+
+## Forecasts using HealthMap data
+### Calibration window of 2 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[8]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_28.pdf"))
+```
+
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[9]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[10]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_56.pdf"))
+```
+
+### Calibration window of 4 weeks
+#### Forecast horizon 4 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[11]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_28.pdf"))
+```
+
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[12]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[13]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_56.pdf"))
+```
+
+
+### Calibration window of 6 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[14]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_28.pdf"))
+```
+
+#### Forecast horizon 6 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[15]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[16]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_56.pdf"))
+```
+
+
+## Forecasts using WHO data
+### Calibration window of 2 weeks
+
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[17]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_28.pdf"))
+```
+
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[18]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[19]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_56.pdf"))
+```
+
+### Calibration window of 4 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[20]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_28.pdf"))
+```
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[21]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[22]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_56.pdf"))
+```
+
+### Calibration window of 6 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[23]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_28.pdf"))
+```
+
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[24]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+
+```{r echo = FALSE, fig.cap = proj_figcaps[[25]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_56.pdf"))
+```
+
+# Impact of time window on model performance
+
+```{r echo = FALSE, fig.align = "center", fig.cap = pm_model_perf_all_windows}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/forecasts-assess-by-time-window-13-1.ProMED_28_assess_by_twindow.pdf"))
+```
+
+
+# Impact of datasource on model performance
+
+
+```{r echo = FALSE,  fig.align = "center", fig.cap = model_perf_all_ds}
+knitr::include_graphics(here::here("ms-figures/si-figures/other/forecasts-assess-by-datasource-6-1.pdf"))
+```
+
+# Sensitivity Analysis
+## Forecasts using ProMED data
+## Mobility Model Parameters
+
+```{r echo = FALSE, fig.cap = pm10_params, fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/gravity_model_pars_14.pdf"))
+```
+
+### Calibration window of 2 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[1]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_28.pdf"))
+```
+
+
+#### Forecast horizon 6 weeks
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[2]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_42.pdf"))
+```
+
+
+
+#### Forecast horizon 8 weeks
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[3]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_56.pdf"))
+```
+
+### Calibration window of 4 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[4]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_28.pdf"))
+```
+
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[5]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[6]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_56.pdf"))
+```
+
+### Calibration window of 6 weeks
+#### Forecast horizon 4 weeks
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[7]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_28.pdf"))
+```
+
+#### Forecast horizon 6 weeks
+
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[8]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_42.pdf"))
+```
+
+#### Forecast horizon 8 weeks
+
+```{r echo = FALSE, fig.cap = pm_figcaps[[9]], fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_56.pdf"))
+```
+
+## Model performance with alternate priors for mobility model parameter
+
+```{r echo = FALSE, fig.cap = model_perf_gamma, fig.align = "center"}
+knitr::include_graphics(here::here("ms-figures/si-figures/ProMED/sensitivity_analyses/forecasts_assess_by_gamma_ul.pdf"))
+```
+

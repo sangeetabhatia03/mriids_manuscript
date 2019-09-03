@@ -107,19 +107,18 @@ p <- ggplot(
       labels = yaxis_levels$country
     )
 
-p <- p + mriids_plot_theme$onecol_theme +
+p <- p + mriids_plot_theme$theme +
     mriids_plot_theme$legend +
     theme(
         axis.text.y = element_text(
             angle = 90,
-            hjust = 0.5
-        ),
-        axis.text.x = element_text(
-            angle = 0
+            hjust = 0.5,
+            size = 6
         )
-    ) +
-  scale_x_date(date_breaks = "3 months") +
-  xlab("") + ylab("")
+    )  +
+    scale_x_date(labels = mriids_plot_theme$dateformat) +
+    mriids_plot_theme$xticklabels +
+    xlab("") + ylab("")
 
 ## Week labels on the right
 forced_y_level$date <- max(df_to_plot$date_of_projection) + 2
@@ -183,12 +182,11 @@ palette <- c(
 
 roc_p <- ggplot(df, aes(x = fpr, y = tpr)) +
         geom_line(aes(col = n.dates.sim))
-
 roc_p <- roc_p + xlim(0, 1) + ylim(0, 1)
 roc_p <- roc_p + xlab("False Positive Rate") + ylab("True Positive Rate")
 roc_p <- roc_p + geom_abline(slope = 1, intercept = 0, alpha = 0.3)
 roc_p <- roc_p + scale_color_manual(values = palette)
-roc_p <- roc_p + mriids_plot_theme$onecol_theme
+roc_p <- roc_p + mriids_plot_theme$theme
 roc_p <- roc_p + mriids_plot_theme$legend
 
 plot <- cowplot::plot_grid(
@@ -208,7 +206,7 @@ filename <- here::here(all_files[[datasource]]$outdir, filename)
 cowplot::save_plot(
     filename = filename,
     plot,
-    base_height = mriids_plot_theme$double_col_height / 5,
+    base_height = mriids_plot_theme$one_n_half_col_height / 2.5,
     base_width = mriids_plot_theme$double_col_width / 2.5
 )
 

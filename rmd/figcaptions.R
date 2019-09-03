@@ -10,11 +10,11 @@ estimates from ProMED, HealthMap and WHO data for Guinea, Liberia and Sierra Leo
 Daily incidence that was not directly available from ProMED and HealthMap data and
 which were therefore imputed (see Methods) are shown in lighter shade of blue and green respectively.
 WHO data were aggregated to country level. The y-axis differs for each plot. (B)
-The mean time-varying reproduction number
+The median time-varying reproduction number
 $R_t$ estimated using the WHO data (orange), ProMED (blue) and HealthMap (green) data.
 The shaded regions depicts the 95% credible intervals (95% CrI) for the $R_t$ estimates.
 The reproduction number was estimated on sliding windows of 28 days, using the R
-package EpiEstim  [@cori2013new]. Estimates shown at time $t$ are for
+package EpiEstim [@cori2013new]. Estimates shown at time $t$ are for
 the 28-day window finishing on day t.")
 
 
@@ -96,7 +96,7 @@ observed incidence for that country was greater than 0. True alert rate is the r
 classified true alerts to the total number of true and missed alerts (i.e., (true alerts)/(true alerts + missed alerts)).
 False alert rate is similarly the ratio of false alerts to the total number of false alerts and weeks of no alert (where the
 observed and the threshold incidence are both 0). The right panel shows
-the True (green), False (yellow) and Missed (red) alerts using the 97.5\textsuperscript{th} percentile of
+the True (green), False (yellow) and Missed (red) alerts using the 97.5\\textsuperscript{th} percentile of
 the forecast interval as threshold. The figure only shows countries on the African continent for which either the
 predicted incidence or the observed incidence was greater than 0 at least once.
 For each country, four rows are shown,
@@ -120,7 +120,7 @@ parscap <- fig_nums(
 during the epidemic. Population movement was modelled using a gravity model
 where the flow between locations $i$ and $j$ is proportional to the product of their
 populations and inversely population to the distance between them raised to an exponent
-$gamma$. The parameter gamma thus modulates the influence of distance on the population flow.
+$\\gamma$. The parameter $\\gamma$ thus modulates the influence of distance on the population flow.
 $p_{stay}$ represents the probability of an individual to stay in a given location during their
 infectious period. The solid lines represents the median estimates obtained using WHO (yellow), ProMED (blue)
 and HealthMap (green) data. The shaded regions represent the 95% CrI.")
@@ -135,7 +135,7 @@ imp_risk_cap <- fig_nums(
     "pm_imp_risk_28",
     caption = "Relative risk of importation of the epidemic. For each country with non-zero incidence,
 the figure shows the relative importation risk (see Methods). Since we forecasted every
-7 \textsuperscipt{th} day, the risk of importation was estimated using forecasts closest to and before the
+7 \\textsuperscipt{th} day, the risk of importation was estimated using forecasts closest to and before the
 date of the first case in that country reported in the data used. The date on which risk was estimated for each country is
 shown in the figure. The estimates presented here
 use ProMED data with a 2 week window for inference. The country for which risk is estimated is shown in gray.

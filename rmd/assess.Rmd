@@ -7,7 +7,7 @@ robustness of the projected incidence, the uncertainty associated
 with the forecasts (e.g., measured by the width of the prediction
 interval) is an important indicator of model performance. A 
 narrow prediction interval that contains the observed values
-is preferable over wide prediction intervals. To asses the 
+is preferable over wide prediction intervals. To assess the 
 performance of the model along both these dimensions, 
 we used four different metrics drawn from the literature.
 
@@ -16,13 +16,9 @@ For a location \(j\), let $I_{j}^{t}$ be the observed incidence
 at time \(t\) and let 
 \(\hat{I}_{j}^{t}\) be the set of predictions of the model at 
 time \(t\). 
-That is, $\(\hat{I}_{j}^{t}\) = 
-\{
-\(\hat{I}_{j}^{t, 1}\), 
-\(\hat{I}_{j}^{t, 2}\), 
-\dots
-\(\hat{I}_{j}^{t, N}\), 
-\}\) is the set of
+That is, \(\hat{I}_{j}^{t}\) = 
+$\{\hat{I}_{j}^{t, 1},  \hat{I}_{j}^{t, 2}, \dots \hat{I}_{j}^{t,N}\}$
+is the set of
 \(N\) draws from the Poisson distribution with mean 
 \(\lambda_{j}^{t}\)  \@ref(eq:lambdajt) (here N = 1000).
 
@@ -60,7 +56,7 @@ The sharpness  \(s_{j}^{t}\) of forecasts at at time \(t\) at location \(j\)
 is
 \[
 s_{j}^{t}(\hat{I}_{j}^{t}) = 
-mean(\left | \frac{\hat{I}{j}^{t, s}  - median(\hat{I}_{j}^{t})}{median(\hat{I}_{j}^{t})} 
+mean(\left | \frac{\hat{I}_{j}^{t, s}  - median(\hat{I}_{j}^{t})}{median(\hat{I}_{j}^{t})} 
 \right |).\]
 
 We add 1 to $\hat{I}_{j}^{t}$ to prevent division by 0.

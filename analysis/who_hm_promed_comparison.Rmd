@@ -28,6 +28,12 @@ params:
   hmdaily: data/processed/19022019_healthmap_loglinear_tall.csv
   whodaily: data/processed/15032019_who_bycountry_tall.csv
 ---
+
+
+```{r who-hm-promed-comparison-2 }
+source(here::here("analysis/common_plot_properties.R"))
+```
+
 ```{r who-hm-promed-comparison-1, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
@@ -35,7 +41,8 @@ knitr::opts_chunk$set(
   message = FALSE,
   dev = "pdf",
   dpi = 300,
-  fig.width = 7,
+  fig.width = mriids_plot_theme$double_col_width / 2.5,
+  fig.height = mriids_plot_theme$double_col_width / 5,
   ## dev.args = list(pointsize = 6),
   fig.path = "figures/"
 )
@@ -51,10 +58,6 @@ library(ggpubr)
 ```
 
 
-
-```{r who-hm-promed-comparison-2 }
-source(here::here("analysis/common_plot_properties.R"))
-```
 
 ## Comparison of daily incidence trends
 
@@ -125,6 +128,9 @@ p_daily <- p_daily +
   xlab("") +
   ylab("Daily Incidence")
 
+p_daily <- p_daily +
+    scale_x_date(labels = mriids_plot_theme$dateformat) +
+    mriids_plot_theme$xticklabels
 # p_daily <- p_daily +
 #   ##     theme(axis.text.x = element_text(angle = -10, hjust = 0)) +
 #   scale_x_date(
@@ -659,6 +665,8 @@ p <- p +
     linetype = "dashed"
   )
 
+p <- p + scale_x_date(labels = mriids_plot_theme$dateformat) +
+     mriids_plot_theme$xticklabels
 ## Add correlation coefficient
 ## median_coeffs <- mutate_if(
 ##   median_coeffs,
@@ -706,7 +714,7 @@ p_all
 ggplot2::ggsave(
   filename = here::here(
     "ms-figures",
-    "who-hm-promed-comparison.pdf"
+    glue::glue("{Sys.Date()}_who-hm-promed-comparison.pdf")
   ),
   plot = p_all,
   width = mriids_plot_theme$double_col_width,
