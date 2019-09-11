@@ -30,13 +30,13 @@ measure of model accuracy  [@tofallis2015better].
 The relative mean absolute error for the forecasts
 at a location \(j\) at time \(t\) is defined as:
 
-\[
+\begin{equation*}
   rmae_{j}^{t}(I_{j}^{t}, \hat{I}_{j}^{t}) = 
  \frac{
  \sum_{s = 1}^N{\lvert I_{j}^{t} - \hat{I}_{j}^{t, s} \rvert}
  }
  { N *  (I_{j}^{t} + 1)}.
- \]
+\end{equation*}
 That is the mean absolute error at time \(t\) is averaged 
 across all
 simulated incidence trajectories and normalised by the observed
@@ -54,10 +54,15 @@ we used the relative mean
 absolute deviation about the median (MADM) to evaluate sharpness.
 The sharpness  \(s_{j}^{t}\) of forecasts at at time \(t\) at location \(j\)
 is
-\[
+
+\begin{equation*}
 s_{j}^{t}(\hat{I}_{j}^{t}) = 
-mean(\left | \frac{\hat{I}_{j}^{t, s}  - median(\hat{I}_{j}^{t})}{median(\hat{I}_{j}^{t})} 
-\right |).\]
+mean 
+\left(
+\frac{\lvert \hat{I}_{j}^{t, s} - median(\hat{I}_{j}^{t}) \rvert} 
+{median(\hat{I}_{j}^{t})} 
+\right).
+\end{equation*}
 
 We add 1 to $\hat{I}_{j}^{t}$ to prevent division by 0.
 A sharpness score of $k$ indicates that the avergae deviation of the predicted incidence
@@ -73,19 +78,22 @@ The bias of a set
 of predictions \(\hat{I}_{j}^{t}\) 
 at time \(t\) at location \(j\) is defined as
 
-\[
+\begin{equation*}
 b_{j}^{t}(I_{j}^{t}, \hat{I}_{j}^{t}) = 
-2(mean(H(\hat{I}_{j}^{t} - I_{j}^{t})) - 0.5),\]
+2 \left( mean \left( H \left (\hat{I}_{j}^{t, s} - I_{j}^{t} \right)
+\right) - 0.5 \right),
+\end{equation*}
 
 where the mean is taken across the \(N\) draws.
 \(H(x)\) is the Heaviside step function defined as
-\[
+
+\begin{equation*}
 H(x) = \begin{cases} 
 0 & \text{ if } x < 0 \\ 
 1 & \text{ if } x > 0 \\
 0.5 & \text{ if } x = 0. 
 \end{cases} 
-\]
+\end{equation*}
 
 The above formulation can better be understood by considering 
 the following extreme scenarios. If every projected value 

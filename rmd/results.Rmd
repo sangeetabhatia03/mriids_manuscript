@@ -210,14 +210,12 @@ accumulating data throughout the course of the epidemic allows
 estimating such parameters more precisely. 
 
 Finally, we quantify the relative risk of importation of a case into a country
-from any other country currently affecred. The risk of importation is
+from any other currently affected country. The risk of importation is
 proportional to the population flow into a country (from all other
 countries) estimated using a mobility model (here, gravity model)
-weighted by the infectivity at the source (see Methods). Estimates of
-the risk of importation could be particularly valuable in the
-early phase of an outbreak to guide policy. Our estimates
+weighted by the infectivity at each country (see Methods). Our estimates
 of the countries with higher risk of acting as source of importations
 are largely consistent with the reported source of cases. For
-instance,  in May 2014,
-the risk of importation into Sierra Leone is concentrated in Guinea 
-(`r imp_risk_cite`). 
+instance, in May 2014 the risk of importation into Sierra Leone is concentrated in Guinea 
+(`r imp_risk_cite`) which agrees with the observed importation of
+cases from Guinea into Sierra Leone [@gire2014genomic]. 

@@ -34,7 +34,7 @@ indirs <- purrr::map(
 )
 infiles <- purrr::map(
     indirs,
-    ~ here::here(.x, "all_forecasts_consolidated.csv")
+    ~ here::here(.x, "all_forecasts_quantiles_consolidated.csv")
 )
 names(infiles) <- datasources
 
@@ -50,9 +50,9 @@ forecasts$country <- forcats::fct_recode(forecasts$country,
 
 forecasts <- dplyr::mutate_at(
   forecasts,
-  c("y", "ymin", "ymax"),
+  vars(`0%`:`100%`),
   ~ .x + 1
-)
+ )
 
 non_overlapping <- seq(
   from = min(forecasts$tproj),
@@ -91,8 +91,8 @@ p <- p + geom_ribbon(
   data = forecasts,
   aes(
     x = date,
-    ymin = ymin,
-    ymax = ymax,
+    ymin = `2.5%`,
+    ymax = `97.5%`,
     group = interaction(
         tproj,
         datasource),
@@ -106,7 +106,7 @@ p <- p + geom_line(
   data = forecasts,
   aes(
     x = date,
-    y = y,
+    y = `50%`,
     group = interaction(
         tproj,
         datasource),
@@ -125,12 +125,6 @@ p <- p +
   xlab("") +
   ylab("log(weekly incidence)")
 
-p <- p +
-  scale_x_date(
-    date_breaks = "3 month",
-    labels = scales::date_format("%b %Y")
-  ) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 0))
 
 
 
@@ -149,19 +143,20 @@ p1 <- p + geom_point(
   size = 1.5,
   col = "black"
 )
-p1 <- p1 + facet_wrap(~country, nrow = 3)
-p1 <- p1 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p1 <- p1 + facet_wrap(~country, nrow = 3, scales = "free_y")
+p1 <- p1 + scale_x_date(labels = mriids_plot_theme$dateformat)
+p1 <- p1 + mriids_plot_theme$xticklabels
 p1
 
 
 outfile <- glue::glue("{tw}_{ndates}_non-facetted.pdf")
 message(outfile)
 ggsave(
-    filename = here::here("ms-figures", outfile),
+    filename = glue::glue("analysis/figures/{outfile}"),
     plot = p1,
     units = mriids_plot_theme$units,
-    width = mriids_plot_theme$single_col_width,
-    height = mriids_plot_theme$single_col_height
+    width = mriids_plot_theme$one_n_half_col_width,
+    height = mriids_plot_theme$one_n_half_col_height
 )
 
 

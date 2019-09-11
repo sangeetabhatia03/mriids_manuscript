@@ -75,13 +75,13 @@ that assumes the daily incidence, $I_t$ , can be approximated with a
 Poisson process following the renewal equation
 [@fraser2007estimating]:
 
-\[
+\begin{equation*}
   I_{t} \sim 
   Pois
   \left( 
     R_t \sum_{s = 1}^{t}{I_{t - s}\omega_s}
   \right).
-\]
+\end{equation*}
 
 Here $R_t$ is the reproduction number at time $t$ (the average 
 number of secondary cases per infected individual) and $\omega$
@@ -92,7 +92,8 @@ We extend this model to incorporate the spatial spread of the
 outbreak between  $n$ different locations.
 The number of incident cases at a location $j$ at time $t$ is
 given by the equation
-\begin{align}
+
+\begin{equation}
   I_{j}^{t} \sim 
   Pois\left( 
   \sum_{i = 1}^{n} 
@@ -101,7 +102,7 @@ given by the equation
   \right)} 
   \right),
   (\#eq:likelihood)
-\end{align}
+\end{equation}
 
 where $R_{i}^{t}$ is the reproduction number at location $i$ at time
 $t$ and $p_{i \rightarrow j}$ is the probability of a case moving from
@@ -121,9 +122,9 @@ $\phi_{i \rightarrow j}$, is proportional to the product of the
 populations of the two locations, $N_i$ and $N_j$ and inversely
 proportional to the distance between them $d_{i, j}$, with all quantities
 raised to some power:
-\[
+\begin{equation*}
   \phi_{i \rightarrow j} =  \frac{N_i^{\alpha}N_j^{\beta}}{d_{i, j}^{\gamma}}.
-\]
+\end{equation*}
 
 Here, we fixed $\alpha$ = $\beta$ = 1. The exponent $\gamma$, which modulates 
 the effect of distance on the flow of
@@ -133,15 +134,17 @@ distances travelled by populations tend to be short.
 The relative risk of spread at a location $j$ from a location $i$
 is thus proportional to the population flow into location $j$ from location $i$.
 
-\[
+\begin{equation*}
   r_{i \rightarrow j}^{spread} = \frac{\phi_{i \rightarrow
   j}}{\sum_{x}{\phi_{i \rightarrow
   x}}}.
-\]
+\end{equation*}
 
 The probability of movement from location $i$ to location $j$ is 
 then given by
-\[ p_{i \rightarrow j} = (1 - p_{stay}) r_{i \rightarrow j}^{spread},\]
+\begin{equation*} 
+p_{i \rightarrow j} = (1 - p_{stay}) r_{i \rightarrow j}^{spread},
+\end{equation*}
 
 where $p_{stay}$ is the probability that a case remains in 
 a location $i$ throughout their infectious period. $p_{stay}$ is
@@ -157,21 +160,33 @@ The parameters of the full model are:
 3.  $\gamma$, the exponent of the distance in the gravity model. 
 
 
-We used a Bayesian approach, and sampled from the joint posterior
-distribution of all parameters using Markov Chain Monte Carlo
-(MCMC). The likelihood of the
-incidence at time $t$ in location $j$ given past incidence across all 
+The likelihood of the incidence at time $t$ in 
+location $j$ given past incidence across all 
 locations and model parameters is:
 
 \begin{equation}
 P \left( 
-I_{j}^{t} \mid p_{stay}, \gamma, \omega, 
+I_{j}^{t} \mid 
+p_{stay}, 
+\gamma, 
+\omega, 
+{\langle R_{i}^{0} \rangle}_{\{i = 1, 2, \dots n\}}, 
+\hdots,
 {\langle R_{i}^{t} \rangle}_{\{i = 1, 2, \dots n\}}, 
- {\langle I_{i}^{0} \rangle}_{\{i = 1, 2, \dots n\}}, \hdots {\langle I_{i}^{t} \rangle}_{\{i = 1, 2, \dots n\}} \right) 
- =  e^{-\lambda_{j}^{t}} \frac{(I_{j}^{t})^{\lambda_{j}^{t}}}{\lambda_{j}^{t} !},
+{\langle I_{i}^{0} \rangle}_{\{i = 1, 2, \dots n\}}, 
+\hdots 
+{\langle I_{i}^{t} \rangle}_{\{i = 1, 2, \dots n\}} \right) 
+ =  e^{-\lambda_{j}^{t}} 
+ \frac{ \left( I_{j}^{t}\right)^{\lambda_{j}^{t}}}
+ {\lambda_{j}^{t} !}.
 \end{equation}
 
-where $\lambda_{j}^{t}$ is given by
+${\langle R_{i}^{t} \rangle}_{\{i = 1, 2, \dots n\}}$ is the set of
+reproduction numbers at time $t$ in locations $1, 2, \dots n$. 
+${\langle I_{i}^{t} \rangle}_{\{i = 1, 2, \dots n\}}$ is similarly the 
+incidence at time $t$ in in locations $1, 2, \dots n$.
+
+$\lambda_{j}^{t}$ is given by
 
 \begin{equation}
 \lambda_{j}^{t} = \sum_{i = 1}^n{\left(p_{i \rightarrow j}R_{i}^{t} \sum_{s
@@ -182,7 +197,8 @@ where $T$ is the duration of the outbreak so far.
 
 The likelihood of the parameters is 
 
-\[\mathcal{L} = P \left({\langle I_{j}^{t} \rangle}_{j = 1, 2 \dots n}
+\begin{equation*}
+\mathcal{L} = P \left({\langle I_{j}^{t} \rangle}_{j = 1, 2 \dots n}
  \mid p_{stay}, \gamma, {\langle R_{j}^{t} \rangle}_{j = 1, 2 \dots n}\right) = 
  \prod_{t = 1}^{t}{e^{-\lambda_{i, t}} 
  \frac{I_{i}^{t}^{\lambda_{i}^{t}}}{\lambda_{i}^{t} !}}.\]
@@ -196,7 +212,8 @@ given the observed data is:
    \propto 
    \mathcal{L} \times 
    P\left(\langle R_{j}^{t}\rangle_{j = 1, 2, \dots n}\right) 
-   P\left( p_{stay} \right) P\left( \gamma \right).\]
+   P\left( p_{stay} \right) P\left( \gamma \right).
+\end{equation*}   
 
 $P\left( p_{stay} \right)$,  $P\left( \gamma \right)$, and $P\left(\langle R_{j}^{t}\rangle_{j = 1, 2, \dots n}\right)$ 
 represent the prior distributions on the parameters. 
@@ -246,7 +263,7 @@ Convergence of MCMC chains was
 confirmed using visual inspections of the diagnostics (Potential Scale
 Reduction Factor [@gelman1992inference] 
 and Geweke Diagnostics [@geweke]) reported by 
-R package ggmcmc [@ggmcmc]. An example report produced by [@ggmcmc] is
+R package ggmcmc [@ggmcmc]. An example report produced by ggmcmc is
 included in the Supplementary Material.
 
 For each model (i.e., for each choice of the time window), we made 

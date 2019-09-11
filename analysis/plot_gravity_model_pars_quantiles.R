@@ -40,14 +40,9 @@ purrr::iwalk(
         p <- p + facet_wrap(~param,
                             ncol = 2,
                             scales = "free_y")
-        p <- p + theme(
-                     axis.text.x = element_text(
-                         angle = 90,
-                         hjust = 0
-                     )
-                 )
         p <- p + xlab("") + ylab("")
-        p <- p + scale_x_date(date_labels = "%b-%Y")
+        p <- p + scale_x_date(labels = mriids_plot_theme$dateformat)
+        p <- p + mriids_plot_theme$xticklabels
         p <- p +
             expand_limits(y = 0) +
             mriids_plot_theme$onecol_theme +

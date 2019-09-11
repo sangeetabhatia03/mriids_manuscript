@@ -11,21 +11,21 @@ is proportional to the population flow into location $j$ from location $i$.
 
 The overall relative risk at location $j$ is the sum of relative risks 
 from all possible sources weighted by the
-infectivity at each source where infectivity $\lambda_{i}(t)$ at $i$
+infectivity at each source where infectivity $\lambda_{i}^{t}$ at $i$
 at time $t$ is a
 measure of the overall number of secondary cases in $i$ at time $t$.
 
 \[ 
- \lambda_{i}(t) = R_{i}^{t} \sum_{s = 1}^{t}{I_{i}^{t - s}\omega_{s}}, 
+ \lambda_{i}^{t} = R_{i}^{t} \sum_{s = 1}^{t}{I_{i}^{t - s}\omega_{s}}, 
 \]
 
 where $R_{i}^{t}$ is the effective reproduction number at location
 $i$ at time $t$, $\omega$ is the serial interval distribution and 
 $I_{i}^{t - s}$ is the incidence in location $i$ at time $t - s$. 
 
-The overall relative risk at location $j$ is therefore
+The overall relative risk at location $j$ at time $t$ is therefore
 \[ 
-r_{i}^{import}(t) = \sum_{j} \lambda_{i}(t) r_{i \rightarrow
+r_{j}^{import}(t) = \sum_{i} \lambda_{i}^t r_{i \rightarrow
 j}^{import},
 \] 
 with the sum being taken over all possible sources.

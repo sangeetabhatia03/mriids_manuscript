@@ -58,7 +58,7 @@ pm_data_clean <- si_fig_nums(
     name = "pm_data_clean",
     caption = "Illustration of workflow for Processing ProMED feed.
 Raw ProMED feed consisted of suspected and confirmed cases and suspected and confirmed
-deaths. The top left figure (a) shows the suspected and confirmed cases in the raw feed.
+deaths. The top left figure (a) shows the suspected and confirmed cases in Sierra Leone in the raw feed.
 We used the suspected and confirmed cases to derive cumulative
 incidence data (b). Dupliacte alerts on a day were then removed (c).
 If there were outliers in the data, we removed them in the next step (d).
@@ -78,12 +78,12 @@ data and 6 weeks incidence forecast on log scale.
 The solid dots represent the observed weekly incidence where
 the light blue dots show
 weeks for which at least one data point was obtained using
-interpolation. The projections are made over 6 week windows, based on the
+interpolation. The forecasts are made over 6 week windows, based on the
 reproduction number estimated in the previous 2 weeks.
 The middle figure in each panel shows the reproduction number
 used to make projections over each 4 week forecast horizon.
 The bottom figure shows the effective reproduction number estimated
-retrospectively using the full dataset up to the end.
+retrospectively using the full dataset up to the length of one time window before the end.
 In each case, the solid gray line is the median
 estimate and the shaded region represents the 95% Credible Interval.
 The red horizontal dashed line indicates the $R_t = 1$ threshold.
