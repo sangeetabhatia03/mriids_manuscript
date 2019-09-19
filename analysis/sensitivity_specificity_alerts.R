@@ -11,18 +11,22 @@ incid_pred <- na.omit(incid_pred)
 ## Temporal trend in true, false and missed alerts.
 ## Using central estimate.
 qntls <- dplyr::select(incid_pred, `2.5%`:`97.5%`)
+
 alerts <- purrr::map_dfr(
     qntls,
     function(pred) alert_type(obs = incid_pred$incid, pred = pred)
 )
-colnames(alerts) <- paste0("alert_using_", colnames(alerts))
-weekly_alerts <- cbind(incid_pred, alerts)
+##colnames(alerts) <- paste0("alert_using_", colnames(alerts))
+weekly_alerts <- cbind(
+    dplyr::select(incid_pred, date.x:date.y),
+    alerts
+)
 
 weekly_alerts <- tidyr::gather(
     weekly_alerts,
     key = "threshold",
     value = "alert_type",
-    `alert_using_2.5%`:`alert_using_97.5%`
+    `2.5%`:`97.5%`
 )
 ## weekly_alerts <- dplyr::select(
 ##     weekly_alerts,

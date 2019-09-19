@@ -80,6 +80,17 @@ weekly_metrics <-  dplyr::rename(weekly_metrics, relsharpness = "rel_sness")
 ## Overall performance
 
 ```{r forecasts-assess-viz-3}
+
+skimr::skim_with(
+           numeric = list(
+               low = ~quantile(., probs = 0.025),
+               high = ~quantile(., probs = 0.975),
+               missing = NULL,
+               complete = NULL
+           ),    
+          append = TRUE
+       )
+
 df <- skimr::skim(weekly_metrics, rmae:bias)
 
 out <- glue::glue(
@@ -170,7 +181,7 @@ weekly_metrics$ci <- forcats::fct_recode(
   weekly_metrics$ci,
   "Growing" = "ll_greater_than_1",
   "Declining" = "ul_less_than_1",
-  "Neither" = "ci_includes_1",
+  "Stable" = "ci_includes_1",
   "Overall" = "Overall"
 )
 
@@ -179,7 +190,7 @@ weekly_metrics$ci <- forcats::fct_relevel(
   c(
     "Growing",
     "Declining",
-    "Neither",
+    "Stable",
     "Overall"
   )
 )
@@ -192,7 +203,7 @@ weekly_metrics$twindow <- factor(weekly_metrics$twindow)
 
 ```{r forecasts-assess-viz-11 }
 
-summary_stats <- summarise_at(
+summary_stats <- dplyr::summarise_at(
   weekly_metrics,
   vars(rmae:bias),
   list(
@@ -218,7 +229,7 @@ summary_stats <- tidyr::gather(
     convert = TRUE
   )
 
-select(
+dplyr::select(
   summary_stats,
   metric,
   avg,
@@ -233,8 +244,8 @@ select(
 
 ```{r forecasts-assess-viz-12 }
 
-weekly_summary_stats <- group_by(weekly_metrics, week_of_projection) %>%
-  summarise_at(
+weekly_summary_stats <- dplyr::group_by(weekly_metrics, week_of_projection) %>%
+  dplyr::summarise_at(
     vars(rmae:bias),
     list(
       avg = ~ mean(., na.rm = TRUE),
@@ -254,12 +265,12 @@ knitr::kable(weekly_summary_stats)
 
 ```{r forecasts-assess-viz-20 }
 
-phase_weekly_summary_stats <- group_by(
+phase_weekly_summary_stats <- dplyr::group_by(
   weekly_metrics,
   week_of_projection,
   ci
 ) %>%
-  summarise_at(
+  dplyr::summarise_at(
     vars(rmae:bias),
     list(
       avg = ~ mean(., na.rm = TRUE),

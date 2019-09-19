@@ -1,0 +1,103 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: true
+fig_caption: true
+latex_engine: pdflatex
+title: Relative Risk of Importation 
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  sources: !r c("Guinea", "Liberia")
+  cases: data/CaseCounts/processed/HealthMap_Ebola_wide.csv
+  risk: !r list(Guinea = "output/flow_from_mbandaka_2.01_72.96_1.12.csv", Liberia = "output/flow_from_équateur_2.01_72.96_1.12.csv")
+  simean: 15.3
+  sisd: 9.1
+  R: 1.03
+  onday: 300
+  outfile: "output/weighted_flow.csv"
+---
+```{r setup, eval = TRUE, echo = FALSE}
+library(dplyr)
+library(purrr)
+devtools::load_all()
+```
+
+This analysis uses a daily incidence time series to estimate the
+overall infectivity at a given time. The relative risk profiles
+estimated in a previous step of the analysis pipeline are then
+weighted by infectivity.
+
+## Ebola params
+```{r}
+incid <- here::here(params$cases) %>%
+    readr::read_csv(n_max = params$onday) %>%
+    select(date, params$sources)
+```
+```
+Serial interval estimation over however many days worth of data we
+have at this point.
+
+```{r}
+si <- EpiEstim::DiscrSI(k = 0:params$onday,
+                        mu = params$simean,
+                        sigma  = params$sisd) %>% round(3)
+
+weights <- select(incid, params$sources) %>%
+    map_dbl(~infectivity_at_source(.x, si, params$R) %>%
+        `[`(params$onday))
+
+```
+
+# Normalise weights
+
+```{r}
+day <- params$onday
+normalised <- weights / sum(weights)
+```
+
+Read in the relative risk profiles
+
+```{r relrisk, eval = TRUE}
+
+relrisk_df <- purrr::map(params$risk,
+                         ~ readr::read_csv(here::here(.x)))
+
+```
+
+## Risk profile weighted by infectivity
+
+```{r wtdrelrisk, eval = TRUE}
+## signf <- 7
+## normalised <- signif(normalised, 7)
+
+
+## wtd_rel_risk <- (normalised[1]  * rel_risk[[1]]$relative_flow) +
+##     (normalised[2] * rel_risk[[2]]$relative_flow)
+
+rel_risk <- map_dfc(relrisk_df, ~ .x$relative_flow)
+wtd_rel_risk <- map2_dfc(rel_risk,
+                         normalised,
+                         ~ .x * .y) %>%
+    rowSums(na.rm = TRUE)
+
+wtd_risk_profile <- data.frame(flow_to = relrisk_df[[1]]$flow_to,
+                               wtd_rel_risk = wtd_rel_risk)
+```
+
+```{r wtdrelriskout, eval = TRUE}
+readr::write_csv(x = wtd_risk_profile,
+                 path = here::here(params$outfile))
+```

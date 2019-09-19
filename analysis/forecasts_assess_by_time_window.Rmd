@@ -1,0 +1,287 @@
+---
+output: 
+pdf_document:
+citation_package: natbib
+keep_tex: false
+fig_caption: true
+latex_engine: pdflatex
+title: Visualisation of weekly performance metrics by time window
+author:
+- name: Sangeeta Bhatia
+affiliation: Imperial College London
+abstract: 
+keywords: 
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+spacing: double
+bibliography: 
+biblio-style: apsr
+endnote: no
+params:
+  n.dates.sim : 28
+  places: !r c("SLE", "LBR", "GIN")
+  indir: data/output
+  outdir: data/output/
+  datasource: ProMED
+---
+
+```{r setup, eval = TRUE}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+source(here::here("analysis/common_plot_properties.R"))
+```
+
+
+
+```{r forecasts-assess-by-time-window-1 }
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  dev = "pdf",
+  ## fig.width = 7,
+  ## dev.args = list(pointsize = 6),
+  fig.path = here::here(params$outdir),
+  fig.ext = paste0(
+    params$datasource,
+    "_",
+    params$n.dates.sim,
+    "_assess_by_twindow.pdf"
+  )
+)
+```
+Read in the files for all places of interest and visualise.
+
+```{r forecasts-assess-by-time-window-2 }
+
+weekly_metrics <- readr::read_csv(
+  file = here::here(
+    params$indir,
+    glue::glue("{params$datasource}_weekly_metrics.csv")
+  )
+)
+
+```
+
+
+
+
+
+Join it with R estimate categorisation.
+
+```{r forecasts-assess-by-time-window-4 }
+epidemic_phase <- readr::read_csv(
+  file = here::here(
+    params$outdir,
+    paste0(
+      params$datasource,
+      "_rquantiles_projection.csv"
+    )
+  )
+)
+
+weekly_metrics <- dplyr::left_join(
+  weekly_metrics,
+  epidemic_phase,
+  by = c("tproj", "twindow", "country")
+)
+
+weekly_metrics <- weekly_metrics[
+  weekly_metrics$n.dates.sim == params$n.dates.sim,
+  ]
+weekly_metrics <-  dplyr::rename(weekly_metrics, relsharpness = "rel_sness")
+```
+
+Overall performace
+
+```{r forecasts-assess-by-time-window-5}
+weekly_metrics_overall <- weekly_metrics
+weekly_metrics_overall$ci <- "Overall"
+weekly_metrics <- rbind(weekly_metrics, weekly_metrics_overall)
+```
+
+## Fix column classes
+```{r forecasts-assess-by-time-window-6 }
+
+weekly_metrics <- dplyr::mutate_if(
+  weekly_metrics,
+  is.character,
+  factor
+)
+weekly_metrics$week_of_projection <- factor(weekly_metrics$week_of_projection)
+
+weekly_metrics$ci <- forcats::fct_recode(
+  weekly_metrics$ci,
+  "Growing" = "ll_greater_than_1",
+  "Declining" = "ul_less_than_1",
+  "Neither" = "ci_includes_1",
+  "Overall" = "Overall"
+)
+
+weekly_metrics$ci <- forcats::fct_relevel(
+  weekly_metrics$ci,
+  c(
+    "Growing",
+    "Declining",
+    "Neither",
+    "Overall"
+  )
+)
+
+weekly_metrics$tproj <- as.integer(weekly_metrics$tproj)
+weekly_metrics$twindow <- factor(weekly_metrics$twindow)
+```
+
+## Bias
+
+```{r forecasts-assess-by-time-window-9 }
+pbias <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    bias,
+    col = twindow
+  )
+) +
+  geom_boxplot(position = "dodge")
+pbias <- pbias +
+  xlab("Week of projection") +
+  ylab("Bias") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend +
+  NULL
+
+pbias
+```
+
+## Sharpness
+
+
+```{r forecasts-assess-by-time-window-10 }
+
+psharp <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    relsharpness,
+    col = twindow
+  )
+) +
+  geom_boxplot() +
+  scale_y_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(10^.x))
+  )
+
+
+psharp <- psharp +
+  xlab("Week of projection") +
+  ylab("log(sharpness)") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend +
+  NULL
+
+psharp
+```
+
+## Proportion of observations in CrI
+
+
+```{r forecasts-assess-by-time-window-11 }
+
+propinci_perc <- group_by(
+    weekly_metrics,
+    week_of_projection,
+    twindow
+) %>% summarise(nweeks = 100 * sum(propinci) / n())
+
+propinci_perc <- dplyr::ungroup(propinci_perc)
+propinci_perc$twindow <- factor(propinci_perc$twindow)
+prel <- ggplot(
+  propinci_perc,
+  aes(week_of_projection,
+    nweeks,
+    fill = twindow
+  )
+) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.5)
+## geom_point(aes(fill = ci),
+##            alpha = 0.7,
+##            position = position_jitterdodge())
+prel <- prel +
+  xlab("Week of projection") +
+  ylab("% weeks") +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend +
+  ylim(0, 100) 
+  
+
+prel
+```
+
+
+## Relative mean absolute error
+
+
+```{r forecasts-assess-by-time-window-12 }
+prelerr <- ggplot(
+  weekly_metrics,
+  aes(week_of_projection,
+    rmae,
+    col = twindow
+  )
+) +
+  geom_boxplot() +
+  scale_y_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(10^.x))
+  )
+
+prelerr <- prelerr +
+  mriids_plot_theme$theme +
+  mriids_plot_theme$legend +
+  NULL
+
+
+prelerr <- prelerr +
+  xlab("Week of projection") +
+  ylab("log(relative mean absolute error)")
+
+prelerr
+```
+
+
+```{r forecasts-assess-by-time-window-13 }
+
+## Affix legend manually otherwise I can't get rid of the
+## annoying legend title.
+legend <- cowplot::get_legend(pbias +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_blank()
+  ))
+
+prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
+  prel + theme(legend.position = "none"),
+  prelerr + theme(legend.position = "none"),
+  align = "vh",
+  labels = c("A", "B", "C", "D"),
+  label_size = 8,
+  hjust = c(-1, 1, -3, 1),
+  vjust = c(3, 3, -2.5, 0),
+  nrow = 2
+)
+
+
+# add the legend underneath the row we made earlier. Give it 10% of the height
+# of one plot (via rel_heights).
+p <- cowplot::plot_grid(prow,
+  legend,
+  ncol = 1,
+  rel_heights = c(1, .1)
+)
+
+p
+```

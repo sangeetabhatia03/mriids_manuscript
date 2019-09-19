@@ -6,6 +6,7 @@ weekly_incid <- readr::read_csv(
     all_files[[datasource]]$weekly_incidfile
     )
   )
+
 weekly_incid$week_of_year <- week_of_year(weekly_incid$date)
 
 all_forecasts <- readr::read_csv(
@@ -13,7 +14,8 @@ all_forecasts <- readr::read_csv(
     all_files[[datasource]]$outdir,
     "all_forecasts_quantiles_consolidated.csv"
   )
-)
+  )
+
 
 ## Combine with forecasts
 incid_pred <- dplyr::left_join(

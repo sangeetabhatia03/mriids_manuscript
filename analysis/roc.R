@@ -2,8 +2,8 @@ weekly_alerts <- data.table::fread(
   file = here::here(
     all_files[[datasource]]$outdir,
     "weekly_alerts.csv"
-  )
-  )
+   )
+ )
 
 weekly_alerts <- weekly_alerts[weekly_alerts$n.dates.sim != 14, ]
 ## Plot TPR vs FPR
@@ -26,6 +26,7 @@ res <- tidyr::spread(
 
 res$tpr <- res$`True Alert` / (res$`True Alert` + res$`Missed Alert`)
 res$fpr <- res$`False Alert` / (res$`No Alert` + res$`False Alert`)
+
 
 outfile <- here::here(
     all_files[[datasource]]$outdir,
@@ -116,6 +117,6 @@ plotlist <- purrr::iwalk(by_tw, function(df, params) {
         units = mriids_plot_theme$units,
         width = mriids_plot_theme$single_col_width,
         height = mriids_plot_theme$single_col_height
-       )
+     )
   }
 )

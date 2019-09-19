@@ -14,7 +14,7 @@ mriids_plot_theme <- list(
     phase_color_scale = c(
         "Growing" = "#cb5683",
         "Declining" = "#71a659",
-        "Neither" = "#8975ca",
+        "Stable" = "#8975ca",
         "Overall" = "#000000"
     ),
     dateformat = scales::date_format("%m-%Y"),

@@ -1,0 +1,865 @@
+\documentclass[11pt,]{article}
+\usepackage[]{mathpazo}
+\usepackage{amssymb,amsmath, booktabs}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+\ifxetex
+\usepackage{mathspec}
+\else
+\usepackage{fontspec}
+\fi
+\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+  \usepackage{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+  pdftitle={Supplement for: Using Digital Surveillance Tools for Near Real-Time Mapping of the Risk of International Infectious Disease Spread: A Case Study},
+  pdfauthor={Sangeeta Bhatia, Britta Lassmann, Emily Cohn, Moritz Kraemer, Mark Herringer, John Brownstein, Larry Madoff, Anne Cori, Pierre Nouvellet},
+  pdfborder={0 0 0},
+  breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+  \usepackage{parskip}
+}{% else
+  \setlength{\parindent}{0pt}
+  \setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+%\setcounter{secnumdepth}{5}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+  }
+}
+
+\setlength{\droptitle}{-2em}
+
+\title{Supplement for: Using Digital Surveillance Tools for Near Real-Time
+  Mapping of the Risk of International Infectious Disease Spread: A Case
+  Study}
+\pretitle{\vspace{\droptitle}\centering\huge}
+\posttitle{\par}
+\author{Sangeeta Bhatia, Britta Lassmann, Emily Cohn, Moritz Kraemer, Mark
+  Herringer, John Brownstein, Larry Madoff, Anne Cori, Pierre Nouvellet}
+\preauthor{\centering\large\emph}
+\postauthor{\par}
+\predate{\centering\large\emph}
+\postdate{\par}
+\date{September 04, 2019}
+
+\usepackage{caption}
+%\captionsetup[figure]{labelformat=empty}
+
+\graphicspath{{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures}}
+\renewcommand{\figurename}{Fig SI}
+\begin{document}
+\maketitle
+
+{
+  \setcounter{tocdepth}{2}
+  \tableofcontents
+}
+\hypertarget{overview}{%
+\section*{Overview}\label{overview}}
+\addcontentsline{toc}{section}{Overview}
+
+In this supplement, we present the details of the pre-processing of
+ProMED and HealthMap feeds SI Section 1, the model results using ProMED,
+HealthMap and WHO data and the impact of the datasources and model
+parameters on the performance of the model. We varied the length of the
+time window used for model fitting (see Methods for details). SI Section
+2, SI Section 3 and SI Section 4 present the forecasts using ProMED,
+HealthMap and WHO data respectively using different time windows (2, 4
+and 6 weeks) and forecast horizons (4, 6 and 8 weeks). The time window
+did not have a strong influence on the model performance (SI Figure 28).
+Similarly, the data used also did not influence the model performance
+(SI Figure 29). We explored the impact of alternate priors for the
+gravity model parameter on the results from the model. The results of
+this sensitivity analysis are presented in SI Section 7.
+
+\hypertarget{data-cleaning}{%
+  \section{Data cleaning}\label{data-cleaning}}
+
+\begin{figure}
+  \centering
+  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/27062019_promed_loglinear_SierraLeone.pdf} 
+  \caption{Illustration of workflow for Processing ProMED feed.
+    Raw ProMED feed consisted of suspected and confirmed cases and suspected and confirmed
+    deaths. The top left figure (a) shows the suspected and confirmed cases in Sierra Leone in the raw feed.
+    We used the suspected and confirmed cases to derive cumulative
+    incidence data (b). Dupliacte alerts on a day were then removed (c).
+    If there were outliers in the data, we removed them in the next step (d).
+    We then made the cumulative case count monotonically increasing (e) by
+    removing inconsistent records. Finally, missing data was imputed using
+    log-linear interpolation (f). Interpolated points are show in light blue.
+    See Methods for details.}\label{fig:dataclean}
+\end{figure}
+
+\hypertarget{correlation-between-r-estimates}{%
+  \subsection{Correlation between R estimates}\label{correlation-between-r-estimates}}
+
+\begin{table}
+  \centering
+  \caption{Correlation between reproduction number estimated from
+    ProMED, HealthMap and WHO data.}
+  \label{tab:rcorr}
+  \begin{tabular}{lllll}
+    \toprule
+    Country  & Growing & Declining & Neither & Overall \\
+    \midrule
+    Guinea  & 44.0\% & 42.2\% & 71.9\% & 54.4\% \\
+    Liberia & 18.3\% & 31.5\% & 69.5\% & 49.3\% \\
+    Sierra Leone & 25.9\% & 46.0\% & 55.7\% & 42.5\% \\
+    All & 30.8\% & 40.2\% & 66.7\% & 48.7\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\hypertarget{forecasts-using-promed-data}{%
+  \section{Forecasts using ProMED data}\label{forecasts-using-promed-data}}
+
+
+\hypertarget{calibration-window-of-2-weeks}{%
+  \subsection{Calibration window of 2 weeks}\label{calibration-window-of-2-weeks}}
+
+\subsection{Forecast horozon of 4 weeks}
+
+\begin{table}
+  \centering
+  \caption{Percentage of weeks with observed incidence in 95\% forecast
+    interval. In forecasting ahead, we assumed transmissibility to be
+    constant over the forecast horizon. If the 97.5th percentile of the R
+    estimate used for forecasting was less than 1, we defined the epidemic
+    to be in the declining phase during this period. Similarly, if the 2.5th
+    percentile of R was greater than 1, we defined the epidemic to be in a
+    growing phase. The phase was set to neither where the 95\% Credible
+    Interval of the R estimates contained 1.}
+  \label{tab:propinci}
+  \begin{tabular}{lllll}
+    \toprule
+    Country  & Growing & Declining & Neither & Overall \\
+    \midrule
+    Guinea  & 44.0\% & 42.2\% & 71.9\% & 54.4\% \\
+    Liberia & 18.3\% & 31.5\% & 69.5\% & 49.3\% \\
+    Sierra Leone & 25.9\% & 46.0\% & 55.7\% & 42.5\% \\
+    All & 30.8\% & 40.2\% & 66.7\% & 48.7\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\hypertarget{forecast-horizon-6-weeks}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks}}
+
+\begin{figure}
+  \centering
+  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_14_42} 
+  \caption{Observed and predicted
+    incidence, and reproduction number estimates from ProMED data.
+    The top panel shows the weekly incidence derived from ProMED
+    data and 6 weeks incidence forecast on log scale.
+    The solid dots represent the observed weekly incidence where
+    the light blue dots show
+    weeks for which at least one data point was obtained using
+    interpolation. The forecasts are made over 6 week windows, based on the
+    reproduction number estimated in the previous 2 weeks.
+    The middle figure in each panel shows the reproduction number
+    used to make projections over each 4 week forecast horizon.
+    The bottom figure shows the effective reproduction number estimated
+    retrospectively using the full dataset up to the length of one time window before the end.
+    In each case, the solid gray line is the median
+    estimate and the shaded region represents the 95% Credible Interval.
+    The red horizontal dashed line indicates the $R_t = 1$ threshold.
+    Results are shown for the three mainly affected countries although the
+    analysis was done using data for all countries on African mainland.
+    All figures in Sections 2, 3 and 4 of the Supplementary material follow
+    the same layout and color convention. }
+  \label{fig:pm26}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks}{%
+  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks}}
+
+\begin{figure}
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_14_56} 
+
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 2 weeks and
+    the forecast horizon is 8 weeks.}
+  \label{fig:pm28}
+\end{figure}
+
+\hypertarget{calibration-window-of-4-weeks}{%
+  \subsection{Calibration window of 4 weeks}\label{calibration-window-of-4-weeks}}
+
+\hypertarget{forecast-horizon-4-weeks}{%
+  \subsubsection{Forecast horizon 4
+    weeks}\label{forecast-horizon-4-weeks}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_28} 
+  }
+  \caption{SI Figure  4: Observed and predicted incidence, and
+    reproduction number estimates from ProMED data.The calibration
+    window is 4 weeks and the forecast horizon is 4 weeks.}
+  \label{fig:pm44}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-1}{%
+  \subsubsection{Forecast horizon 6
+    weeks}\label{forecast-horizon-6-weeks-1}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_42} 
+
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 4 weeks and
+    the forecast horizon is 6 weeks.}
+  \label{fig:pm46}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-1}{%
+  \subsubsection{Forecast horizon 8
+    weeks}\label{forecast-horizon-8-weeks-1}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_56} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 4 weeks and
+    the forecast horizon is 8 weeks.}
+  \label{fig:pm48}
+\end{figure}
+
+\hypertarget{calibration-window-of-6-weeks}{%
+  \subsection{Calibration window of 6 weeks}\label{calibration-window-of-6-weeks}}
+
+\hypertarget{forecast-horizon-4-weeks-1}{%
+  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-1}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_28} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 6 weeks and
+    the forecast horizon is 4 weeks.}
+  \label{fig:pm64}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-2}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-2}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_42} 
+  }
+  \caption{Observed and predicted incidence, and
+    reproduction number estimates from ProMED data.The calibration
+    window is 6 weeks and the forecast horizon is 6 weeks.}
+  \label{fig:pm66}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-2}{%
+  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-2}}
+
+\begin{figure}
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_56} 
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 6 weeks and
+    the forecast horizon is 8 weeks.}
+  \label{fig:pm68}
+\end{figure}
+
+\hypertarget{forecasts-using-healthmap-data}{%
+  \section{Forecasts using HealthMap data}\label{forecasts-using-healthmap-data}}
+
+\hypertarget{calibration-window-of-2-weeks-1}{%
+  \subsection{Calibration window of 2 weeks}\label{calibration-window-of-2-weeks-1}}
+
+\hypertarget{forecast-horizon-4-weeks-2}{%
+  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-2}}
+
+\begin{figure}
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_28} 
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from HealthMap data.The calibration window is 2 weeks
+    and the forecast horizon is 4 weeks.}
+  \label{fig:hm24}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-3}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-3}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_42} 
+  }
+  \caption{Observed and predicted incidence, and
+    reproduction number estimates from HealthMap data.The calibration
+    window is 2 weeks and the forecast horizon is 6 weeks.}
+    \label{fig:hm26}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-3}{%
+  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-3}}
+
+\begin{figure}
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_56} 
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from HealthMap data.The calibration window is 2 weeks
+    and the forecast horizon is 8 weeks.}
+    \label{fig:hm28}
+\end{figure}
+
+\hypertarget{calibration-window-of-4-weeks-1}{%
+  \subsection{Calibration window of 4 weeks}\label{calibration-window-of-4-weeks-1}}
+
+\hypertarget{forecast-horizon-4-weeks-3}{%
+  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-3}}
+
+\begin{figure}
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_28} 
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from HealthMap data.The calibration window is 4 weeks
+    and the forecast horizon is 4 weeks.}
+      \label{fig:hm44}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-4}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-4}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_42} 
+
+  }
+
+  \caption{Observed and predicted incidence, and
+    reproduction number estimates from HealthMap data.The calibration
+    window is 4 weeks and the forecast horizon is 6 weeks.}
+  \label{fig:hm46}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-4}{%
+  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-4}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_56} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from HealthMap data.The calibration window is 4 weeks
+    and the forecast horizon is 8 weeks.}
+  \label{fig:hm48}
+\end{figure}
+
+\hypertarget{calibration-window-of-6-weeks-1}{%
+  \subsection{Calibration window of 6 weeks}\label{calibration-window-of-6-weeks-1}}
+
+\hypertarget{forecast-horizon-4-weeks-4}{%
+  \subsubsection{Forecast horizon 4
+    weeks}\label{forecast-horizon-4-weeks-4}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_28} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from HealthMap data.The calibration window is 6 weeks
+    and the forecast horizon is 4 weeks.}
+  \label{fig:hm64}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-5}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-5}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_42} 
+
+  }
+
+  \caption{Observed and predicted incidence, and
+    reproduction number estimates from HealthMap data.The calibration
+    window is 6 weeks and the forecast horizon is 6 weeks.}
+  \label{fig:hm66}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-5}{%
+  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-5}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_56} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from HealthMap data.The calibration window is 6 weeks
+    and the forecast horizon is 8 weeks.}
+  \label{fig:hm68}
+\end{figure}
+
+\hypertarget{forecasts-using-who-data}{%
+  \section{Forecasts using WHO data}\label{forecasts-using-who-data}}
+
+\hypertarget{calibration-window-of-2-weeks-2}{%
+  \subsection{Calibration window of 2 weeks}\label{calibration-window-of-2-weeks-2}}
+
+\hypertarget{forecast-horizon-4-weeks-5}{%
+  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-5}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_28} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from WHO data.The calibration window is 2 weeks and the
+    forecast horizon is 4 weeks.}
+  \label{fig:who24}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-6}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-6}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_42} 
+
+  }
+
+  \caption{SI Figure  20: Observed and predicted incidence, and
+    reproduction number estimates from WHO data.The calibration window
+    is 2 weeks and the forecast horizon is 6 weeks.}
+  \label{fig:who26}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-6}{%
+  \subsubsection{Forecast horizon 8
+    weeks}\label{forecast-horizon-8-weeks-6}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_56} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from WHO data.The calibration window is 2 weeks and the
+    forecast horizon is 8 weeks.}
+  \label{fig:who28}
+\end{figure}
+
+\hypertarget{calibration-window-of-4-weeks-2}{%
+  \subsection{Calibration window of 4
+    weeks}\label{calibration-window-of-4-weeks-2}}
+
+\hypertarget{forecast-horizon-4-weeks-6}{%
+  \subsubsection{Forecast horizon 4
+    weeks}\label{forecast-horizon-4-weeks-6}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_28} 
+
+  }
+
+  \caption{Observed and predicted incidence, and
+    reproduction number estimates from WHO data.The calibration window
+    is 4 weeks and the forecast horizon is 4 weeks.}
+  \label{fig:who44}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-7}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-7}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_42} 
+
+  }
+
+  \caption{Observed and predicted incidence, and
+    reproduction number estimates from WHO data.The calibration window
+    is 4 weeks and the forecast horizon is 6 weeks.}
+  \label{fig:who46}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-7}{%
+  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-7}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_56} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number estimates from WHO data.The calibration window is 4 weeks and the forecast horizon is 8 weeks.}\label{fig:SI-27}
+\end{figure}
+
+\hypertarget{calibration-window-of-6-weeks-2}{%
+  \subsection{Calibration window of 6
+    weeks}\label{calibration-window-of-6-weeks-2}}
+
+\hypertarget{forecast-horizon-4-weeks-7}{%
+  \subsubsection{Forecast horizon 4
+    weeks}\label{forecast-horizon-4-weeks-7}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_28} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number estimates from WHO data.The calibration window is 6 weeks and the forecast horizon is 4 weeks.}\label{fig:SI-28}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-8}{%
+  \subsubsection{Forecast horizon 6
+    weeks}\label{forecast-horizon-6-weeks-8}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_42} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number estimates from WHO data.The calibration window is 6 weeks and the forecast horizon is 6 weeks.}\label{fig:SI-29}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-8}{%
+  \subsubsection{Forecast horizon 8
+    weeks}\label{forecast-horizon-8-weeks-8}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_56} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number estimates from WHO data.The calibration window is 6 weeks and the forecast horizon is 8 weeks.}\label{fig:SI-30}
+\end{figure}
+
+\hypertarget{impact-of-time-window-on-model-performance}{%
+  \section{Impact of time window on model
+    performance}\label{impact-of-time-window-on-model-performance}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/forecasts-assess-by-time-window-13-1.ProMED_28_assess_by_twindow} 
+
+  }
+
+  \caption{Model performance metrics stratified by the time window used for
+    model calibration. The performance metrics (anti-clockwise from top left) are
+    bias, sharpness, relative mean absolute error (show on log scale) and
+    the percentage of weeks for which the 95% forecast interval contained
+    the observed incidence.}
+  \label{fig:perftw}
+\end{figure}
+
+\hypertarget{impact-of-datasource-on-model-performance}{%
+  \section{Impact of datasource on model
+    performance}\label{impact-of-datasource-on-model-performance}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/forecasts-assess-by-datasource-6-1} 
+
+  }
+
+  \caption{Model performance metrics stratified by datasource
+    ProMED (blue), HealthMap (green), and WHO (yellow).
+    The performance metrics (anti-clockwise from top left) are
+    bias, sharpness, relative mean absolute error (show on log scale) and
+    the percentage of weeks for which the 95% forecast interval contained
+    the observed incidence.}\label{fig:perfds}
+\end{figure}
+
+\hypertarget{sensitivity-analysis}{%
+  \section{Sensitivity Analysis}\label{sensitivity-analysis}}
+
+For the results presented in the main text, we choose an uninformative
+uniform prior for the parameter \(\gamma\) with an upper bound 2. We
+then fitted the model with a uniform prior for \(\gamma\) allowing it to
+vary from 1 to 10. In this section we present the results from the
+sensitivity analyses. Although the analysis was carried out for the
+three data sources (ProMED, HealthMap and WHO), for brevity we present
+results using ProMED data only.
+
+\hypertarget{mobility-model-parameters}{%
+  \subsection{Mobility Model Parameters}\label{mobility-model-parameters}}
+
+\begin{figure}
+  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/gravity_model_pars_14.pdf}
+  \caption{Estimates of mobility model
+    parameters during the epidemic. Population movement was modelled using a
+    gravity model where the flow between locations \(i\) and \(j\) is
+    proportional to the product of their populations and inversely
+    population to the distance between them raised to an exponent
+    \(\gamma\). The parameter \(\gamma\) thus modulates the influence of
+    distance on the population flow. \(p_{stay}\) represents the probability
+    of an individual to stay in a given location during their infectious
+    period. The solid lines represents the median estimates obtained using
+    WHO (yellow), ProMED (blue) and HealthMap (green) data. The shaded
+    regions represent the 95\% CrI.}
+  \label{fig:parsul2}
+\end{figure}
+
+
+\textbackslash \begin{figure}
+
+  \{\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/gravity_model_pars_14}
+
+  \}
+
+  \caption{Estimates of mobility model
+  parameters during the epidemic. Population movement was modelled using a
+  gravity model where the flow between locations \(i\) and \(j\) is
+  proportional to the product of their populations and inversely
+  population to the distance between them raised to an exponent \(gamma\).
+  The parameter gamma thus modulates the influence of distance on the
+  population flow. Here \(\gamma\) is allowed to vary between 1 and 10.
+  \(p_{stay}\) represents the probability of an individual to stay in a
+  given location during their infectious period. The solid lines
+  represents the median estimates obtained using ProMED data. The shaded
+  regions represent the 95\% CrI.}
+\label{fig:SI-33}
+\end{figure}
+
+\hypertarget{forecasts-using-promed-data-1}{%
+  \subsection{Forecasts using ProMED
+    data}\label{forecasts-using-promed-data-1}}
+
+\hypertarget{calibration-window-of-2-weeks-3}{%
+  \subsubsection{Calibration window of 2
+    weeks}\label{calibration-window-of-2-weeks-3}}
+
+\hypertarget{forecast-horizon-4-weeks-8}{%
+  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-8}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_28} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data. The calibration window is 2 weeks and the forecast horizon is 4 weeks.}\label{fig:SI-34}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-9}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-9}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_42} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 2 weeks and
+    the forecast horizon is 6 weeks.}
+  \label{fig:SI-35}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-9}{%
+  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-9}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_56} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number estimates from ProMED data.The calibration window is 2 weeks and the forecast horizon is 8 weeks.}\label{fig:SI-36}
+\end{figure}
+
+\hypertarget{calibration-window-of-4-weeks-3}{%
+  \subsubsection{Calibration window of 4 weeks}\label{calibration-window-of-4-weeks-3}}
+
+\hypertarget{forecast-horizon-4-weeks-9}{%
+  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-9}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_28} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 4 weeks and
+    the forecast horizon is 4 weeks.}
+  \label{fig:pm44gamma}
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-10}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-10}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_42} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 4 weeks and
+    the forecast horizon is 6 weeks.}
+  \label{fig:pm46gamma}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-10}{%
+  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-10}}
+
+\begin{figure}
+
+  {
+    \centering
+    \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_56} 
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 4 weeks and
+    the forecast horizon is 8 weeks.}
+  \label{fig:pm48gamma}
+\end{figure}
+
+\hypertarget{calibration-window-of-6-weeks-3}{%
+  \subsubsection{Calibration window of 6 weeks}\label{calibration-window-of-6-weeks-3}}
+
+\hypertarget{forecast-horizon-4-weeks-10}{%
+  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-10}}
+
+\begin{figure}
+
+  {
+    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_28} 
+
+  }
+
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 6 weeks and
+    the forecast horizon is 4 weeks.}
+  \label{fig:pm64gamma }
+\end{figure}
+
+\hypertarget{forecast-horizon-6-weeks-11}{%
+  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-11}}
+
+\begin{figure}
+
+  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_42} 
+
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 6 weeks and
+    the forecast horizon is 6 weeks.}
+  \label{fig:pm66gamma}
+\end{figure}
+
+\hypertarget{forecast-horizon-8-weeks-11}{%
+  \subsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-11}}
+
+\begin{figure}
+
+  {
+    \centering
+    \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_56} 
+  }
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 6 weeks and
+    the forecast horizon is 8 weeks.}
+  \label{fig:pm68gamma}
+\end{figure}
+
+\hypertarget{model-performance-with-alternate-priors-for-mobility-model-parameter}{%
+  \subsection{Model performance with alternate priors for mobility
+    model parameter}\label{model-performance-with-alternate-priors-for-mobility-model-parameter}}
+
+\begin{figure}
+  {
+    \centering
+    \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/forecasts_assess_by_gamma_ul} 
+  }
+
+  \caption{Model performance metrics allowing $\gamma$ to vary from
+    1 to 2 or 10. The performance metrics (anti-clockwise from top left) are
+    bias, sharpness, relative mean absolute error (show on log scale) and
+    the percentage of weeks for which the 95% forecast interval contained
+    the observed incidence.}\label{fig:perfbygamma}
+\end{figure}
+\end{document}

@@ -1,10 +1,15 @@
 \documentclass[9pt,twocolumn,twoside,lineno]{pnas-new}
 % Use the lineno option to display guide line numbers if required.
 
+
 \templatetype{pnasresearcharticle} % Choose template 
 % {pnasresearcharticle} = Template for a two-column research article
 % {pnasmathematics} %= Template for a one-column mathematics article
 % {pnasinvited} %= Template for a PNAS invited submission
+
+% Added to be able to reference figures across SI.
+\usepackage{xr}
+\externaldocument{SI}
 
 \title{Using Digital Surveillance Tools for Near Real-Time Mapping of
   the Risk of International Infectious Disease Spread: Ebola as a Case Study}
@@ -52,7 +57,7 @@ ProMED and HealthMap data, especially when used during an outbreak.
 \authorcontributions{Please provide details of author contributions here.}
 \authordeclaration{Please declare any conflict of interest here.}
 \equalauthors{\textsuperscript{1}AC (Anne Cori) and PN (Pierre Nouvellet) contributed equally to this work.}
-\correspondingauthor{\textsuperscript{2}To whom correspondence should be addressed. E-mail: s.bhatia@imperial.ac.uk\@email.com}
+\correspondingauthor{\textsuperscript{2}To whom correspondence should be addressed. E-mail: s.bhatia@imperial.ac.uk}
 
 % Keywords are not mandatory, but authors are strongly encouraged to provide them. If provided, please include two to five keywords, separated by the pipe symbol, e.g:
 \keywords{outbreaks $|$ forecasting 2 $|$ digital digital disease surveillance 3 $|$} 
@@ -138,7 +143,11 @@ HealthMap (www.healthmap.org) is another widely used tool for disease
 outbreak monitoring. In addition to ProMED alerts, HealthMap utilises
 online news aggregators, eyewitness reports and other formal and
 informal sources of information and allows for visualisation of alerts
-on a map \cite{freifeld2008healthmap}.
+on a map \cite{freifeld2008healthmap}. HealthMap
+is used by key public health bodies, including the Centers for Disease
+Control and Prevention (CDC) and the World Health Organisation (WHO).
+The surveillance data collected by HealthMap  has been incorporated into the Epidemic
+Intelligence from Open Sources (EIOS) surveillance system, developed by WHO. 
 
 Some other examples of digital disease detection tools include MediSys
 (http://medisys.newsbrief.eu/), H5N1 Google Earth mashup
@@ -187,10 +196,11 @@ weaknesses, especially if used in near real-time forecasting.
 \section*{Results}
 
 Incidence time series were computed from ProMED, HealthMap and WHO data
-(see Methods section) for the three mainly affected countries, Guinea,
+(see Methods) for the three mainly affected countries, Guinea,
 Liberia and Sierra Leone, and are shown in Figure 1. The raw and
 processed (see Methods) data from ProMED and HealthMap for all countries
-included in the feed are available as supplementary material. There were
+included in the feed are available in the Github repository for this
+article. There were
 substantial differences between the incidence time series derived from
 the three data sources, particularly at the peak of the epidemic. There
 may be multiple reasons underpinning such discrepancy, including
@@ -214,18 +224,19 @@ independently for each country using the R package EpiEstim
 \cite{cori2013new} with a sliding time window of 4 weeks. There were
 substantial differences in the estimates of \(R_t\) according to the
 incidence data source used (Figure 1B). The correlation between the
-median R estimates on sliding 4-week windows from ProMED or HealthMap
+median $R_t$ estimates on sliding 4-week windows from ProMED or HealthMap
 data with the estimates from WHO data varied from weak (0.27, between
-reproduction number from WHO and ProMED in Guinea ) to very strong
+reproduction number from WHO and ProMED in Guinea) to very strong
 (0.81, between reproduction number from WHO and HealthMap in Sierra
-Leone, SI Table 1).
+Leone, SI Table \ref{tab:rcorr}).
 
 Since HealthMap uses ProMED alerts in addition to other online data
 sources, ProMED represents the more conservative data source between the
 two. Therefore we present the results based on ProMED data in the main
 text, unless otherwise sepecified. The analysis based on HealthMap and
 WHO data are presented in the
-Supplementary Information (SI) (SI Section 3 and SI Section 4).
+Supplementary Information (SI) (SI Sections \ref{forecasts-using-healthmap-data}
+and \ref{forecasts-using-who-data}).
 
 
 \subsection*{Short term forecasts}\label{short-term-forecasts}
@@ -249,20 +260,20 @@ typical infectiousness profile of a case over time after infection (see
 Methods for details).
 
 The ability of the model to robustly predict future outbreak
-trajectory was limited and 
-depended on the data source (Figures 2-3 and SI Sections 3 and 4)
+trajectory was limited and depended on the data source (Fig \ref{fig:pm24})
 as well as on the time window used for inference (calibration window)
 and the forecast horizon. Results using a 2-week calibration window
 and a 4-week forecast horizon using ProMED data are presented in
-the main text (see SI Figures 4 and 7 for other results).
+the main text (see SI Figs \ref{fig:pm26} and \ref{fig:pm28} for other results).
 Overall, 48.7\% of weekly observed incidence across
 all three countries were included in the 95\%
 forecast interval (49.3\% and 57.5\% for HealthMap and WHO
-respectively). Typically, model forecasts were 0.5 times lower or higher
-than the observed incidence based on the median relative mean absolute
-error (Figure 4, see Methods for details). We found no evidence of
+respectively, SI Table \ref{tab:propinci}).
+Typically, model forecasts were 0.5 times lower or higher
+than the observed incidence (95\% CrI 0.0 - 32.0) based on the median relative mean absolute
+error (Fig \ref{fig:perfpm24}D), see Methods for details). We found no evidence of
 systematic bias in any week of the forecast horizon (median bias 0.12,
-#TODO PUT 95 CrI).
+Fig \ref{fig:perfpm24}A).
 
 
 
@@ -273,13 +284,13 @@ systematic bias in any week of the forecast horizon (median bias 0.12,
 % (see Methods). The mean bias over the forecast horizon was 0.077 (IQR
 % -0.93 - 0.98) indicating 
 
-Typically, individual forecasts were within 17.0\% (95\% CrI #TODO)
+Typically, individual forecasts were within 17.0\% (95\% CrI 0.0 - 0.8)
 of the median forecast (based on the median and 95\% CrI for
-relative sharpness, see Methods for details).
+relative sharpness, Fig \ref{fig:perfpm24}B, see Methods for details).
 
 As expected, the robustness of forecasts (both accuracy and precision)
 decreased over the forecast
-horizon (Figure 4). In the first week of the forecast window, 58.0\% of
+horizon (Fig \ref{fig:perfpm24}C). In the first week of the forecast window, 58.0\% of
 observed values (across the three countries) were within the 95\%
 forecasts interval, reducing to 49.4\%, 42.3\% and 45.0\% in the
 second, third and fourth weeks of the forecast horizon. 
@@ -308,25 +319,25 @@ of \(R_t\) is less than 1, and ``stable'' in all other cases. In
 general, the model performance was best in the stable phase with
 66.7\% of the observations contained in the 95\% forecasts interval
 (versus 40.2\% and 30.8\% in the declining and growing phases respectively,
-Table 1). However the forecast uncertainty was largest in the stable
-phase and smallest in the growing phase (Figure 4B).
+SI Table \ref{tab:propinci}). However the forecast uncertainty was largest in the stable
+phase and smallest in the growing phase (Fig \ref{fig:perfpm24}B).
 Importantly, in the growing phase the model tended to over-predict
-while under-predicting in the declining phase (Figure 4A).
+while under-predicting in the declining phase (Fig \ref{fig:perfpm24}A).
 
 % Fitting the model with alternative calibration windows 
 % modifies the model complexity as the number of non-overlapping time
 % windows, and thus parameters, over the course of the epidemic increases
 % with shorter time windows.
 Overall, the model performed moderately better using WHO data compared
-to ProMED and HealthMap data (SI Figure XX #TODO), but increasing the calibration window
-up to 6 weeks had little impact on the model performance (SI Figure
-28).
+to ProMED and HealthMap data (SI Fig \ref{fig:perfds}), but increasing the calibration window
+up to 6 weeks had little impact on the model performance (SI Fig \ref{fig:perftw}).
 
+\subsection*{Risk of spatial spread}
 Although our model was not always able to robustly predict the future
 incidence in the three mainly affected countries, we found that it
 allowed to robustly predict the
-presence or absence of cases in all countries up to a week in advance
-(Figure 5). For each week and each country in the region, our model
+presence or absence of cases in all countries up to a week in
+advance. For each week and each country in the region, our model
 generated an alert if the predicted incidence (using a predetermined
 percentile of the forecast interval) was greater than 0. We classified
 an alert for a given week as a true
@@ -335,17 +346,29 @@ alert when no cases were observed, and as a missed alert if cases were
 observed but were not predicted by the model. Using different
 percentiles of the forecast (e.g., the median or the 95th percentile)
 yielded different rates of true, false and missed alerts, where were
-summarised in a ROC curve (Figure 5A). Overall, our model achieved
-high sensitivity but variable specificity.
+summarised in a ROC curve (Fig \ref{fig:alerts}A). Overall, our model achieved
+high sensitivity but variable specificity. In general, using higher
+percentiles as cut-off led to increased sensitivity but poorer
+specificity. The maximum specificity was 89.5\% with a sensitivity of
+84.7\%. Maximising the average between
+sensitivity and specificity led to 88.6\% sensitivity and 88.8\%
+specificity. The cut-off for raising an alert can thus be chosen based
+on the relative costs of missed and false alerts.
 To maximise sensitivity, i.e.~minimise the number of missed
 alerts, we chose to base the alert on the upper limit of the 95\%
 forecasts interval. With this threshold, the sensitivity of the model is
-99.6\% and the specificity is 85\% (#TODO Check). In several instances, a single false
-alert or a string of false alerts is followed by a true alert (Figure
-5B) suggesting that the model is able to capture and even anticipate the
-spatial spread of the epidemic. For instance, in July 2014, a false
-alert is raised in Nigeria and cases are in fact observed in Nigeria in
-the following week.
+99.6\% and the specificity is 15\%. 
+
+Importantly, our model was able to accurately predict the presence of
+cases in weeks following a week with
+no observed cases. For instance, in May 2014, the model predicts the
+presence of cases in Liberia after three consecutive weeks with no
+observed incidence (\ref{fig:alerts}B). No false alerts were raised
+for any of these countries (Liberia, Sierra Leone, Nigeria, Senegal
+and Mali) and the model sensitivity ranged from 11.4\%
+(using 2.5th percentile) to 93.2\% (97.5th percentile). The high
+sensitivity of the model suggests that the model is able to
+capture and even anticipate the spatial spread of the epidemic. 
 
 Together with providing operational outputs such as the predicted
 short-term incidence in currently affected countries or the risk of
@@ -353,37 +376,39 @@ spread to neighbouring countries, our method also provides near
 real-time estimates of parameters underlying the transmission model.
 First, the reproduction number \(R_t\) for each affected country is
 estimated over the time-window of inference, here over the most recent
-two weeks (Figure 2, second row). We found that these near real-time
+two weeks (Fig 2, second row). We found that these near real-time
 estimates of \(R_t\) were in good agreement with retrospective estimates
-obtained using the entire incidence time-series (Figure 2, bottom row,
+obtained using the entire incidence time-series (Fig 2, bottom row,
 correlation coefficients varying between 0.93 and 0.99 for the three
-countries).
+countries, SI Table \ref{tab:rcorr}).
 
 The risk of spatial spread in our model relies on estimating movement
-pattern of infectious cases. Our method also provides estimates of the
-parameters of the underlying gravity model (see Methods), \(p_{stay}\),
+pattern of infectious cases. Our method also provides estimates of
+%parameters of the underlying gravity model (see Methods), \(p_{stay}\),
 the probability of a case staying within a country throughout their
-infectious period, and \(\gamma\), a measure of the extent to which
+infectious period, and  the extent to which
 distance between two locations affects the flow between them. The
-real-time estimates of these two parameters over the course of the
-epidemic, shown in Figure 6, suggest that while the relative flow
+real-time estimates of these parameters over the course of the
+epidemic (SI Fig \ref{fig:parsul2}), suggest that while the relative flow
 between locations did not vary substantially over time, the probability
 of travel across national borders may have decreased after the initial
-phase of the epidemic. Figure 6 also illustrates how accumulating data
-throughout the course of the epidemic allows estimating such parameters
-more precisely.
+phase of the epidemic.
+% Figure 6 also illustrates how accumulating data
+% throughout the course of the epidemic allows estimating such parameters
+% more precisely.
 
 Finally, we quantify the relative risk of importation of a case into a
 country from any other currently affected country. The risk of
-importation is proportional to the population flow into a country (from
-all other countries) estimated using a mobility model (here, gravity
+importation is proportional to the population flow into a country from
+all other countries estimated using a mobility model (here, gravity
 model) weighted by the infectivity at each country (see Methods). Our
 estimates of the countries with higher risk of acting as source of
-importations are largely consistent with the reported source of cases.
-For instance, in May 2014 the risk of importation into Sierra Leone is
-concentrated in Guinea (Figure 7) which agrees with the observed
-importation of cases from Guinea into Sierra Leone
-\cite{gire2014genomic}.
+importations are largely consistent with the reported source of cases
+(Fig \ref{fig:imprisk}). In 4 out of the 5 reported cases of international spread
+of the epidemic in West Africa, the model correctly attributed a high relative
+risk of acting as a source of importation to the actual source
+identified through retrospective epidemiological and genomic
+investigations \cite{gire2014genomic}.
 
 % According to "retrspective" investigations
 % 
@@ -473,17 +498,20 @@ We have shown that our model would have been
 able to accurately predict in real-time the international spread of
 Ebola in West Africa. Importantly, our
 model has very high sensitivity, predicting all instances of observed
-international spread 1 to 4 weeks in advance. The model also had high
-specificity, although on occasions it predicted cases in
-countries, such as Côte d'Ivoire, where ProMED did not report any case.
-However this may be due to imperfect case reporting.
-
+international spread 1 to 4 weeks in advance. Choosing a cut-off to
+maximise sensitivity led to low model specificity. On occasions the
+model predicted cases in countries, such as Côte d'Ivoire, where ProMED did not report any case.
+However this may also be due to imperfect case reporting. Thus our
+method could be used with a high cut-off as a highly sensitive
+surveillance system with an alert triggering further epidemiological investigations. 
 
 A key feature of our model is that it
 provides, for each country identified as at risk, a map of where the
 risk comes from. Out of 5 observed instances of international spread
 of Ebola in West Africa, our model correctly identified the source
-in XX #TODO cases. This could help translating data collected through
+of importation in 4 cases while in the remaining case, the model
+highlighted the source of importation while assigning it low relative
+risk. This could help translating data collected through
 digital surveillance into concrete operational outputs in real-time
 that could assist in epidemic management and control. 
 
@@ -533,13 +561,13 @@ in future iterations of the model.
 \subsection*{Figures}\label{figures}
 
 \begin{figure*}
-\includegraphics{{ms-figures/who-hm-promed-comparison}.pdf}
+\includegraphics{{../../ms-figures/who-hm-promed-comparison}.pdf}
 \caption{Comparison of national daily
 incidence trends and R estimates from ProMED, HealthMap and WHO data for
 Guinea, Liberia and Sierra Leone. (A) Daily incidence derived from
 ProMED (blue), HealthMap (green) and WHO data (orange). Daily incidence
-that was not directly available from ProMED and HealthMap data and which
-were therefore imputed (see Methods) are shown in lighter shade of blue
+that were not directly available from ProMED and HealthMap data and
+which were therefore imputed (see Methods) are shown in lighter shade of blue
 and green respectively. WHO data were aggregated to country level. The
 y-axis differs for each plot. (B) The median time-varying reproduction
 number \(R_t\) estimated using the WHO data (orange), ProMED (blue) and
@@ -547,11 +575,11 @@ HealthMap (green) data. The shaded regions depicts the 95\% credible
 intervals (95\% CrI) for the \(R_t\) estimates. The reproduction
 number was estimated on sliding windows of 28 days, using the R package
 EpiEstim \cite{cori2013new}. Estimates shown at time \(t\) are for the
-28-day window finishing on day t.}
+28-day window finishing on day \(t\).}
 \end{figure*}
 
 \begin{figure*}
-\includegraphics{{ms-figures/projections-viz-fixed-country-15-1.ProMED_14_28}.pdf}
+\includegraphics{{../../ms-figures/projections-viz-fixed-country-15-1.ProMED_14_28}.pdf}
 \caption{Observed and predicted
 incidence, and reproduction number estimates from ProMED data. The top
 panel shows the weekly incidence derived from ProMED data and the 4
@@ -568,42 +596,36 @@ In each case, the solid gray line is the median estimate and
 the shaded region represents the 95\% Credible Interval. The red
 horizontal dashed line indicates the \(R_t = 1\) threshold. Results are
 shown for the three mainly affected countries although the analysis was
-done using data for all countries on African mainland.}
+done using data for all countries in Africa.}
+\label{fig:pm24}
 \end{figure*}
 
-\begin{figure*}
-\includegraphics{{ms-figures/14_28_non-facetted}.pdf}
-\caption{Forcasts using ProMED,
-HealthMap and WHO data. Non-overlapping weekly forecasts on log-scale
-over a 4 week horizon using ProMED (blue), HealthMap (green) and WHO
-(orange) data with a 2 week window used for inference. The black solid
-dots are the observed incidence derived from WHO data. The shaded
-regions represent the 95\% forecast interval.}
-\end{figure*}
 
 \begin{figure*}
-\includegraphics{{ms-figures/forecasts-assess-viz-26-1.ProMED_14_28_assess}.pdf}
+\includegraphics{{../../ms-figures/forecasts-assess-viz-26-1.ProMED_14_28_assess}.pdf}
 \caption{Model performance metrics stratified by
-epidemic phase. The performance metrics (anti-clockwise from top left)
-are bias, sharpness, relative mean absolute error (show on log scale)
-and the percentage of weeks for which the 95\% forecast interval
-contained the observed incidence. In forecasting ahead, we assumed
+epidemic phase. The performance metrics 
+are bias (A), sharpness (B), the percentage of weeks for which the 95\% forecast interval
+contained the observed incidence (C), and relative mean absolute error
+(D, show on log scale).
+In forecasting ahead, we assumed
 transmissibility to be constant over the forecast horizon. If the 97.5th
 percentile of the R estimate used for forecasting was less than 1, we
 defined the epidemic to be in the declining phase during this period.
 Similarly, if the 2.5th percentile of R was greater than 1, we defined
-the epidemic to be in a growing phase. The phase was set to neither
+the epidemic to be in a growing phase. The phase was set to stable
 where the 95\% Credible Interval of the R estimates contained 1.}
+\label{fig:perfpm24}
 \end{figure*}
 
 \begin{figure*}
-\includegraphics{{ms-figures/ProMED_roc_alerts_14}.pdf}
+\includegraphics{{../../ms-figures/ProMED_roc_alerts_14}.pdf}
 \caption{Predicted weekly presence of cases in
 each country. The left panel shows the True and False alert rates using
 different thresholds for classification when forecasting ahead for 4
-(blue), 6 (yellow), or 8 (pink) weeks. For a given threshold (\(x^{th}\)
+(blue), 6 (dark pink), or 8 (light pink) weeks. For a given threshold (\(x^{th}\)
 percentile of the forecast interval), we defined a True alert for a week
-where the \(x^{th}\) percentile of the the forecast interval and the
+where the \(x^{th}\) percentile of the forecast interval and the
 observed incidence for a country were both greater than 0; false alert
 for a week where the threshold for a country was greater than 0 but the
 observed incidence for that country was 0; and missed alert: week where
@@ -613,81 +635,49 @@ classified true alerts to the total number of true and missed alerts
 (i.e., (true alerts)/(true alerts + missed alerts)). False alert rate is
 similarly the ratio of false alerts to the total number of false alerts
 and weeks of no alert (where the observed and the threshold incidence
-are both 0). The right panel shows the True (green), False (yellow) and
+are both 0). The right panel shows the True (green), False (orange) and
 Missed (red) alerts using the 97.5\textsuperscript{th} percentile of the
 forecast interval as threshold. The figure only shows countries on the
 African continent for which either the predicted incidence or the
-observed incidence was greater than 0 at least once. For each country,
+observed incidence was greater than 0 at least once. The x-axis shows
+the date on which forecasts were made. For each country,
 four rows are shown corresponding to the 1, 2, 3 and 4 week ahead
-predictions respectively. Country codes, shown on the y-axis, are as
+predictions respectively. The first alert in each country is shown
+using larger symbols (square or triangle). Alerts in a country in a
+week where there no observed cases in the previous week are shown
+using hollow triangles. Country codes, shown on the y-axis, are as
 follows: BEN - Benin, BFA - Burkina Faso, CIV - Côte d'Ivoire, CMR -
 Cameroon, COD - Democratic Republic of Congo, GIN - Guinea, GNB -
 Guinea-Bissau, LBR - Liberia, MLI - Mali, NER - Niger, NGA - Nigeria,
 SEN - Senegal, SLE - Sierra Leone, TGO - Togo. Predictions used here are
 using the ProMED data, a 2-week window for inference and a 4 week
 forecast horizon.}
+\label{fig:alerts}
 \end{figure*}
 
-\begin{figure}
-
-\includegraphics{{ms-figures/gravity_model_pars_14}.pdf}
-\caption{Estimates of mobility model
-parameters during the epidemic. Population movement was modelled using a
-gravity model where the flow between locations \(i\) and \(j\) is
-proportional to the product of their populations and inversely
-population to the distance between them raised to an exponent
-\(\gamma\). The parameter \(\gamma\) thus modulates the influence of
-distance on the population flow. \(p_{stay}\) represents the probability
-of an individual to stay in a given location during their infectious
-period. The solid lines represents the median estimates obtained using
-WHO (yellow), ProMED (blue) and HealthMap (green) data. The shaded
-regions represent the 95\% CrI.}
-\end{figure}
 
 \begin{figure*}
-\includegraphics{{ms-figures/ProMED_importation_risk_first_obs_14}.pdf}
+\includegraphics{{../../ms-figures/ProMED_importation_risk_first_obs_14}.pdf}
 \caption{Relative risk of importation
 of the epidemic. For each country with non-zero incidence, the figure
 shows the relative importation risk (see Methods). Since we forecasted
 every 7 \textsuperscript{th} day, the risk of importation was estimated
 using forecasts closest to and before the date of the first case in that
 country reported in the data used. The date on which risk was estimated
-for each country is shown in the figure. The estimates presented here
+for each country is shown in the figure. Blue indicates low relative
+risk while deeper shades of red represent higher relative risk of
+acting as a source of importation. White is used to denote no risk.
+The estimates presented here
 use ProMED data with a 2 week window for inference. The country for
-which risk is estimated is shown in gray. Darker shades of red represent
-a higher relative risk. For each country, the figure shows only the risk
+which risk is estimated is shown in gray. The black circle represents
+the actual source of importation. For each country, the figure shows only the risk
 of importation from other countries and does not show the risk of
 transmission within the country.}
+\label{fig:imprisk}
 \end{figure*}
 
 
-\subsection*{Tables}
-
-\begin{table}
-  \centering
-  \caption{Percentage of weeks with observed incidence in 95\% forecast
-interval. In forecasting ahead, we assumed transmissibility to be
-constant over the forecast horizon. If the 97.5th percentile of the R
-estimate used for forecasting was less than 1, we defined the epidemic
-to be in the declining phase during this period. Similarly, if the 2.5th
-percentile of R was greater than 1, we defined the epidemic to be in a
-growing phase. The phase was set to neither where the 95\% Credible
-Interval of the R estimates contained 1.}
-\begin{tabular}{lllll}
-\toprule
-Country  & Growing & Declining & Neither & Overall \\
-\midrule
-Guinea  & 44.0\% & 42.2\% & 71.9\% & 54.4\% \\
-Liberia & 18.3\% & 31.5\% & 69.5\% & 49.3\% \\
-Sierra Leone & 25.9\% & 46.0\% & 55.7\% & 42.5\% \\
-All & 30.8\% & 40.2\% & 66.7\% & 48.7\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-
-
-
+%\subsection*{Tables}
 \subsection*{Supporting Information (SI)}
 
 The following files are provided as Supporting Information: (i) SI
@@ -696,10 +686,9 @@ sensitivity analysis. (ii) Convergence report produced by the R
 package ggmcmc.
 
 
-
 \matmethods{
-\subsection*{Processing ProMED/HealthMap data
-feed}\label{processing-promedhealthmap-data-feed}
+  \subsection*{Processing ProMED/HealthMap data feed}
+  \label{processing-promedhealthmap-data-feed}
 
 We used a set of curated ProMED and HealthMap records on the human cases
 of Ebola in West Africa. The dates in the feeds ranged from March 2014
@@ -925,11 +914,18 @@ mainland. For estimating the time-varying reproduction number for each
 country, we split the duration of the total outbreak into intervals of
 equal width. We assume that transmissibility in each location stays
 constant within each time window and thus, within a time window, we
-estimated a single reproduction number for each location. We varied the
-length of this time window to obtain different models, with short time
+estimated a single reproduction number for each location. To reduce
+the number of parameters in the model, we divided the 55 countries on
+African continent into 5 groups and estimated a reproduction number
+for each group in each time window. The first three groups correspond
+of the three mainly affected countries - Sierra Leone, Guinea and Liberia.
+The countries that shared a border with these three countries
+were grouped together. These were Mali, Côte d'Ivoire, Guinea-Bissau
+and Gambia. The rest of the countries were assigned to the fifth group.
+We varied the length of the time window to obtain different models, with short time
 windows increasing the number of parameters in the model. A comparison
 of the performance of different models is presented in the Supplementary
-Material (SI Figure 28).
+Material (SI Fig \ref{fig:perftw}).
 
 We assumed a Gamma distributed serial interval with mean 14.2 days and
 standard deviation 9.6 days \cite{team2015west}. For the reproduction
@@ -949,7 +945,7 @@ exponents \(\alpha\) and \(\beta\) on the populations to be 1.
 \(\gamma\) was allowed to vary between 1 and 2 in the results presented
 in the main text. We performed a sensitivity analysis where \(\gamma\)
 has a uniform prior between 1 and 10. The results of this analysis are
-presented in the SI (SI Section 7: ).
+presented in the SI (SI Section \ref{sensitivity-analysis}).
 
 Model fitting was done in a Bayesian framework using a Markov Chain
 Monte Carlo (MCMC) as implemented in the software Stan
@@ -971,7 +967,6 @@ posterior distribution, and for each parameter set, simulated one future
 epidemic trajectory according to equation (1), assuming that future
 \(R_t\) is equal to the last estimated \(R_t\) value in each location.
 
-
 \section*{Model Validation}\label{assess}
 
 Given the retrospective nature of our analysis, we validated the
@@ -989,7 +984,7 @@ location \(j\), let \(I_{j}^{t}\) be the observed incidence at time $t$
 and let $\hat{I}_{j}^{t}$ be the set of predictions of the
 model at time \(t\). That is, $\hat{I}_{j}^{t}= \hat{I}_{j}^{t, 1}, \hat{I}_{j}^{t, 2}, \dots \hat{I}_{j}^{t,N}\}$
 is the set of \(N\) draws from the Poisson distribution with mean
-\(\lambda_{j}^{t}\) \ref{eq:lambdajt} (here N = 1000).
+\(\lambda_{j}^{t}\) (Equation 1) (here N = 1000).
 
 
 
@@ -997,7 +992,7 @@ is the set of \(N\) draws from the Poisson distribution with mean
 
 The relative mean absolute error (rmae) is a widely used measure of
 model accuracy \cite{tofallis2015better}. The relative mean absolute
-error for the forecasts at a location (j) at time (t) is defined as:
+error for the forecasts at a location \(j\) at time \(t\) is defined as:
 
 \begin{equation*}
   rmae_{j}^{t}(I_{j}^{t}, \hat{I}_{j}^{t}) = 
@@ -1005,10 +1000,12 @@ error for the forecasts at a location (j) at time (t) is defined as:
  \sum_{s = 1}^N{\lvert I_{j}^{t} - \hat{I}_{j}^{t, s} \rvert}
  }
  { N *  (I_{j}^{t} + 1)}.
-\end{equation*} That is the mean absolute error at time (t) is averaged
+\end{equation*}
+
+That is the mean absolute error at time \(t\) is averaged
 across all simulated incidence trajectories and normalised by the
-observed incidence. We add (1) to the observed value to prevent division
-by (0). A RMAE value of \(k\) means that the average error is \(k\)
+observed incidence. We add \(1\) to the observed value to prevent division
+by \(0\). A RMAE value of \(k\) means that the average error is \(k\)
 times the observed value.
 
 \subsection*{Sharpness}\label{sharpness}
@@ -1016,8 +1013,8 @@ times the observed value.
 Sharpness is a measure of the spread (or uncertainty) of the forecasts.
 Adapting the definition proposed by \cite{funk2017assessing}, we used
 the relative mean absolute deviation about the median (MADM) to evaluate
-sharpness. The sharpness (s\_\{j\}\^{}\{t\}) of forecasts at at time (t)
-at location (j) is
+sharpness. The sharpness $s_{j}^t$ of forecasts at at time \(t\)
+at location \(j\) is
 
 \begin{equation*}
 s_{j}^{t}(\hat{I}_{j}^{t}) = 
@@ -1103,8 +1100,8 @@ The overall relative risk at location \(j\) at time \(t\) is therefore
 with the sum being taken over all possible sources.
 
 \subsection*{Code and data availability}
-
-The code for analysis of ProMED and HealthMap data and an
+All analysis was carried out in the statistical software R version
+3.5.3. The code for analysis of ProMED and HealthMap data and an
 implementation of the model is available at
 \url{https://github.com/annecori/mRIIDSprocessData}. The code for
 producing the text and figures for this manuscript is available at
