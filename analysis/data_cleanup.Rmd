@@ -21,7 +21,7 @@ biblio-style: apsr
 endnote: no
 params:
   infile: data/raw/promed_2014-2016-renamed.csv
-  outfile: 27062019_promed_loglinear
+  outfile: 07102019_promed_loglinear
   ofinterest: data/processed/all_african_centroids.csv
   datasource: ProMED
 ---
@@ -60,7 +60,7 @@ wafrica <- c(
   "Liberia",
   "Guinea",
   "Senegal",
-  ## "Ghana",
+   "Ghana",
   "Mali",
   "Nigeria"
 )
@@ -230,7 +230,8 @@ no_outliers <- purrr::map(no_dups, function(df) {
 })
 ```
 
-## Make monotonically increasing.
+## Make monotonically increasing
+
 ```{r data-cleanup-12 }
 
 mono_inc <- purrr::map(
@@ -250,7 +251,12 @@ interpolated <- purrr::map(
   )
 )
 ```
+Check that each dataframe within interpolated corresponds to daily 
+series.
 
+```{r}
+purrr::map(interpolated, function(x) diff(x$date))
+```
 ## Plot
 
 
@@ -364,7 +370,8 @@ purrr::map(countries, function(c) {
     height = mriids_plot_theme$single_col_height,
     units = mriids_plot_theme$units
   )
-})
+  }
+)
 ```
 
 ## Derive incidence time series from interpolated cumulative cases
@@ -408,7 +415,7 @@ Also, get rid of the first row of all 0s to get Stan started.
 
 ```{r data-cleanup-23 }
 
-incid_tall <- filter(
+incid_tall <- dplyr::filter(
   incid_tall,
   date != "2014-03-21"
 )
@@ -454,7 +461,7 @@ inorder <- ofinterest$ISO3
 ## Some of the countries of interest may not be present in
 ## incid_wide_all
 inorder <- intersect(inorder, colnames(incid_wide_all))
-incid_wide_all <- select(
+incid_wide_all <- dplyr::select(
   incid_wide_all,
   date,
   inorder
@@ -477,12 +484,13 @@ here::here("data/processed", outfile) %>%
 ## Also make note of what points were interpolated.
 
 ```{r data-cleanup-28 }
-incid_extracols <- purrr::map_dfr(interpolated, function(x) {
+incid_extracols <- purrr::map_dfr(
+  interpolated, function(x) {
   idx <- which(is.na(x$cases))
   x$interpolated <- "FALSE"
   x$interpolated[idx] <- "TRUE"
 
-  x <- select(
+  x <- dplyr::select(
     x,
     date,
     interpolated
@@ -498,9 +506,97 @@ incid_extracols$country <- countrycode::countrycode(
 )
 ```
 
-Add the data that was affixed later.
+Reshaping from tall to wide and back to tall allows us to get the same
+dates for all countries. We do this fror both data frames and then 
+join the tall forms of both.
+
+```{r}
+incid_tall <- tidyr::gather(
+    data = incid_wide,
+    key = country,
+    value = incid,
+    -date
+)
+## Check
+## dplyr::group_by(incid_tall, country) %>% summarise(n = n())
+# A tibble: 6 x 2
+##   country     n
+##   <chr>   <int>
+## 1 GIN       656
+## 2 LBR       656
+## 3 MLI       656
+## 4 NGA       656
+## 5 SEN       656
+## 6 SLE       656
+
+## When reshaping to wide, we get NAs for dates for which
+## we don't have data for a given country. This we had set to 0 in
+## reshaping incid; So we set interpolated to FALSE for these dates.
+out <- tidyr::spread(
+    incid_extracols,
+    country,
+    interpolated,
+    fill = FALSE
+    )
+## Reshaping back to tall
+incid_extracols <- tidyr::gather(
+    data = out,
+    key = country,
+    value = interpolated,
+    -date
+  )    
+## Check
+## dplyr::group_by(incid_extracols, country) %>% summarise(n = n())
+# A tibble: 6 x 2
+##   country     n
+##   <chr>   <int>
+## 1 GIN       657
+## 2 LBR       657
+## 3 MLI       657
+## 4 NGA       657
+## 5 SEN       657
+## 6 SLE       657
+
+```
+Now we can join the two.
 
 ```{r data-cleanup-29 }
+## dim(incid_tall) 2310    3
+## dim(incid_extracols) 2311    3
+## The 1 row (Ghana) that we deleted from incid_tall
+incid_tall <- dplyr::left_join(
+    incid_tall,
+    incid_extracols
+    )
+## dplyr::group_by(incid_tall, country) %>% summarise(n = n())
+# A tibble: 6 x 2
+##   country     n
+##   <chr>   <int>
+## 1 GIN       656
+## 2 LBR       656
+## 3 MLI       656
+## 4 NGA       656
+## 5 SEN       656
+## 6 SLE       656
+## This should not have introduced NAs. 
+## incid_tall[!complete.cases(incid_tall), ]
+## [1] country      date         incid        interpolated
+## <0 rows> (or 0-length row.names)
+
+```
+
+
+```{r data-cleanup-30 }
+## This is wrong; see notes
+## incid_extracols <- dplyr::left_join(
+##   incid_tall,
+##   incid_extracols,
+##   by = c(
+##     "date",
+##     "country"
+##   )
+##)
+
 df <- cbind(date = incid_wide_all$date, df)
 df_tall <- tidyr::gather(
   df,
@@ -508,21 +604,28 @@ df_tall <- tidyr::gather(
   incid,
   -date
 )
+## dplyr::group_by(df_tall, country) %>% summarise(n = n()) %>% filter(n != 656)
+## A tibble: 0 x 2
+## … with 2 variables: country <chr>, n <int>
+
+## By the same logic as before, we set the flag to FALSE for these
+## countries.
+
+df_tall$interpolated <- FALSE
 
 incid_tall <- rbind(
   incid_tall,
   df_tall
 )
-```
 
-```{r data-cleanup-30 }
-incid_extracols <- left_join(incid_tall,
-  incid_extracols,
-  by = c(
-    "date",
-    "country"
-  )
-)
+## dplyr::group_by(incid_tall, country) %>% summarise(n = n()) %>% filter(n != 656)
+## # A tibble: 0 x 2
+## # … with 2 variables: country <chr>, n <int>
+
+## This should not have introduced NAs. 
+## incid_tall[!complete.cases(incid_tall), ]
+## [1] country      date         incid        interpolated
+## <0 rows> (or 0-length row.names)
 
 outfile <- paste0(params$outfile, "_tall.csv")
 
@@ -537,20 +640,51 @@ here::here("data/processed", outfile) %>%
 
 Add a flag to indicate if all points in the week were reconstructed.
 
-```{r data-cleanup-31 }
-extra <- as.numeric(max(incid_extracols$date) -
-  min(incid_extracols$date)) %% 7
+```{r data-cleanup-31}
 
-dates <- sort(incid_extracols$date) %>%
-  unique()
+## No NAs at this point
+## incid_extracols[is.na(incid_extracols$incid), ]
+
+## Not all countries have the same number of rows.
+## group_by(incid_extracols, country) %>% summarise(n()) %>% filter(`n()` != 656)
+# A tibble: 6 x 2
+##   country `n()`
+##   <chr>   <int>
+## 1 GIN       584
+## 2 LBR       566
+## 3 MLI        70
+## 4 NGA       531
+## 5 SEN        69
+## 6 SLE       490
+## Essentailly we had the following number of 0 incidence rows missing from our
+## analysis for sensitivity and specificity.
+##   country      newcols
+##   <chr>          <dbl>
+## 1 Guinea            71
+## 2 Liberia           90
+## 3 Mali             586
+## 4 Nigeria          125
+## 5 Senegal          587
+## 6 Sierra Leone     166
+
+## Why work on incid_extracols? This will lead to missing all those
+## other countries we added.
+extra <- as.numeric(max(incid_tall$date) -
+  min(incid_tall$date)) %% 7
+
+
+dates <- unique(sort(incid_tall$date))
+  
 
 remove <- tail(dates, extra)
 
-daily <- filter(
-  incid_extracols,
-  !date %in% remove
+daily <- dplyr::filter(
+  incid_tall,
+  !(date %in% remove)
 )
 daily$interpolated <- as.logical(daily$interpolated)
+## Check for NAs
+## any(is.na(daily$interpolated))
 weeks <- cut(daily$date, breaks = "7 days")
 weekly <- split(daily, weeks) %>%
   purrr::map_dfr(~ dplyr::group_by(
@@ -563,6 +697,12 @@ weekly <- split(daily, weeks) %>%
     ),
   .id = "date"
   )
+## weekly[!complete.cases(weekly), ]
+## group_by(weekly, country) %>% summarise(n()) %>% filter(`n()` != 94)
+## A tibble: 0 x 2
+## … with 2 variables: country <chr>, `n()` <int>
+## Check that the numbers look ok.
+
 
 outfile <- paste0(params$outfile, "_weekly.csv")
 readr::write_csv(
