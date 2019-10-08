@@ -20,13 +20,17 @@ weekly_incid <- dplyr::left_join(
     suffix = c("_this_week", "_last_week")
 )
 
+## NAs for the earliest week for which we have no record of last week
+## unique(weekly_incid[!complete.cases(weekly_incid), "date"])
+##   date
+##   <date>
+## 1 2014-03-22
+
 ## weeks after the earliest cases have already been observed.
 weekly_incid <-dplyr::filter(weekly_incid, date > earliest)
 
-## an NA in last_week indicates that there were no cases in this
-## country in the last week. 6 such rows - om GHA, LBR, SLE, NGA, SEN
-## and MLI.
-weekly_incid$incid_last_week[is.na(weekly_incid$incid_last_week)] <-  0
+
+
 
 ## Filter where last_week was 0 but this week is not.
 weekly_incid <- dplyr::filter(
@@ -64,6 +68,6 @@ readr::write_csv(
   x = weekly_incid,
   path = here::here(
     all_files[[datasource]]$outdir,
-    "new_weekly_incidence.csv"
+    glue::glue("{Sys.Date()}_new_weekly_incidence.csv")
   )
 )
