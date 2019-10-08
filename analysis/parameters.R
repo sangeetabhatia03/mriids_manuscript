@@ -1,5 +1,5 @@
 all_files <- list(
-  WHO2 = list(
+  WHO = list(
     raw = "data/raw/rstb20160308supp1.csv",
     incidfile =
       "data/processed/01032019_who_bycountry.csv",
@@ -17,7 +17,7 @@ all_files <- list(
     places = c("LBR", "GIN", "SLE")
   ),
 
-  WHO = list(
+  WHO10 = list(
     raw = "data/raw/rstb20160308supp1.csv",
     incidfile =
       "data/processed/01032019_who_bycountry.csv",
@@ -35,7 +35,7 @@ all_files <- list(
     places = c("LBR", "GIN", "SLE")
   ),
 
-  ProMED = list(
+  ProMED10 = list(
     raw = "data/raw/promed_2014-2016-renamed.csv",
     incidfile =
       "data/processed/20122018_promed_loglinear_wide.csv",
@@ -52,14 +52,14 @@ all_files <- list(
     nsim = 1000,
     places = c("LBR", "GIN", "SLE")
   ),
-  ProMED2 = list(
+  ProMED = list(
     raw = "data/raw/promed_2014-2016-renamed.csv",
     incidfile =
       "data/processed/20122018_promed_loglinear_wide.csv",
     weekly_incidfile =
-      "data/processed/20122018_promed_loglinear_weekly.csv",
+      "data/processed/07102019_promed_loglinear_weekly.csv",
     weekly_wide =
-      "data/processed/wide_20122018_promed_loglinear_weekly.csv",
+      "data/processed/wide_07102019_promed_loglinear_weekly.csv",
     stanfits_dir = "data/stanfits",
     outdir = "data/output",
     metadatafile = "data/processed/all_african_centroids.csv",
