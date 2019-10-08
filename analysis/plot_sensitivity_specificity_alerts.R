@@ -14,8 +14,32 @@ incid_pred <- incid_pred[incid_pred$time_window == twindow &
                            incid_pred$n.dates.sim == n.dates.sim, ]
 
 
+## Number of countries for which we have only no alerts and nothing else.
+## out <- incid_pred[incid_pred$threshold == "50%", ]
+## out <- dplyr::select(out, country, alert_type)
+## out <- dplyr::group_by(out, country, alert_type) %>% summarise(n())
+## out <- ungroup(out)
+## out <- tidyr::spread(out, key = alert_type, value = `n()`, fill = 0)
+## dplyr::filter(out, `False Alert` == 0 & `Missed Alert` == 0)
+## # A tibble: 24 x 5
+##    country `False Alert` `Missed Alert` `No Alert` `True Alert`
+##    <chr>           <dbl>          <dbl>      <dbl>        <dbl>
+##  1 BDI                 0              0        355            0
+##  2 BWA                 0              0        355            0
+##  3 CAF                 0              0        355            0
+##  4 COG                 0              0        355            0
+##  5 COM                 0              0        355            0
+##  6 CPV                 0              0        355            0
+##  7 DJI                 0              0        355            0
+##  8 ERI                 0              0        355            0
+##  9 GAB                 0              0        355            0
+## 10 GNQ                 0              0        355            0
+## # … with 14 more rows
+
 ## incid_pred <- dplyr::filter(incid_pred, !is.na(incid))
 ##nonna_alerts <- dplyr::filter(incid_pred, incid != 0 | ymin != 0)
+
+
 
 ## Only retain countries where we didn't always observe and predict 0.
 nonna_alerts <- dplyr::filter(incid_pred, alert_type != "No Alert")
