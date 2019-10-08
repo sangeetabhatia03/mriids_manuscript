@@ -6,6 +6,7 @@ weekly_alerts <- data.table::fread(
  )
 
 weekly_alerts <- weekly_alerts[weekly_alerts$n.dates.sim != 14, ]
+## weekly_alerts[!complete.cases(weekly_alerts), ]
 ## Plot TPR vs FPR
 ## TPR = # of TRUE Alerts/ (# of True Alerts + # of Missed Alerts)
 ## FPR = # of FALSE Alerts/ (# of No Alerts + # of False Alerts)
@@ -14,15 +15,30 @@ res <- dplyr::group_by(
     weekly_alerts,
     time_window,
     n.dates.sim,
+    week_of_projection, ## Added on 0710 as per Anne's suggestion to plot sensitivity etc by week of projection.
     threshold,
     alert_type
 ) %>%
   dplyr::summarise(n = dplyr::n())
 
+res <- ungroup(res)
+
 res <- tidyr::spread(
     res,
     key = alert_type,
-    value = n)
+    value = n,
+    fill = 0
+    )
+## res[!complete.cases(res), ]
+## total_alerts <- res$`False Alert` +
+## res$`Missed Alert` +
+## res$`No Alert` +
+## res$`True Alert`
+## ## counted another way
+## total_alerts2 <- dplyr::group_by(
+##    weekly_alerts, time_window, n.dates.sim, threshold) %>%
+##   summarise(n = n())
+## all(total_alerts2$n == total_alerts)
 
 res$tpr <- res$`True Alert` / (res$`True Alert` + res$`Missed Alert`)
 res$fpr <- res$`False Alert` / (res$`No Alert` + res$`False Alert`)
@@ -30,7 +46,7 @@ res$fpr <- res$`False Alert` / (res$`No Alert` + res$`False Alert`)
 
 outfile <- here::here(
     all_files[[datasource]]$outdir,
-    glue::glue("{datasource}_trp_fpr.csv")
+    glue::glue("{datasource}_trp_fpr_by_week_projection.csv")
   )
 readr::write_csv(x = res, path = outfile)
 
