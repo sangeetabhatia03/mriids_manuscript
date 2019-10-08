@@ -6,19 +6,24 @@ incid_pred <- readr::read_csv(
     "incidence_forecasts.csv"
   )
 )
+## We know what is being omitted. These aer forecasts beyond the max
+## date for which we have incidence.
 
 incid_pred <- na.omit(incid_pred)
-## Temporal trend in true, false and missed alerts.
-## Using central estimate.
-qntls <- dplyr::select(incid_pred, `2.5%`:`97.5%`)
+
+## 05102019 Changed 97.5% to 100% and 2.5% to 0%
+## to explore the full range of forecast distribution
+qntls <- dplyr::select(incid_pred, `0%`:`100%`)
 
 alerts <- purrr::map_dfr(
     qntls,
     function(pred) alert_type(obs = incid_pred$incid, pred = pred)
-)
-##colnames(alerts) <- paste0("alert_using_", colnames(alerts))
+ )
+
+## No NAs alerts[!complete.cases(alerts), ]
+
 weekly_alerts <- cbind(
-    dplyr::select(incid_pred, date.x:date.y),
+    dplyr::select(incid_pred, tproj:country, week_of_year:date_of_projection),
     alerts
 )
 
@@ -26,7 +31,7 @@ weekly_alerts <- tidyr::gather(
     weekly_alerts,
     key = "threshold",
     value = "alert_type",
-    `2.5%`:`97.5%`
+    `0%`:`100%`
 )
 ## weekly_alerts <- dplyr::select(
 ##     weekly_alerts,
