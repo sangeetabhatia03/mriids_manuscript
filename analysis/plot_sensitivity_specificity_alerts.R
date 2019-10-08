@@ -5,7 +5,7 @@ message("Reading from and writing to ", all_files[[datasource]]$outdir)
 incid_pred <- readr::read_csv(
   file = here::here(
     all_files[[datasource]]$outdir,
-    "alerts_per_week.csv"
+    "weekly_alerts.csv"
     )
   )
 
@@ -13,12 +13,38 @@ incid_pred <- readr::read_csv(
 incid_pred <- incid_pred[incid_pred$time_window == twindow &
                            incid_pred$n.dates.sim == n.dates.sim, ]
 
+
+## incid_pred <- dplyr::filter(incid_pred, !is.na(incid))
+##nonna_alerts <- dplyr::filter(incid_pred, incid != 0 | ymin != 0)
+
 ## Only retain countries where we didn't always observe and predict 0.
-incid_pred <- dplyr::filter(incid_pred, !is.na(incid))
-nonna_alerts <- dplyr::filter(incid_pred, incid != 0 | ymin != 0)
+nonna_alerts <- dplyr::filter(incid_pred, alert_type != "No Alert")
+nonna_alerts <- dplyr::filter(nonna_alerts, threshold == "50%")
 
+## Make 1 plot for each country.
+bycountry <- split(nonna_alerts, nonna_alerts$country)
+values <- c(`Missed Alert.FALSE` = "red",
+            `Missed Alert.TRUE` = "#ffb2b2",
+            `True Alert.FALSE` = "#009E73",
+            `True Alert.TRUE` = "#99d8c7",
+            `False Alert.FALSE` = "#cc8400",
+            `False Alert.TRUE` = "#f4e6cb")
 
-
+purrr::iwalk(
+    bycountry,
+    function(df, country) {
+        p <- ggplot(df, aes(date_obs, date_pred, col = interaction(alert_type, interpolated))) +
+            geom_point()
+        p <- p + theme_base()
+        p <- p + scale_colour_manual(values = values)
+        p <- p + theme(legend.position = "none")
+        outfile <- here::here(
+            all_files[[datasource]]$outdir,
+            glue::glue("{country}_alerts_{twindow}_{n.dates.sim}.pdf")
+        )
+        ggplot2::ggsave(filename = outfile, plot = p)
+       }
+)
 ## Since we want to plot dates on the x-axis, coutnries on y
 ## And alerts on the plot, we will have to force assign a y level
 ## to each alert.
@@ -29,7 +55,7 @@ weeks <- unique(nonna_alerts$week_of_projection)
 country_week <- purrr::cross2(
     as.character(countries),
     as.character(weeks)
-    )
+  )
 
 forced_y_level <- data.frame(
     country = purrr::map_chr(country_week, ~ .x[[1]]),
@@ -37,6 +63,8 @@ forced_y_level <- data.frame(
     forced_y = 0,
     stringsAsFactors = FALSE
 )
+
+
 forced_y_level$label <- paste(
     "Week",
     forced_y_level$week_of_projection
@@ -51,7 +79,7 @@ forced_y_level <- dplyr::arrange(
 
 forced_y_level$forced_y <- seq(
     from = 0,
-    by = 0.09,
+    by = 0.05,
     length.out = nrow(forced_y_level)
 )
 
@@ -77,34 +105,19 @@ yaxis_levels$y <- yaxis_levels$miny + ((yaxis_levels$maxy - yaxis_levels$miny)/2
 
 
 
-## This is not really important but retaining only columns we need
-## for clarity.
-
-df_to_plot <- dplyr::select(
-  nonna_alerts,
-  date_of_obs = date,
-  date_of_projection,
-  country,
-  week_of_projection,
-  forced_y,
-  alert_type_high
-)
-
-
-
 ## For each country, tag the first alert raised.
 ## so that we can make it slightly bigger.
-first_alerts <- dplyr::group_by(df_to_plot, country) %>%
+first_alerts <- dplyr::group_by(nonna_alerts, country) %>%
     dplyr::summarise(date_of_projection = min(date_of_projection))
 
 first_alerts$first_alert <- "YES"
 
-df_to_plot <- dplyr::left_join(
-    df_to_plot,
+nonna_alerts <- dplyr::left_join(
+    nonna_alerts,
     first_alerts
 )
 
-df_to_plot$first_alert[is.na(df_to_plot$first_alert)] <- "NO"
+nonna_alerts$first_alert[is.na(nonna_alerts$first_alert)] <- "NO"
 
 
 ## For eacg country, highight instances where there were no cases
@@ -113,30 +126,33 @@ df_to_plot$first_alert[is.na(df_to_plot$first_alert)] <- "NO"
 new_weekly_obs <- readr::read_csv(
   file = here::here(
     all_files[[datasource]]$outdir,
-    "new_weekly_incidence.csv"
+    "2019-10-07_new_weekly_incidence.csv"
   )
 )
 
 new_weekly_obs$new_obs <- "YES"
 
-df_to_plot <- dplyr::left_join(
-    df_to_plot,
+nonna_alerts <- dplyr::left_join(
+    nonna_alerts,
     new_weekly_obs,
-    by = c("date_of_obs" = "date", "country")
+    by = c("date_obs" = "date", "country")
 )
 
-df_to_plot$new_obs[is.na(df_to_plot$new_obs)] <- "NO"
-df_to_plot$stroke <- 0
-df_to_plot$stroke[df_to_plot$new_obs == "YES"] <- 0.5
+nonna_alerts$new_obs[is.na(nonna_alerts$new_obs)] <- "NO"
+nonna_alerts$stroke <- 0
+nonna_alerts$stroke[nonna_alerts$new_obs == "YES"] <- 0.5
+
+
+## Define color scale.
 
 
 p <- ggplot(
-  df_to_plot,
+  nonna_alerts,
   aes(
-      date_of_projection,
+      date_obs,
       forced_y,
       size = first_alert,
-      col = alert_type_high,
+      col = interaction(alert_type, interpolated),
       shape = new_obs
   )
 ) +
@@ -144,11 +160,7 @@ p <- ggplot(
     scale_shape_manual(values = c(YES = 24, NO = 15)) +
     scale_size_manual(values = c(YES = 1, NO = 0.5)) +
     scale_colour_manual(
-        values = c(
-            `Missed Alert` = "red",
-            `True Alert` = "#009E73",
-            `False Alert` = "#cc8400"
-        )
+        values = values
     ) +
     ## scale_fill_manual(
     ##     values = c(
@@ -171,7 +183,7 @@ p <- p + mriids_plot_theme$theme +
         axis.text.y = element_text(
             angle = 90,
             hjust = 0.5,
-            size = 6
+            size = 4
         )
     )  +
     scale_x_date(labels = mriids_plot_theme$dateformat) +
@@ -179,7 +191,7 @@ p <- p + mriids_plot_theme$theme +
     xlab("") + ylab("")
 
 ## Week labels on the right
-forced_y_level$date <- max(df_to_plot$date_of_projection) + 2
+forced_y_level$date <- max(nonna_alerts$date_of_projection) + 2
 ## p <- p +
 ##   geom_text(
 ##     data = forced_y_level,
@@ -192,7 +204,7 @@ forced_y_level$date <- max(df_to_plot$date_of_projection) + 2
 ##     inherit.aes = FALSE
 ##   ) +
 ##   coord_cartesian(
-##     xlim = range(df_to_plot$date_of_projection),
+##     xlim = range(nonna_alerts$date_of_projection),
 ##     clip = "off"
 ##   )
 
@@ -226,21 +238,28 @@ ggsave(
 
 infile <- here::here(
     all_files[[datasource]]$outdir,
-    glue::glue("{datasource}_trp_fpr.csv")
+    glue::glue("{datasource}_trp_fpr_by_week_projection.csv")
   )
 roc <- readr::read_csv(infile)
-df <- dplyr::filter(roc, time_window == twindow)
+df <- dplyr::filter(roc, time_window == twindow & n.dates.sim == 28)
 df$n.dates.sim <- factor(df$n.dates.sim)
-
+df$week_of_projection <- factor(df$week_of_projection)
 ## f77be3
+## palette <- c(
+##     "28" = "#0078fb", ## blue
+##     "42" = "#f77be3", ## dark pink
+##     "56" = "#ff8b8c" ## light pink
+## )
+
 palette <- c(
-    "28" = "#0078fb", ## blue
-    "42" = "#f77be3", ## dark pink
-    "56" = "#ff8b8c" ## light pink
+    "4" = "#99c9fd", ## light blue
+    "3" = "#0078fb", ## blue
+    "2" = "#f77be3", ## dark pink
+    "1" = "#ff8b8c" ## light pink
 )
 
 roc_p <- ggplot(df, aes(x = fpr, y = tpr)) +
-        geom_line(aes(col = n.dates.sim))
+        geom_line(aes(col = week_of_projection))
 roc_p <- roc_p + xlim(0, 1) + ylim(0, 1)
 roc_p <- roc_p + xlab("False Alert Rate") + ylab("True Alert Rate")
 roc_p <- roc_p + geom_abline(slope = 1, intercept = 0, alpha = 0.3)
