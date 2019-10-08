@@ -7,6 +7,7 @@ weekly_incid <- readr::read_csv(
     )
   )
 
+
 weekly_incid$week_of_year <- week_of_year(weekly_incid$date)
 
 all_forecasts <- readr::read_csv(
@@ -16,13 +17,22 @@ all_forecasts <- readr::read_csv(
   )
   )
 
-
+## None of the columns in weekly_incid have NA
+## weekly_incid[!complete.cases(weekly_incid), ]
+## None of the columns in all_forecasts have NA
+## all_forecasts[!complete.cases(all_forecasts), ]
 ## Combine with forecasts
+
 incid_pred <- dplyr::left_join(
-   weekly_incid,
    all_forecasts,
-  by = c("week_of_year", "country")
+   weekly_incid,
+   by = c("week_of_year", "country"),
+   suffix = c("_pred", "_obs")
 )
+## The join has NAs for dates that are beyond the max date in
+## weekly_incid.
+## withnas <- incid_pred[!complete.cases(incid_pred), ]
+## which(withnas$date_pred <=  max(weekly_incid$date))
 
 ## Get the date on which we projected forward;
 incid_wide <- readr::read_csv(
