@@ -30,13 +30,17 @@ metrics <- function(obs, pred) {
 }
 
 alert_type <- function(obs, pred) {
- out <- dplyr::case_when(
-     obs == 0 & pred > 0 ~ "False Alert",
-     obs > 0 & pred > 0 ~ "True Alert",
-     obs > 0 & pred == 0 ~ "Missed Alert",
-     obs == 0 & pred == 0 ~ "No Alert"
- )
- out
+
+    if (length(obs) != length(pred)) {
+        stop("Length of obs vector different from pred vector")
+    }
+    out <- dplyr::case_when(
+      obs == 0 & pred > 0 ~ "False Alert",
+      obs > 0 & pred > 0 ~ "True Alert",
+      obs > 0 & pred == 0 ~ "Missed Alert",
+      obs == 0 & pred == 0 ~ "No Alert"
+    )
+    out
 }
 
 
@@ -88,4 +92,21 @@ extract_r_samples <- function(rindex, rsamples, dates) {
     samples <- do.call(rbind, samples)
     rsamples <- cbind(rindex_df, samples)
     rsamples
+}
+
+
+daily_to_weekly <- function (daily) {
+
+    extra <- nrow(daily)%%7
+    if (extra != 0) {
+        warning("Number of rows is not a multiple of 7.")
+        warning(paste("Ignoring last", extra, "days."))
+        daily <- utils::head(daily, -extra)
+    }
+    weeks <- cut(daily$date, breaks = "7 days")
+    weekly <- split(daily, weeks)
+    weekly <- plyr::ldply(weekly, function(d) colSums(d[, !names(d) %in%
+        "date"]))
+    weekly <- dplyr::rename(weekly, date = .id)
+    weekly
 }
