@@ -50,6 +50,44 @@ outfile <- here::here(
   )
 readr::write_csv(x = res, path = outfile)
 
+##########################
+## Added on 09-10-2019
+## TPR/FPR this over time.
+##########################
+
+res <- dplyr::group_by(
+    weekly_alerts,
+    time_window,
+    n.dates.sim,
+    date_pred,
+    week_of_projection, ## Added on 0710 as per Anne's suggestion to plot sensitivity etc by week of projection.
+    threshold,
+    alert_type
+) %>%
+  dplyr::summarise(n = dplyr::n())
+
+res <- ungroup(res)
+
+res <- tidyr::spread(
+    res,
+    key = alert_type,
+    value = n,
+    fill = 0
+    )
+## res[!complete.cases(res), ]
+
+res$tpr <- res$`True Alert` / (res$`True Alert` + res$`Missed Alert`)
+res$fpr <- res$`False Alert` / (res$`No Alert` + res$`False Alert`)
+
+## res[!complete.cases(res), ]
+
+outfile <- here::here(
+    all_files[[datasource]]$outdir,
+    glue::glue("{datasource}_trp_fpr_by_week_projection.csv")
+  )
+readr::write_csv(x = res, path = outfile)
+
+
 ## Fix column classes for correct plotting
 res$time_window <- factor(res$time_window)
 ## res$n.dates.sim <- factor(res$n.dates.sim)
