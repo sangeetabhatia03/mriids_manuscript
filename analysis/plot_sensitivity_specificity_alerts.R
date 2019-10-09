@@ -11,7 +11,7 @@ incid_pred <- readr::read_csv(
 
 
 incid_pred <- incid_pred[incid_pred$time_window == twindow &
-                           incid_pred$n.dates.sim == n.dates.sim, ]
+                         incid_pred$n.dates.sim == n.dates.sim, ]
 
 
 ## Number of countries for which we have only no alerts and nothing else.
@@ -20,7 +20,7 @@ incid_pred <- incid_pred[incid_pred$time_window == twindow &
 ## out <- dplyr::group_by(out, country, alert_type) %>% summarise(n())
 ## out <- ungroup(out)
 ## out <- tidyr::spread(out, key = alert_type, value = `n()`, fill = 0)
-## dplyr::filter(out, `False Alert` == 0 & `Missed Alert` == 0)
+## filter(out, `False Alert` == 0 & `Missed Alert` == 0 & `True Alert` == 0)
 ## # A tibble: 24 x 5
 ##    country `False Alert` `Missed Alert` `No Alert` `True Alert`
 ##    <chr>           <dbl>          <dbl>      <dbl>        <dbl>
@@ -41,34 +41,20 @@ incid_pred <- incid_pred[incid_pred$time_window == twindow &
 
 
 
-## Only retain countries where we didn't always observe and predict 0.
+## Only plot True, False and Missed Alerts.
 nonna_alerts <- dplyr::filter(incid_pred, alert_type != "No Alert")
 nonna_alerts <- dplyr::filter(nonna_alerts, threshold == "50%")
 
-## Make 1 plot for each country.
-bycountry <- split(nonna_alerts, nonna_alerts$country)
+
 values <- c(`Missed Alert.FALSE` = "red",
             `Missed Alert.TRUE` = "#ffb2b2",
             `True Alert.FALSE` = "#009E73",
             `True Alert.TRUE` = "#99d8c7",
             `False Alert.FALSE` = "#cc8400",
-            `False Alert.TRUE` = "#f4e6cb")
+            `False Alert.TRUE` = "#f4e6cb"
+            )
 
-purrr::iwalk(
-    bycountry,
-    function(df, country) {
-        p <- ggplot(df, aes(date_obs, date_pred, col = interaction(alert_type, interpolated))) +
-            geom_point()
-        p <- p + theme_base()
-        p <- p + scale_colour_manual(values = values)
-        p <- p + theme(legend.position = "none")
-        outfile <- here::here(
-            all_files[[datasource]]$outdir,
-            glue::glue("{country}_alerts_{twindow}_{n.dates.sim}.pdf")
-        )
-        ggplot2::ggsave(filename = outfile, plot = p)
-       }
-)
+
 ## Since we want to plot dates on the x-axis, coutnries on y
 ## And alerts on the plot, we will have to force assign a y level
 ## to each alert.
@@ -167,8 +153,8 @@ nonna_alerts$stroke <- 0
 nonna_alerts$stroke[nonna_alerts$new_obs == "YES"] <- 0.5
 
 
-## Define color scale.
 
+## Plot 1. All countries, all weeks like we had before.
 
 p <- ggplot(
   nonna_alerts,
@@ -257,6 +243,148 @@ ggsave(
     height = mriids_plot_theme$single_col_height
 )
 
+## Plot 2; facetted by week_of_projection
+out <- unique(nonna_alerts[ , "country"])
+out$y <- seq(from = 0.05, by = 0.5, length.out = nrow(out))
+## Forcing all weeks of projection to have the same y level becase
+## we will now facet by week of projection.
+## Also adjust the yaxis levels according to this new system.
+yaxis_levels <- out
+
+out <- dplyr::left_join(
+    nonna_alerts,
+    out
+)
+
+pfacet <- ggplot(
+  out,
+  aes(
+      date_obs,
+      y,
+      size = first_alert,
+      col = interaction(alert_type, interpolated),
+      shape = new_obs
+  )
+) +
+    geom_point() +
+    scale_shape_manual(values = c(YES = 24, NO = 15)) +
+    scale_size_manual(values = c(YES = 1, NO = 0.5)) +
+    scale_colour_manual(
+        values = values
+    ) +
+    scale_y_continuous(
+      breaks = yaxis_levels$y,
+      labels = yaxis_levels$country
+    )
+
+pfacet <- pfacet + mriids_plot_theme$theme +
+    mriids_plot_theme$legend +
+    theme(
+        axis.text.y = element_text(
+            angle = 0,
+            hjust = 0.5,
+            size = 4
+        )
+    )  +
+    scale_x_date(labels = mriids_plot_theme$dateformat) +
+    mriids_plot_theme$xticklabels +
+    xlab("") + ylab("")
+pfacet <- pfacet + facet_wrap(~week_of_projection)
+
+## Faint horizontal lines
+lines <- yaxis_levels
+lines$y <- lines$y + 0.01
+pfacet2 <- pfacet +
+    geom_hline(
+        data = lines,
+        aes(yintercept = y),
+        alpha = "0.05"
+    )
+
+ggplot2::ggsave(
+    filename = here::here(
+        all_files[[datasource]]$outdir,
+        glue::glue(
+            "alerts_per_week_high_{datasource}",
+            "_{twindow}_{n.dates.sim}_facetted.pdf"
+            )
+        ),
+    plot = pfacet2,
+    units = mriids_plot_theme$units,
+    width = mriids_plot_theme$double_col_width,
+    height = mriids_plot_theme$double_col_height
+)
+
+## For each week separately.
+byweek <- split(out,  out$week_of_projection)
+
+plots_byweek <- purrr::imap(
+    byweek,
+    function(df, week) {
+        yaxis_levels_week <- dplyr::filter(yaxis_levels, country %in% df$country)
+        pfacet <- ggplot(df, aes(date_obs,
+                                 y,
+                                 size = first_alert,
+                                 col = interaction(alert_type, interpolated),
+                                 shape = new_obs
+                                 )
+                         ) +
+            geom_point() +
+    scale_shape_manual(values = c(YES = 24, NO = 15)) +
+    scale_size_manual(values = c(YES = 1, NO = 0.5)) +
+    scale_colour_manual(
+        values = values
+    ) +
+    scale_y_continuous(
+      breaks = yaxis_levels_week$y,
+      labels = yaxis_levels_week$country
+    )
+
+pfacet <- pfacet + mriids_plot_theme$theme +
+    mriids_plot_theme$legend +
+    theme(
+        axis.text.y = element_text(
+            angle = 0,
+            hjust = 0.5,
+            size = 4
+        )
+    )  +
+    scale_x_date(labels = mriids_plot_theme$dateformat) +
+    mriids_plot_theme$xticklabels +
+    xlab("") + ylab("")
+
+
+## Faint horizontal lines
+lines <- yaxis_levels_week
+lines$y <- lines$y + 0.01
+pfacet2 <- pfacet +
+    geom_hline(
+        data = lines,
+        aes(yintercept = y),
+        alpha = "0.05"
+    )
+        ggsave(
+    filename = here::here(
+        all_files[[datasource]]$outdir,
+        glue::glue(
+            "alerts_per_week_high_{datasource}",
+            "_{twindow}_{n.dates.sim}_{week}.pdf"
+            )
+        ),
+    plot = pfacet2,
+    units = mriids_plot_theme$units,
+    width = mriids_plot_theme$single_col_width,
+    height = mriids_plot_theme$single_col_height
+)
+
+
+        pfacet2
+
+
+    }
+)
+
+
 
 ### ROC
 
@@ -265,9 +393,16 @@ infile <- here::here(
     glue::glue("{datasource}_trp_fpr_by_week_projection.csv")
   )
 roc <- readr::read_csv(infile)
-df <- dplyr::filter(roc, time_window == twindow & n.dates.sim == 28)
-df$n.dates.sim <- factor(df$n.dates.sim)
+roc$n.dates.sim <- as.integer(roc$n.dates.sim)
+roc$time_window <- as.integer(roc$time_window)
+df <- roc[roc$time_window == twindow &
+          roc$n.dates.sim == n.dates.sim, ]
+
 df$week_of_projection <- factor(df$week_of_projection)
+overall <- dplyr::group_by(
+    df,
+    threshold
+) %>% dplyr::summarise(tpr = mean(tpr), fpr = mean(fpr))
 ## f77be3
 ## palette <- c(
 ##     "28" = "#0078fb", ## blue
@@ -276,14 +411,16 @@ df$week_of_projection <- factor(df$week_of_projection)
 ## )
 
 palette <- c(
-    "4" = "#99c9fd", ## light blue
-    "3" = "#0078fb", ## blue
-    "2" = "#f77be3", ## dark pink
-    "1" = "#ff8b8c" ## light pink
+    "1" = "#0078fb", ## blue
+    "2" = "#99c9fd", ## light blue
+    "3" = "#f77be3", ## dark pink
+    "4" = "#ff8b8c" ## light pink,
 )
 
 roc_p <- ggplot(df, aes(x = fpr, y = tpr)) +
-        geom_line(aes(col = week_of_projection))
+    geom_line(aes(col = week_of_projection)) +
+    geom_line(data = overall, aes(x = fpr, y = tpr), col = "black") ## overall
+
 roc_p <- roc_p + xlim(0, 1) + ylim(0, 1)
 roc_p <- roc_p + xlab("False Alert Rate") + ylab("True Alert Rate")
 roc_p <- roc_p + geom_abline(slope = 1, intercept = 0, alpha = 0.3)
@@ -293,7 +430,7 @@ roc_p <- roc_p + mriids_plot_theme$legend
 
 plot <- cowplot::plot_grid(
     roc_p,
-    p2,
+    plots_byweek[["1"]],
     align = "hv",
     nrow = 1,
     ncol = 2,
