@@ -157,13 +157,13 @@ readr::write_csv(x = who_weekly,
 
 ```{r}
 ## Cumulative
-who_cumulative <- mutate_if(
+who_cumulative <- dplyr::mutate_if(
   incid,
   is.numeric,
   cumsum
 ) %>%
   tidyr::gather(country, cases, -date) %>%
-select(country, date, cases)
+dplyr::select(country, date, cases)
 
 outfile <- stringr::str_replace(params$outfile,
                                 ".csv",
