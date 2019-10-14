@@ -162,7 +162,7 @@ purrr::pwalk(
     )
     }
   }
-)
+ )
 }
 
 ## Forecast metrics
@@ -180,6 +180,52 @@ source(
 )
 beepr::beep(sound = 2)
 
+
+## combine weekly forecasts and weekly observed.
+## This will create
+## glue::glue("{Sys.Date()}_incidence_forecasts.csv")
+## glue::glue("{Sys.Date()}_{datasource}_processed_weekly_incidence.csv")
+source(
+    "analysis/combine_forecasts_incidence.R"
+)
+
+## Reshape glue::glue("{Sys.Date()}_{datasource}_processed_weekly_incidence.csv")
+## to wide format as this is needed for forecasts_assess task.
+
+weekly_incid <- readr::read_csv(
+  file = here::here(
+    all_files[[datasource]]$outdir,
+    glue::glue("{Sys.Date()}_{datasource}_processed_weekly_incidence.csv")
+  )
+  )
+
+weekly_wide <- dplyr::select(weekly_incid, -interpolated)
+weekly_wide <- tidyr::spread(
+    weekly_wide, key = country, value = incid
+    )
+
+bycountry <- split(
+    weekly_wide,
+    list(weekly_wide$time_window, weekly_wide$n.dates.sim),
+    sep = "_"
+)
+
+outfiles <- glue::glue(
+    "{Sys.Date()}_{datasource}_{names(bycountry)}_weekly_wide.csv"
+)
+
+outfiles <- here::here(
+    all_files[[datasource]]$outdir, outfiles
+    )
+
+purrr::walk2(
+    bycountry,
+    outfiles,
+    function(df, outfile) {
+        df <- dplyr::select(df, -time_window, -n.dates.sim)
+        readr::write_csv(df, outfile)
+    }
+  )
 
 ## This bit depends on the time window, tproj as well as n.dates.si.
 ## Update pars.
@@ -227,21 +273,25 @@ pars2 <- data.frame(forecast = forecasts_files) %>%
 purrr::pwalk(
   pars2,
   function(tproj, twindow, ndates) {
-    for (place in all_files[[datasource]]$places) {
+      for (place in all_files[[datasource]]$places) {
+          weekly_wide <- glue::glue(
+              "{all_files[[datasource]]$outdir}/",
+              "{Sys.Date()}_{datasource}_{twindow}_{ndates}_weekly_wide.csv"
+          )
       rmarkdown::render(
         "analysis/weekly_forecasts_assess.Rmd",
         params = list(
           tproj = tproj,
           twindow = twindow,
-          incid =
-            all_files[[datasource]]$weekly_wide,
+          incid = weekly_wide,
           n.dates.sim = ndates,
           place = place,
           outdir =
             all_files[[datasource]]$outdir,
           indir =
             all_files[[datasource]]$outdir
-        )
+        ),
+        output_dir = glue::glue("{all_files[[datasource]]$outdir}/{Sys.Date()}")
       )
     } ## end of for
   }

@@ -28,7 +28,8 @@ purrr::pwalk(
                outdir =
                    all_files[[ds]]$outdir,
                datasource = ds
-           )
+           ),
+           output_dir = glue::glue("{all_files[[ds]]$outdir}/{Sys.Date()}")
          )
    }
 )
@@ -46,17 +47,17 @@ purrr::pwalk(
                ndates,
                sep = "_"
            ),
-           output_dir = all_files[[ds]]$outdir,
+           output_dir = glue::glue("{all_files[[ds]]$outdir}/{Sys.Date()}"),
            params = list(
                twindow = tw,
                n.dates.sim = ndates,
                places = all_files[[ds]]$places,
                indir  =
                    all_files[[ds]]$outdir,
-               outdir =
-                   paste0(all_files[[ds]]$outdir, "/"),
+               outdir = all_files[[ds]]$outdir,
                datasource = ds
            )
+
        )
    }
 )

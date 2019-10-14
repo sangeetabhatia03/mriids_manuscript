@@ -17,6 +17,16 @@ mriids_plot_theme <- list(
         "Stable" = "#8975ca",
         "Overall" = "#000000"
     ),
+    week_color_scale = c(
+    "1" = "#0078fb", ## blue
+    "2" = "#99c9fd", ## light blue
+    "3" = "#f77be3", ## dark pink
+    "4" = "#ff8b8c", ## light pink,
+    "5" = "#669366", ## green
+    "6" = "#a3bea3", ## light green
+    "7" = "#b2b200", ## yellowish-black
+    "8" = "#d8d87f" ## light yellowish-black
+    ),
     dateformat = scales::date_format("%m-%Y"),
     theme = ggplot2::theme_classic(base_size = 10),
     xticklabels = ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 0, hjust = 0.5, size = 6)),

@@ -3,10 +3,11 @@ library(dplyr)
 incid_pred <- readr::read_csv(
   file = here::here(
     all_files[[datasource]]$outdir,
-    "incidence_forecasts.csv"
-  )
+    glue::glue("{Sys.Date()}_incidence_forecasts.csv")
+    ),
+  guess_max = 3000
 )
-## We know what is being omitted. These aer forecasts beyond the max
+## We know what is being omitted. These are forecasts beyond the max
 ## date for which we have incidence.
 
 incid_pred <- na.omit(incid_pred)
@@ -45,6 +46,6 @@ readr::write_csv(
   x =  weekly_alerts,
   path = here::here(
     all_files[[datasource]]$outdir,
-    "weekly_alerts.csv"
+    glue::glue("{Sys.Date()}_weekly_alerts.csv")
   )
 )

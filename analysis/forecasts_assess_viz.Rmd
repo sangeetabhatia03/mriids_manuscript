@@ -45,7 +45,7 @@ knitr::opts_chunk$set(
   dev = "pdf",
   ## fig.width = 7,
   ## dev.args = list(pointsize = 6),
-  fig.path = here::here(params$outdir),
+  ##fig.path = here::here(params$outdir),
   fig.ext = paste0(
     params$datasource,
     "_",

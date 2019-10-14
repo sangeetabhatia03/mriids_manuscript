@@ -21,7 +21,7 @@ biblio-style: apsr
 endnote: no
 params:
   infile: data/raw/promed_2014-2016-renamed.csv
-  outfile: 07102019_promed_loglinear
+  outfile: 13102019_promed_loglinear
   ofinterest: data/processed/all_african_centroids.csv
   datasource: ProMED
 ---
@@ -631,7 +631,7 @@ outfile <- paste0(params$outfile, "_tall.csv")
 
 here::here("data/processed", outfile) %>%
   readr::write_csv(
-    x = incid_extracols,
+    x = incid_tall,
     path = .
   )
 ```

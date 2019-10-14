@@ -1,7 +1,7 @@
 weekly_alerts <- data.table::fread(
   file = here::here(
     all_files[[datasource]]$outdir,
-    "weekly_alerts.csv"
+    glue::glue("{Sys.Date()}_weekly_alerts.csv")
    )
  )
 
@@ -46,7 +46,7 @@ res$fpr <- res$`False Alert` / (res$`No Alert` + res$`False Alert`)
 
 outfile <- here::here(
     all_files[[datasource]]$outdir,
-    glue::glue("{datasource}_trp_fpr_by_week_projection.csv")
+    glue::glue("{Sys.Date()}_{datasource}_trp_fpr_by_week_projection.csv")
   )
 readr::write_csv(x = res, path = outfile)
 
@@ -55,7 +55,7 @@ readr::write_csv(x = res, path = outfile)
 ## TPR/FPR this over time.
 ##########################
 
-res <- dplyr::group_by(
+res2 <- dplyr::group_by(
     weekly_alerts,
     time_window,
     n.dates.sim,
@@ -66,26 +66,66 @@ res <- dplyr::group_by(
 ) %>%
   dplyr::summarise(n = dplyr::n())
 
-res <- ungroup(res)
+res2 <- ungroup(res2)
 
-res <- tidyr::spread(
-    res,
+res2 <- tidyr::spread(
+    res2,
     key = alert_type,
     value = n,
     fill = 0
     )
 ## res[!complete.cases(res), ]
+## TPR and FPR are now the rates *so far*, not instantaneous rates.
+byparams <- split(res2, list(res2$time_window, res2$n.dates.sim))
+##byparams <- purrr::map(byparams, ~ arrange(.x, date_pred))
+##alldates_pred <-purrr::map(byparams, ~ unique(.x$date_pred))
 
-res$tpr <- res$`True Alert` / (res$`True Alert` + res$`Missed Alert`)
-res$fpr <- res$`False Alert` / (res$`No Alert` + res$`False Alert`)
+perf_sofar <- purrr::map_dfr(
+    byparams,
+    ## df - data.frame for a fixed time_window and n.dates.sim
+    function(df) {
+        alldates <- unique(df$date_pred)
+        names(alldates) <- alldates
+        ## out will have - date_pred, time_window, n.dates.sim,
+        ## week_of_projection, threshold, False Alert, Missed Alert,
+        ## True Alert, No Alert, tpr, fpr
+        out <- purrr::map_dfr(
+            alldates,
+            function(curr_date) {
+                before_curr_date <- dplyr::filter(df, date_pred <= curr_date)
+                before_curr_date <- dplyr::group_by(
+                    before_curr_date,
+                    time_window,
+                    n.dates.sim,
+                    week_of_projection,
+                    threshold
+                ) %>% dplyr::summarize_at(
+                          c("False Alert",
+                            "Missed Alert",
+                            "True Alert",
+                            "No Alert"),
+                          sum
+                          )
+                before_curr_date$tpr <- before_curr_date$`True Alert` /
+                    (before_curr_date$`True Alert` + before_curr_date$`Missed Alert`)
+                before_curr_date$fpr <- before_curr_date$`False Alert` /
+                    (before_curr_date$`No Alert` + before_curr_date$`False Alert`)
 
-## res[!complete.cases(res), ]
+                before_curr_date
+            },
+            .id = "date_pred"
+         )
+        out
+    }
+
+)
+
 
 outfile <- here::here(
     all_files[[datasource]]$outdir,
-    glue::glue("{datasource}_trp_fpr_by_week_projection.csv")
+    glue::glue("{Sys.Date()}_{datasource}_trp_fpr_by_date_obs.csv")
   )
-readr::write_csv(x = res, path = outfile)
+readr::write_csv(x = perf_sofar, path = outfile)
 
 
 ## Fix column classes for correct plotting

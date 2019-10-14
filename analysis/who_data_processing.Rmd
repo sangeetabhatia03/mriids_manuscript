@@ -21,8 +21,10 @@ biblio-style: apsr
 endnote: no
 params:
   infile: data/raw/rstb20160308supp1.csv
-  outfile: data/processed/15032019_who_bycountry.csv
+  outfile: data/processed/14102019_who_bycountry.csv
   ofinterest: data/processed/all_african_centroids.csv
+  promed: data/processed/13102019_promed_loglinear_tall.csv
+  
 ---
 ```{r who-data-processing-1, include=FALSE}
 knitr::opts_chunk$set(fig.width=12,
@@ -177,18 +179,45 @@ readr::write_csv(x = who_cumulative,
 ## For stacking with ProMED and HM data
 ## that we will read in tall format
 who_tall <- tidyr::gather(
-  incid,
+  incid_wide_all,
   country,
   incid,
   -date
 )
 who_tall$interpolated <- FALSE
 
-outfile <- stringr::str_replace(params$outfile,
-                                ".csv",
-                                "_tall.csv")
 
-readr::write_csv(x = who_tall,
-                 path = here::here(outfile))
 
+```
+
+14-10-2019: Since WHO data are for GIN, SLE and LBR only, we pull in 
+data from ProMED for other countries.
+
+
+```{r}
+pm_tall <- readr::read_csv(here::here(params$promed))
+who_tall <- dplyr::filter(who_tall, country %in% c("GIN", "SLE", "LBR"))
+pm_tall <- dplyr::filter(pm_tall, ! country %in% c("GIN", "SLE", "LBR"))
+who_tall <- rbind(who_tall, pm_tall)
+## Since WHO data start much earlies than ProMED data, we again cast
+## wide and back to tall again, to get 0 incid for WHO dates.
+who_wide <- dplyr::select(
+    who_tall, -interpolated
+) %>% tidyr::spread(key = country, value = incid, fill = 0)
+
+## Back to tall.
+who_taller <- tidyr::gather(
+    who_wide,
+    key = country,
+    value = incid, -date
+    )
+who_tall <- dplyr::left_join(who_taller, who_tall)
+who_tall$interpolated[is.na(who_tall$interpolated)] <- FALSE
+
+outfile <- stringr::str_replace(params$outfile, ".csv", "_tall.csv")
+
+readr::write_csv(
+    x = who_tall,
+    path = here::here(outfile)
+)
 ```
