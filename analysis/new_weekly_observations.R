@@ -8,7 +8,7 @@ weekly_incid <- readr::read_csv(
   )
 )
 
-
+weekly_incid <- weekly_incid[weekly_incid$n.dates.sim != 14, ]
 byparams <- split(
   weekly_incid,
   list(weekly_incid$time_window, weekly_incid$n.dates.sim),
