@@ -69,7 +69,7 @@ weekly_incid <- purrr::map_dfr(
                 x <- dplyr::group_by(x, country) %>%
                     dplyr::summarise(
                         incid = sum(incid),
-                        interpolated = any(interpolated)
+                        interpolated = all(interpolated)
                     )
                 x
             },
