@@ -172,7 +172,7 @@ incid_pred <- readr::read_csv(
     glue::glue("{Sys.Date()}_weekly_alerts.csv")
     )
   )
-
+incid_pred <- incid_pred[incid_pred$n.dates.sim != 14, ]
 nonna_alerts <- dplyr::filter(incid_pred, alert_type != "No Alert")
 nonna_alerts <- dplyr::filter(nonna_alerts, threshold == "50%")
 
@@ -197,7 +197,7 @@ new_weekly_obs <- readr::read_csv(
     glue::glue("{Sys.Date()}_new_weekly_incidence.csv")
   )
 )
-
+new_weekly_obs <- new_weekly_obs[new_weekly_obs$n.dates.sim != 14, ]
 new_weekly_obs$new_obs <- "YES"
 
 nonna_alerts <- dplyr::left_join(
@@ -325,7 +325,8 @@ infile <- here::here(
     all_files[[datasource]]$outdir,
     glue::glue("{Sys.Date()}_{datasource}_trp_fpr_by_week_projection.csv")
   )
-roc_all<- readr::read_csv(infile)
+roc_all <- readr::read_csv(infile)
+roc_all <- roc_all[roc_all$n.dates.sim != 14, ]
 roc_byparams <- split(
     roc_all,
     list(roc_all$time_window, roc_all$n.dates.sim),
@@ -357,6 +358,7 @@ purrr::walk(
 purrr::walk(
     params,
     function(param) {
+        message("Working on ", param)
         alerts <- alerts_byparams[[param]]
         rates <- roc_byparams[[param]]
         byweek <- split(alerts, alerts$week_of_projection)
