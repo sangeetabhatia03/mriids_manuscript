@@ -6,7 +6,31 @@ incid_pred <- readr::read_csv(
     glue::glue("{Sys.Date()}_incidence_forecasts.csv")
     ),
   guess_max = 3000
-)
+  )
+
+## 15102019 Analysis for West African countries only.
+## wafrica <- countrycode::countrycode(
+##     c("Mauritania",
+##       "Senegal",
+##       "Mali",
+##       "Gambia",
+##       "Guinea-Bissau",
+##       "Guinea",
+##       "Sierra Leone",
+##       "Liberia",
+##       "Côte d'Ivoire",
+##       "Ghana",
+##       "Burkina Faso",
+##       "Nigeria",
+##       ##"Niger",
+##       "Cameroon",
+##       "Togo",
+##       "Benin"
+##     ),
+##     destination = "iso3c",
+##     origin = "country.name"
+## )
+## incid_pred <- dplyr::filter(incid_pred, country %in% wafrica)
 ## We know what is being omitted. These are forecasts beyond the max
 ## date for which we have incidence.
 
