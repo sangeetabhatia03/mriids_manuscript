@@ -20,12 +20,12 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  tproj : 63
-  twindow : 28
+  tproj : 21
+  twindow : 14
   n.dates.sim : 28
   day0: 2014-03-22
-  indir: data/who_stanfits
-  outdir: data/who_output
+  indir: data/stanfits
+  outdir: data/output
 ---
 
 
@@ -131,23 +131,27 @@ names(flow_mats) <- index
 Now we are ready to project.
 
 ```{r}
-daily_projections <- lapply(index, function(row){
-                                     R_posterior <- r_pred[, row]
-                                     R_posterior <- matrix(R_posterior,
-                                                           ncol = ncol(I0),
-                                                           nrow = 1)
-                                     pij <- flow_mats[[as.character(row)]]
-                                     out <- mRIIDS:::project(I0,
-                                                             R_posterior,
-                                                             si,
-                                                             pij,
-                                                             params$n.dates.sim) 
-                                     out <- 
-                                      as.data.frame(out) 
-                                     
-                                     out$date <- pred_dates
-                                     out
-})
+## 15102019: For each sample, simulate multiple trajectories
+index <- rep(index, each = 50)
+daily_projections <- lapply(
+    index, function(row){
+        R_posterior <- r_pred[, row]
+        R_posterior <- matrix(R_posterior,
+                              ncol = ncol(I0),
+                              nrow = 1)
+        pij <- flow_mats[[as.character(row)]]
+        out <- mRIIDS:::project(I0,
+                                R_posterior,
+                                si,
+                                pij,
+                                params$n.dates.sim) 
+        out <- 
+            as.data.frame(out) 
+        
+        out$date <- pred_dates
+        out
+  }
+)
 
 
 ```
@@ -171,7 +175,8 @@ wafrica_all <- purrr::map_dfr(countries, function(x) {
                                        params$nsamples)
   out$date <- pred_dates
   out
-})
+ }
+)
 
 aggregated <- split(wafrica_all, wafrica_all$date) %>%
   purrr::map(function(x)
