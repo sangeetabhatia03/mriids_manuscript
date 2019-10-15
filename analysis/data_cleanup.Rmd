@@ -20,10 +20,10 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  infile: data/raw/promed_2014-2016-renamed.csv
-  outfile: 13102019_promed_loglinear
+  infile: data/raw/HealthMap_Ebola_GNE_WHO.csv
+  outfile: 14102019_hm_loglinear
   ofinterest: data/processed/all_african_centroids.csv
-  datasource: ProMED
+  datasource: HealthMap
 ---
 
 
