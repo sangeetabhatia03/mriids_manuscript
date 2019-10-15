@@ -68,7 +68,7 @@ inftvty <- apply(
 ## Flows
 relative_flow <- function(inf) {
   ## Reverse the multiplication by 1 - pstay.
-    flow_mat <- readRDS(inf)
+  flow_mat <- readRDS(inf)
 
 
   pstay <- diag(flow_mat)[1]
