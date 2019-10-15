@@ -40,7 +40,7 @@ country_risk <- function(country, time_window, tproj) {
 first_case <- readr::read_csv(
     file = here::here(
         all_files[[datasource]]$outdir,
-        glue::glue("{datasource}_first_observed_case.csv")
+        glue::glue("{Sys.Date()}_{datasource}_first_observed_case.csv")
     )
   )
 
