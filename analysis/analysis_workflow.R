@@ -308,12 +308,17 @@ purrr::iwalk(
 
 
 ## Importation Risk right before the first case was observed.
+## incid <- readr::read_csv(all_files[[datasource]]$incidfile)
+## 15102019: Modified to use the tall file we have created
 incid <- readr::read_csv(all_files[[datasource]]$incidfile)
-incid_tall <- tidyr::gather(incid, country, value, -date)
+incid_tall <- readr::read_csv(all_files[[datasource]]$incidtall)
+##incid_tall <- tidyr::gather(incid, country, value, -date)
 first_case <- dplyr::group_by(
     incid_tall,
     country
-) %>% filter(value > 0) %>% summarise(date_first_obs = min(date))
+    ) %>%
+    dplyr::filter(incid > 0) %>%
+    dplyr::summarise(date_first_obs = min(date))
 
 first_case <- dplyr::ungroup(first_case)
 tprojs <- match(x = first_case$date_first_obs, table = incid$date)
@@ -332,7 +337,7 @@ readr::write_csv(
     x = first_case,
     path = here::here(
         all_files[[datasource]]$outdir,
-        glue::glue("{datasource}_first_observed_case.csv")
+        glue::glue("{Sys.Date()}_{datasource}_first_observed_case.csv")
     )
 )
 
