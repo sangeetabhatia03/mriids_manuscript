@@ -18,18 +18,20 @@ mriids_plot_theme <- list(
         "Overall" = "#000000"
     ),
     week_color_scale = c(
-    "1" = "#0078fb", ## blue
-    "2" = "#99c9fd", ## light blue
+    "1" = "#891ea8", ## violet
+    "2" = "#c48ed3", ## light violet
     "3" = "#f77be3", ## dark pink
     "4" = "#ff8b8c", ## light pink,
-    "5" = "#669366", ## green
-    "6" = "#a3bea3", ## light green
+    "5" = "#85be13", ## green, diff from HealthMap green
+    "6" = "#c2de89", ## light green
     "7" = "#b2b200", ## yellowish-black
     "8" = "#d8d87f" ## light yellowish-black
     ),
     dateformat = scales::date_format("%m-%Y"),
     theme = ggplot2::theme_classic(base_size = 10),
-    xticklabels = ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 0, hjust = 0.5, size = 6)),
+    xticklabels = ggplot2::theme(
+        axis.text.x = ggplot2::element_text(angle = 0, hjust = 0.5, size = 6)
+    ),
     onecol_theme = ggplot2::theme_classic(base_size = 6),
     legend = ggplot2::theme(legend.position = "none"),
     single_col_width = 8.7,

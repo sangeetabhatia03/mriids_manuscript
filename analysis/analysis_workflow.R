@@ -1,4 +1,6 @@
 library(dplyr)
+library(ggplot2)
+library(ggthemes)
 source(here::here("analysis/parameters.R"))
 source(here::here("analysis/utils.R"))
 source(here::here("analysis/common_plot_properties.R"))
@@ -400,3 +402,35 @@ for (ds in c("ProMED", "HealthMap", "WHO")) {
     }
 
 }
+
+
+## 16-10-2019
+for (ds in c("ProMED", "HealthMap", "WHO")) {
+    datasource <- ds
+    message("Working on ", datasource)
+
+    source(
+        "analysis/combine_forecasts_incidence.R", local = TRUE
+    )
+    source(
+        "analysis/sensitivity_specificity_alerts.R", local = TRUE
+    )
+    source(
+        "analysis/roc.R", local = TRUE
+    )
+    source(
+        "analysis/new_weekly_observations.R",
+        local = TRUE
+    )
+    source(
+        "analysis/plot_sensitivity_specificity_alerts.R", local = TRUE
+    )
+
+    source(
+        "analysis/roc_new_weekly_observations.R",
+        local = TRUE
+    )
+
+}
+
+source("analysis/sensitivity_over_time.R")

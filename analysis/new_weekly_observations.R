@@ -44,7 +44,8 @@ newweekly_obs <- purrr::map_dfr(
     ## Filter where last_week was 0 but this week is not.
     df <- dplyr::filter(
       df,
-      incid_this_week > 0 & incid_last_week == 0
+      ##incid_this_week > 0 & ## commented on 21-10-2019 to also look at FPR.
+      incid_last_week == 0
       )
       df
   }
