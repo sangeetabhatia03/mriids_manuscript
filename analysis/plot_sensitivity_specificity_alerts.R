@@ -297,29 +297,6 @@ purrr::walk(
     }
 )
 
-## ROC curve and alerts for the week.
-
-roc <- function(df) {
-
-    overall <- dplyr::group_by(
-        df,
-        threshold
-        ) %>% dplyr::summarise(tpr = mean(tpr), fpr = mean(fpr))
-    df$week_of_projection = factor(df$week_of_projection)
-    roc_p <- ggplot(df, aes(x = fpr, y = tpr)) +
-        geom_line(aes(col = week_of_projection)) +
-        geom_line(data = overall, aes(x = fpr, y = tpr), col = "black") ## overall
-
-    roc_p <- roc_p + xlim(0, 1) + ylim(0, 1)
-    roc_p <- roc_p + xlab("False Alert Rate") + ylab("True Alert Rate")
-    roc_p <- roc_p + geom_abline(slope = 1, intercept = 0, alpha = 0.3)
-    roc_p <- roc_p +
-        scale_color_manual(values = mriids_plot_theme$week_color_scale)
-    roc_p <- roc_p + mriids_plot_theme$theme
-    roc_p <- roc_p + mriids_plot_theme$legend
-    roc_p
-
-}
 
 infile <- here::here(
     all_files[[datasource]]$outdir,
@@ -371,7 +348,7 @@ purrr::walk(
                                strip.background = element_blank(),
                                strip.text.x = element_blank()
                            )
-                p2 <- roc(roc_byweek[[week]])
+                p2 <- roc(roc_byweek[[week]], plot_overall = FALSE)
                 plot <- cowplot::plot_grid(
                     p2,
                     p1,

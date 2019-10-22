@@ -30,8 +30,12 @@ byparams <- split(
 purrr::iwalk(
     byparams,
     function(df, params) {
+        used <- df[df$threshold == "50%", ]
         overall_p <- ggplot(df, aes(x = fpr, y = tpr)) +
-            geom_line(aes(col = datasource))
+            geom_line(aes(col = datasource)) +
+        geom_point(data = used,
+                   aes(x = fpr, y = tpr, col = datasource),
+                   shape = 19)
         overall_p <- overall_p + xlim(0, 1) + ylim(0, 1)
         overall_p <- overall_p + xlab("False Alert Rate") + ylab("True Alert Rate")
         overall_p <- overall_p + geom_abline(slope = 1, intercept = 0, alpha = 0.3)
@@ -68,14 +72,19 @@ overall$n.dates.sim <- as.integer(overall$n.dates.sim)
 overall$time_window <- as.integer(overall$time_window)
 
 byparams <- split(
-    overall, list(overall$time_window, overall$n.dates.sim), sep = "_"
+    overall,
+    list(overall$time_window, overall$n.dates.sim), sep = "_"
 )
 
 purrr::iwalk(
     byparams,
     function(df, params) {
+        used <- df[df$threshold == "50%", ]
         overall_p <- ggplot(df, aes(x = fpr, y = tpr)) +
-            geom_line(aes(col = datasource))
+            geom_line(aes(col = datasource)) +
+        geom_point(data = used,
+                   aes(x = fpr, y = tpr, col = datasource),
+                   shape = 19)
         overall_p <- overall_p + xlim(0, 1) + ylim(0, 1)
         overall_p <- overall_p + xlab("False Alert Rate") + ylab("True Alert Rate")
         overall_p <- overall_p + geom_abline(slope = 1, intercept = 0, alpha = 0.3)

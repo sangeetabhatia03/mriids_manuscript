@@ -31,6 +31,17 @@ incid_pred <- readr::read_csv(
 ##     origin = "country.name"
 ## )
 ## incid_pred <- dplyr::filter(incid_pred, country %in% wafrica)
+
+## 17102019 Analysis for all countries other than GIN, LBR and SLE.
+## wafrica <- countrycode::countrycode(
+##     c("Guinea",
+##       "Sierra Leone",
+##       "Liberia"
+##     ),
+##     destination = "iso3c",
+##     origin = "country.name"
+## )
+## incid_pred <- dplyr::filter(incid_pred, ! (country %in% wafrica))
 ## We know what is being omitted. These are forecasts beyond the max
 ## date for which we have incidence.
 

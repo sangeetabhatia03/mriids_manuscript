@@ -110,3 +110,67 @@ daily_to_weekly <- function (daily) {
     weekly <- dplyr::rename(weekly, date = .id)
     weekly
 }
+
+#####################################################################
+#####################################################################
+###################### FIGURES ######################################
+#####################################################################
+#####################################################################
+tpr_by_threshold <- function(df) {
+
+    df$week_of_projection <- factor(df$week_of_projection)
+    p <- ggplot(df) +
+        geom_point(aes(threshold, tpr, col = week_of_projection)) +
+    geom_point(aes(threshold, fpr, col = week_of_projection),
+               shape = 17)
+    p <- p + scale_color_manual(
+                 values = mriids_plot_theme$week_color_scale
+             )
+    p <- p + mriids_plot_theme$theme +
+        mriids_plot_theme$legend
+
+    p <- p + ylab("True/False Alert Rate") + ylim(0, 1)
+
+    p <- p + geom_hline(yintercept = 0.5, alpha = 0.1) +
+        geom_vline(xintercept = 50, alpha = 0.1)
+
+    p
+
+}
+
+
+## ROC curve and alerts for the week.
+roc <- function(df, threshold = "50%", plot_overall = TRUE) {
+
+    df$week_of_projection = factor(df$week_of_projection)
+    used <- df[df$threshold %in% threshold, ]
+
+    roc_p <- ggplot(df) +
+        geom_line(aes(x = fpr, y = tpr, col = week_of_projection)) +
+        geom_point(data = used,
+                   aes(x = fpr, y = tpr, col = week_of_projection),
+                   shape = 19)
+    if (plot_overall) {
+        overall <- dplyr::group_by(
+        df,
+        threshold
+        ) %>% dplyr::summarise(tpr = mean(tpr), fpr = mean(fpr))
+        used_overall <- overall[overall$threshold %in% threshold, ]
+        roc_p <- roc_p +
+            geom_line(data = overall, aes(x = fpr, y = tpr), col = "black") + ## overall
+            geom_point(data = used_overall, aes(x = fpr, y = tpr),
+                       col = "black",
+                       shape = 19)
+
+    }
+    roc_p <- roc_p + xlim(0, 1) + ylim(0, 1)
+    roc_p <- roc_p + xlab("False Alert Rate") + ylab("True Alert Rate")
+    roc_p <- roc_p + geom_abline(slope = 1, intercept = 0, alpha = 0.3)
+    roc_p <- roc_p +
+        scale_color_manual(values = mriids_plot_theme$week_color_scale)
+    roc_p <- roc_p + mriids_plot_theme$theme
+    roc_p <- roc_p + mriids_plot_theme$legend
+
+    roc_p
+
+}
