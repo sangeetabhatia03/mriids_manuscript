@@ -405,8 +405,8 @@ for (ds in c("ProMED", "HealthMap", "WHO")) {
 
 
 ## 16-10-2019
-for (ds in c("ProMED", "HealthMap", "WHO")) {
-    datasource <- ds
+for (datasource in c("ProMED", "HealthMap", "WHO")) {
+
     message("Working on ", datasource)
 
     source(
@@ -431,6 +431,15 @@ for (ds in c("ProMED", "HealthMap", "WHO")) {
         local = TRUE
     )
 
+    source(
+        "analysis/tpr_fpr_by_threshold.R",
+        local = TRUE
+    )
+
+    source("analysis/sensitivity_over_time.R", local = TRUE)
+
 }
 
-source("analysis/sensitivity_over_time.R")
+
+source("analysis/roc_by_datasource.R")
+source("analysis/roc_by_datasource_over_time.R")

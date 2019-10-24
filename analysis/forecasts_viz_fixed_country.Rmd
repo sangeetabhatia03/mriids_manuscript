@@ -102,8 +102,10 @@ rused$country <- forcats::fct_recode(rused$country,
   Guinea = "GIN",
   Liberia = "LBR",
   `Sierra Leone` = "SLE"
-)
-rused$rcategory <- "R[t - 1]"
+  )
+
+rused$rcategory <- glue::glue("R[w - {params$twindow / 7}, w - 1]")
+
 ```
 
 ```{r projections-viz-fixed-country-4}
@@ -129,20 +131,19 @@ rused <- rused[, colnames(rretro)]
 ```
 ## Observed and projected incidence
 
-
-
-
 Read in the weekly incidence in tall form. 
 
 ```{r projections-viz-fixed-country-5 }
 
 incid <- here::here(params$incid) %>%
   readr::read_csv() %>%
-  filter(country %in% params$places)
+  dplyr::filter(country %in% params$places)
 
-incid <- filter(
+incid <- dplyr::filter(
   incid,
-  date <= max(rused$date) + 14
+  date <= max(rused$date) + 14,
+  time_window == params$twindow,
+  n.dates.sim == params$n.dates.sim
 )
 ```
 
@@ -159,7 +160,7 @@ forecasts <- readr::read_csv(
 forecasts$tproj <- as.integer(forecasts$tproj)
 forecasts$time_window <- as.integer(forecasts$time_window)
 
-forecasts <- filter(
+forecasts <- dplyr::filter(
   forecasts,
   country %in% params$places &
   time_window == params$twindow &
@@ -389,7 +390,8 @@ preal <- preal + geom_hline(
   col = "red"
 )
 
-preal <- preal + xlab("") + ylab(expression(R[t - 1]))
+label <- glue::glue("R[w - {params$twindow / 7}, w - 1]")
+preal <- preal + xlab("") + ylab(label)
 preal <- preal + scale_x_date(labels = mriids_plot_theme$dateformat)
   ## scale_x_date(
   ##   date_breaks = "3 month",
@@ -416,19 +418,20 @@ preal
 
 ```{r projections-viz-fixed-country-14 }
 
-rboth$rcategory <- factor(rboth$rcategory,
-  levels = c(
-    "R[t - 1]",
-    "R[retrospective]"
-  )
+rboth$rcategory <- factor(
+    rboth$rcategory,
+    levels = c(
+        glue::glue("R[w - {params$twindow / 7}, w - 1]"),
+        "R[retrospective]"
+    )
 )
 
 pboth <- ggplot(rboth) +
   geom_line(aes(date, `50%`)) +
   facet_grid(rcategory ~ country,
     scales = "free_y",
-    switch = "y",
-    labeller = label_parsed
+    switch = "y"
+    ##labeller = label_parsed
   ) +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
@@ -480,7 +483,9 @@ p2 <- p +
   )
 
 
-pall <- cowplot::plot_grid(p2, pboth, nrow = 2, rel_heights = c(0.7, 1), align = "hv", axis="l")
+pall <- cowplot::plot_grid(
+    p2, pboth, nrow = 2, rel_heights = c(0.7, 1), align = "hv", axis="l"
+)
 
 
 pall

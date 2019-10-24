@@ -8,6 +8,16 @@ source(here::here("analysis/common_plot_properties.R"))
 ## Depends on: assign_epidemic_phase
 ## Outfiles:
 
+rmarkdown::render(
+    "analysis/who_hm_promed_comparison.Rmd",
+    params = list(
+        ofinterest = c("GIN", "LBR", "SLE"),
+        pmdaily = all_files[["ProMED"]]$incidtall,
+        hmdaily = all_files[["HealthMap"]]$incidtall,
+        whodaily = all_files[["WHO"]]$incidtall
+    )
+)
+
 pars <- expand.grid(
     tw = c(14, 28, 42),
     ndates = c(c(28, 42, 56)),
@@ -18,11 +28,16 @@ pars <- expand.grid(
 purrr::pwalk(
    pars,
    function(tw, ndates, ds) {
+       weekly_incidfile <- glue::glue(
+           all_files[[ds]]$outdir,
+           "/{Sys.Date()}_{ds}_processed_weekly_incidence.csv"
+       )
+       message("Weekly file is ", weekly_incidfile)
        rmarkdown::render(
            "analysis/forecasts_viz_fixed_country.Rmd",
            params = list(
                twindow = tw,
-               incid = all_files[[ds]]$weekly_incidfile,
+               incid = weekly_incidfile,
                n.dates.sim = ndates,
                places = all_files[[ds]]$places,
                outdir =
@@ -62,25 +77,29 @@ purrr::pwalk(
    }
 )
 
-source(
-    here::here(
-      "analysis/roc.R"
-    )
-  )
+purrr::pwalk(
+   pars,
+   function(tw, ndates, ds) {
+       message("Working on ", tw, " : ", ndates, " : ", ds)
+       rmarkdown::render(
+           "analysis/forecasts_assess_by_datasource.Rmd",
+           output_file = glue::glue(
+               "{tw}_{ndates}"
+           ),
+           params = list(
+               twindow = tw,
+               n.dates.sim = ndates
+           ),
+           output_dir = glue::glue(
+               "ms-figures/si-figures/other/{Sys.Date()}"
+           )
+       )
+   }
+ )
 
 
-## Depends on combine_forecasts_incidence
-for (idx in seq_len(nrow(pars))) {
-  datasource <- pars$ds[idx]
-  twindow <- pars$tw[idx]
-  n.dates.sim <- pars$ndates[idx]
-  message("Working on ", datasource, " : ", twindow, " : ", n.dates.sim)
-  source(
-    here::here(
-      "analysis/plot_sensitivity_specificity_alerts.R"
-    )
-  )
-}
+
+
 
 
 

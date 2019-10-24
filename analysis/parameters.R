@@ -100,7 +100,9 @@ all_files <- list(
   ),
 
   HealthMap = list(
-    incidfile = "data/processed/16042019_healthmap_loglinear_wide.csv",
+      raw = "data/raw/HealthMap_Ebola_GNE_WHO.csv",
+      incidfile = "data/processed/16042019_healthmap_loglinear_wide.csv",
+      incidtall = "data/processed/14102019_hm_loglinear_tall.csv",
     ## Fixed the issue with NAs in interpolated flag  on 10-10-2019
     weekly_incidfile = "data/processed/10102019_healthmap_loglinear_weekly.csv",
     weekly_wide =

@@ -54,9 +54,9 @@ pbias <- ggplot(
     col = gamma_upper_limit
   )
 ) +
-  geom_boxplot(position = "dodge")
+  geom_boxplot(position = "dodge", outlier.size = 1, outlier.stroke = 0.1)
 pbias <- pbias +
-  xlab("Week of projection") +
+  xlab("") +
   ylab("Bias") +
   mriids_plot_theme$onecol_theme +
   NULL
@@ -73,19 +73,12 @@ psharp <- ggplot(
     col = gamma_upper_limit
   )
 ) +
-  geom_boxplot() +
-  scale_y_log10(
-    breaks = scales::trans_breaks("log10", function(x) 10^x),
-    labels = scales::trans_format("log10", scales::math_format(10^.x))
-  )
-
+  geom_boxplot(outlier.size = 1, outlier.stroke = 0.1)
 
 psharp <- psharp +
-  xlab("Week of projection") +
-  ylab("log(sharpness)") +
-  mriids_plot_theme$onecol_theme +
-
-  NULL
+  xlab("") +
+  ylab("sharpness") +
+  mriids_plot_theme$onecol_theme
 
 psharp
 
@@ -112,10 +105,11 @@ prel <- ggplot(
 ##            alpha = 0.7,
 ##            position = position_jitterdodge())
 prel <- prel +
-  xlab("Week of projection") +
-  ylab("% weeks") +
+  xlab("") +
+    ylab(
+        stringr::str_wrap("% weeks in 95% forecast interval", width = 15)
+    ) +
   mriids_plot_theme$onecol_theme +
-
   ylim(0, 100)
 
 
@@ -130,11 +124,7 @@ prelerr <- ggplot(
     col = gamma_upper_limit
   )
 ) +
-  geom_boxplot() +
-  scale_y_log10(
-    breaks = scales::trans_breaks("log10", function(x) 10^x),
-    labels = scales::trans_format("log10", scales::math_format(10^.x))
-  )
+geom_boxplot(outlier.size = 1, outlier.stroke = 0.1)
 
 prelerr <- prelerr +
   mriids_plot_theme$onecol_theme +
@@ -143,8 +133,8 @@ prelerr <- prelerr +
 
 
 prelerr <- prelerr +
-  xlab("Week of projection") +
-  ylab("log(relative mean absolute error)")
+  xlab("") +
+  ylab("relative mean absolute error")
 
 prelerr
 
@@ -160,13 +150,14 @@ legend <- cowplot::get_legend(pbias +
   )
   )
 
-prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
-  psharp + theme(legend.position = "none"),
+prow <- cowplot::plot_grid(
   prel + theme(legend.position = "none"),
   prelerr + theme(legend.position = "none"),
+  pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
   align = "vh",
   labels = c("A", "B", "C", "D"),
-  label_size = 6,
+  label_size = 8,
   hjust = c(-1, 1, -3, 1),
   vjust = c(3, 3, -2.5, 0),
   nrow = 2
@@ -181,8 +172,61 @@ p <- cowplot::plot_grid(prow,
   rel_heights = c(1, .1)
 )
 
+filename <- glue::glue(
+    "{Sys.Date()}_{params$datasource}_forecasts_assess_by_gamma_ul_",
+    "{params$twindow}_{params$n.dates.sim}.pdf"
+)
+filename <- here::here(
+    glue::glue("ms-figures/si-figures/other/{Sys.Date()}"),
+    filename
+)
+cowplot::save_plot(
+    filename = filename,
+    plot = p,
+    base_height = mriids_plot_theme$single_col_height / 2.5,
+    base_width = mriids_plot_theme$single_col_width / 2.5
+)
 
-filename <- here::here("forecasts_assess_by_gamma_ul.pdf")
+
+
+prelerr_log <- prelerr +
+      scale_y_log10(
+    breaks = scales::trans_breaks(trans = "log10", inv = function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(.x))) +
+     ylab("log(rmae)") +   theme(
+        axis.title = ggplot2::element_text(margin = margin(t = 0, r = 0, b = 0, l = 0), size = 6)
+        )
+
+prow <- cowplot::plot_grid(
+  prel + theme(legend.position = "none"),
+  prelerr_log + theme(legend.position = "none"),
+  pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
+  align = "vh",
+  labels = c("A", "B", "C", "D"),
+  label_size = 8,
+  hjust = c(-1, 1, -3, 1),
+  vjust = c(3, 3, -2.5, 0),
+  nrow = 2
+)
+
+
+# add the legend underneath the row we made earlier. Give it 10% of the height
+# of one plot (via rel_heights).
+p <- cowplot::plot_grid(prow,
+  legend,
+  ncol = 1,
+  rel_heights = c(1, .1)
+)
+
+filename <- glue::glue(
+    "{Sys.Date()}_{params$datasource}_forecasts_assess_by_gamma_ul_",
+    "log_scale_{params$twindow}_{params$n.dates.sim}.pdf"
+)
+filename <- here::here(
+    glue::glue("ms-figures/si-figures/other/{Sys.Date()}"),
+    filename
+)
 cowplot::save_plot(
     filename = filename,
     plot = p,

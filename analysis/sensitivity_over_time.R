@@ -1,5 +1,5 @@
 library(patchwork)
-weekly_incid <- readr::read_csv(
+weekly_incid <- vroom::vroom(
   file = here::here(
     all_files[[datasource]]$outdir,
     glue::glue("{Sys.Date()}_{datasource}_processed_weekly_incidence.csv")
@@ -19,18 +19,22 @@ infile <- here::here(
     glue::glue("{Sys.Date()}_{datasource}_trp_fpr_by_date_obs.csv")
   )
 
-roc <- readr::read_csv(infile)
+roc_over_time <- readr::read_csv(infile)
 
-roc$time_window <- as.integer(roc$time_window)
-roc$n.dates.sim <- as.integer(roc$n.dates.sim)
-roc$date_pred <- lubridate::ymd(roc$date_pred)
-roc$week_of_projection <- factor(roc$week_of_projection)
+roc_over_time$time_window <- as.integer(roc_over_time$time_window)
+roc_over_time$n.dates.sim <- as.integer(roc_over_time$n.dates.sim)
+roc_over_time$date_pred <- lubridate::ymd(roc_over_time$date_pred)
+roc_over_time$week_of_projection <- factor(roc_over_time$week_of_projection)
 
 threshold <- "50%"
-roc <- roc[roc$threshold == threshold, ]
-roc <- roc[roc$n.dates.sim != 14, ]
+roc_over_time <- roc_over_time[roc_over_time$threshold == threshold, ]
+roc_over_time <- roc_over_time[roc_over_time$n.dates.sim != 14, ]
 
-byparams <- split(roc, list(roc$time_window, roc$n.dates.sim), sep = "_")
+byparams <- split(
+    roc_over_time,
+    list(roc_over_time$time_window, roc_over_time$n.dates.sim),
+    sep = "_"
+)
 params <- names(byparams)
 plots <- purrr::map(
     params,

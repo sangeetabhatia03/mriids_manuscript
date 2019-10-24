@@ -43,9 +43,9 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
   dev = "pdf",
-  ## fig.width = 7,
-  ## dev.args = list(pointsize = 6),
-  ##fig.path = here::here(params$outdir),
+  fig.path = here::here(glue::glue("{params$outdir}/{Sys.Date()}/")),
+  fig.width = mriids_plot_theme$single_col_width / 2.5,
+  fig.height = mriids_plot_theme$single_col_height / 2.5,
   fig.ext = paste0(
     params$datasource,
     "_",
@@ -79,7 +79,7 @@ weekly_metrics <-  dplyr::rename(weekly_metrics, relsharpness = "rel_sness")
 
 ## Overall performance
 
-```{r forecasts-assess-viz-3}
+```{r forecasts-assess-viz-3 }
 
 skimr::skim_with(
            numeric = list(
@@ -100,14 +100,14 @@ out <- glue::glue(
 readr::write_csv(x = df, path = here::here(params$outdir, out))
 ```
 
-```{r forecasts-assess-viz-4}
+```{r forecasts-assess-viz-4 }
 skimr::kable(df)
 ```
 
 
 Join weekly metrics with R estimate categorisation.
 
-```{r forecasts-assess-viz-6 }
+```{r forecasts-assess-viz-5 }
 
 epidemic_phase <- readr::read_csv(
   file = here::here(
@@ -149,7 +149,7 @@ weekly_metrics <- dplyr::left_join(
 
 Check for NAs
 
-```{r}
+```{r forecasts-assess-viz-6}
 naci <- dplyr::filter(weekly_metrics, is.na(ci))
 out <- glue::glue(
   "{params$datasource}_NA_ci_",
@@ -175,7 +175,9 @@ weekly_metrics <- dplyr::mutate_if(
   is.character,
   factor
 )
-weekly_metrics$week_of_projection <- factor(weekly_metrics$week_of_projection)
+weekly_metrics$week_of_projection <- factor(
+    weekly_metrics$week_of_projection
+)
 
 weekly_metrics$ci <- forcats::fct_recode(
   weekly_metrics$ci,
@@ -201,7 +203,7 @@ weekly_metrics$twindow <- factor(weekly_metrics$twindow)
 
 ## Summary
 
-```{r forecasts-assess-viz-11 }
+```{r forecasts-assess-viz-9 }
 
 summary_stats <- dplyr::summarise_at(
   weekly_metrics,
@@ -242,7 +244,7 @@ dplyr::select(
 ## Summary stats by week
 
 
-```{r forecasts-assess-viz-12 }
+```{r forecasts-assess-viz-10 }
 
 weekly_summary_stats <- dplyr::group_by(weekly_metrics, week_of_projection) %>%
   dplyr::summarise_at(
@@ -256,14 +258,14 @@ weekly_summary_stats <- dplyr::group_by(weekly_metrics, week_of_projection) %>%
   )
 ```
 
-```{r forecasts-assess-viz-13 }
+```{r forecasts-assess-viz-11 }
 knitr::kable(weekly_summary_stats)
 ```
 
 
 ## Summary stats by week and phase of epidemic
 
-```{r forecasts-assess-viz-20 }
+```{r forecasts-assess-viz-12 }
 
 phase_weekly_summary_stats <- dplyr::group_by(
   weekly_metrics,
@@ -326,13 +328,13 @@ phase_weekly_summary_stats <- dplyr::select(
   )
 ```
 
-```{r forecasts-assess-viz-21 }
+```{r forecasts-assess-viz-13 }
 knitr::kable(phase_weekly_summary_stats)
 ```
 
 ## Proportion of observations in forecast interval
 
-```{r}
+```{r forecasts-assess-viz-14}
 propinci <- group_by(weekly_metrics, country, ci) %>%
     summarise(x = mean(propinci))
 
@@ -340,24 +342,24 @@ propinci <- tidyr::spread(propinci, ci, x)
 
 ```
 
-```{r}
+```{r forecasts-assess-viz-15}
 knitr::kable(propinci)
 ```
 and across the three countries.
 
-```{r}
+```{r forecasts-assess-viz-16}
 propinci_all <- group_by(weekly_metrics, ci) %>%
     summarise(x = mean(propinci))
 propinci_all <- tidyr::spread(propinci_all, ci, x)
 ```
 
 
-```{r}
+```{r forecasts-assess-viz-17}
 knitr::kable(propinci_all)
 ```
 Format and save.
 
-```{r}
+```{r forecasts-assess-viz-18}
 propinci_all$Country <- "All"
 propinci_all <- dplyr::select(propinci_all, Country, dplyr::everything())
 propinci$country <- countrycode::countrycode(propinci$country, "iso3c", "country.name")
@@ -379,7 +381,7 @@ readr::write_csv(
 ```
 ## Bias
 
-```{r forecasts-assess-viz-22 }
+```{r forecasts-assess-viz-19 }
 pbias <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -387,13 +389,17 @@ pbias <- ggplot(
     col = ci
   )
 ) +
-  geom_boxplot(position = "dodge")
+  geom_boxplot(outlier.size = 1, outlier.stroke = 0.1, position = "dodge")
 pbias <- pbias +
-  xlab("Week of projection") +
-  ylab("Bias") +
+  xlab("") +
+  ylab("bias") +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
+  theme(
+        axis.title = ggplot2::element_text(margin = margin(t = 0, r = 0, b = 0, l = 0) , size = 6)
+    ) +
   scale_color_manual(values = mriids_plot_theme$phase_color_scale)
+
 
 pbias
 ```
@@ -401,7 +407,7 @@ pbias
 ## Relative Sharpness
 
 
-```{r forecasts-assess-viz-23 }
+```{r forecasts-assess-viz-20 }
 
 psharp <- ggplot(
   weekly_metrics,
@@ -410,7 +416,7 @@ psharp <- ggplot(
     col = ci
   )
 ) +
-  geom_boxplot() 
+  geom_boxplot(outlier.size = 1, outlier.stroke = 0.1) 
   ## scale_y_log10(
   ##   breaks = scales::trans_breaks("log10", function(x) 10^x),
   ##   labels = scales::trans_format("log10", scales::math_format(10^.x))
@@ -418,10 +424,13 @@ psharp <- ggplot(
 
 
 psharp <- psharp +
-  xlab("Week of projection") +
+  xlab("") +
   ylab("sharpness") +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
+  theme(
+        axis.title = ggplot2::element_text(margin = margin(t = 0, r = 0, b = 0, l = 0) , size = 6)
+    ) +
   scale_color_manual(values = mriids_plot_theme$phase_color_scale)
 
 psharp
@@ -430,7 +439,7 @@ psharp
 ## Proportion of observations in CrI
 
 
-```{r forecasts-assess-viz-24 }
+```{r forecasts-assess-viz-21 }
 propinci_perc <- group_by(
     weekly_metrics,
     week_of_projection,
@@ -449,10 +458,13 @@ prel <- ggplot(
 ##            alpha = 0.7,
 ##            position = position_jitterdodge())
 prel <- prel +
-  xlab("Week of projection") +
-  ylab("% weeks") +
+  xlab("") +
+  ylab(stringr::str_wrap("% weeks in 95% forecast interval", width = 15)) +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
+  theme(
+        axis.title = ggplot2::element_text(margin = margin(t = 0, r = 0, b = 0, l = 0) , size = 6)
+    ) +
   ylim(0, 100) +
   scale_fill_manual(values = mriids_plot_theme$phase_color_scale)
 
@@ -463,7 +475,8 @@ prel
 ## Relative mean absolute error
 
 
-```{r forecasts-assess-viz-25 }
+```{r forecasts-assess-viz-22 }
+
 prelerr <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -471,27 +484,38 @@ prelerr <- ggplot(
     col = ci
   )
 ) +
-  geom_boxplot() +
-  scale_y_log10(
-    breaks = scales::trans_breaks("log10", function(x) 10^x),
-    labels = scales::trans_format("log10", scales::math_format(10^.x))
-  )
+  geom_boxplot(outlier.size = 1, outlier.stroke = 0.1) 
 
 prelerr <- prelerr +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
-  scale_color_manual(values = mriids_plot_theme$phase_color_scale)
+  scale_color_manual(values = mriids_plot_theme$phase_color_scale) +
+  theme(
+        axis.title = ggplot2::element_text(margin = margin(t = 0, r = 0, b = 0, l = 0) , size = 6)
+    )
 
 
 prelerr <- prelerr +
-  xlab("Week of projection") +
-  ylab("log(relative mean absolute error)")
+  xlab("") +
+  ylab("relative mean absolute error")
 
 prelerr
 ```
 
+```{r forecasts-assess-viz-23}
+prelerr_log <- prelerr +
+    ##scale_y_continuous(trans = "log10") +
+    ##annotation_logticks(sides = "l") +
+      scale_y_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(.x))) +
+     ylab("log(rmae)") +   theme(
+        axis.title = ggplot2::element_text(margin = margin(t = 0, r = 0, b = 0, l = 0), size = 6)
+    ) 
 
-```{r forecasts-assess-viz-26 }
+```
+
+```{r forecasts-assess-viz-24 }
 ## outfile <- here::here(
 ##   params$outdir,
 ##   paste0(
@@ -507,13 +531,43 @@ prelerr
 legend <- cowplot::get_legend(pbias +
   theme(
     legend.position = "bottom",
-    legend.title = element_blank()
+    legend.title = element_blank(),
+    legend.text = element_text(size = 6)
   ))
 
-prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
-  psharp + theme(legend.position = "none"),
+prow <- cowplot::plot_grid(
   prel + theme(legend.position = "none"),
   prelerr + theme(legend.position = "none"),
+  pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
+  align = "vh",
+  labels = c("A", "B", "C", "D"),
+  label_size = 8,
+  hjust = c(-1, 1, -3, 1),
+  vjust = c(3, 3, -2.5, 0),
+  nrow = 2
+)
+
+
+# add the legend underneath the row we made earlier. Give it 10% of the height
+# of one plot (via rel_heights).
+p <- cowplot::plot_grid(prow,
+  legend,
+  ncol = 1,
+  rel_heights = c(1, .1)
+)
+
+p
+```
+
+And with log scale.
+
+```{r forecasts-assess-viz-25}
+prow <- cowplot::plot_grid(
+  prel + theme(legend.position = "none"),
+  prelerr_log + theme(legend.position = "none"),
+  pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
   align = "vh",
   labels = c("A", "B", "C", "D"),
   label_size = 8,

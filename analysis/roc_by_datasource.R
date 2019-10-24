@@ -8,7 +8,7 @@ infiles <- purrr::map(
   )
 )
 
-roc <- purrr::map_dfr(infiles, readr::read_csv, .id = "datasource")
+roc <- purrr::map_dfr(infiles, vroom::vroom, .id = "datasource")
 roc <- roc[roc$n.dates.sim != 14, ]
 
 overall <- dplyr::group_by(

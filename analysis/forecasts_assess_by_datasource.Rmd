@@ -37,7 +37,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
   dev = "pdf",
-  fig.path = "figures/",
+  fig.ext = glue::glue("{params$twindow}_{params$n.dates.sim}.pdf"),
+  fig.path = here::here(glue::glue("ms-figures/si-figures/other/{Sys.Date()}/")),
   fig.width = mriids_plot_theme$single_col_width / 2.5,
   fig.height = mriids_plot_theme$single_col_height / 2.5
   )
@@ -46,7 +47,7 @@ knitr::opts_chunk$set(
 
 Read in metrics for each datasource.
 
-```{r forecasts-assess-by-datasource-1}
+```{r forecasts-assess-by-datasource-1 }
 infiles <- glue::glue("{params$indirs}/{params$datasources}_weekly_metrics.csv")
 names(infiles) <- {
   params$datasources
@@ -78,11 +79,11 @@ pbias <- ggplot(
     col = datasource
   )
 ) +
-  geom_boxplot(position = "dodge")
+  geom_boxplot(position = "dodge", outlier.size = 1, outlier.stroke = 0.1)
 
 pbias <- pbias +
-  xlab("Week of projection") +
-  ylab("Bias") +
+  xlab("") +
+  ylab("bias") +
   mriids_plot_theme$onecol_theme +
   mriids_plot_theme$legend +
   scale_color_manual(values = mriids_plot_theme$color_scale)
@@ -102,7 +103,7 @@ psharp <- ggplot(
     col = datasource
   )
 ) +
-  geom_boxplot()
+  geom_boxplot(outlier.size = 1, outlier.stroke = 0.1)
 ## scale_y_log10(
 ##   breaks = scales::trans_breaks("log10", function(x) 10^x),
 ##   labels = scales::trans_format("log10", scales::math_format(10^.x))
@@ -110,7 +111,7 @@ psharp <- ggplot(
 
 
 psharp <- psharp +
-  xlab("Week of projection") +
+  xlab("") +
   ylab("sharpness") +
   mriids_plot_theme$onecol_theme +
   mriids_plot_theme$legend +
@@ -141,8 +142,10 @@ prel <- ggplot(
 ##            alpha = 0.7,
 ##            position = position_jitterdodge())
 prel <- prel +
-  xlab("Week of projection") +
-  ylab("% weeks") +
+  xlab("") +
+    ylab(
+        stringr::str_wrap("% weeks in 95% forecast interval", width = 15)
+    ) +
   mriids_plot_theme$onecol_theme +
   mriids_plot_theme$legend +
   ylim(0, 100) +
@@ -163,11 +166,7 @@ prelerr <- ggplot(
     col = datasource
   )
 ) +
-  geom_boxplot() +
-  scale_y_log10(
-    breaks = scales::trans_breaks("log10", function(x) 10^x),
-    labels = scales::trans_format("log10", scales::math_format(10^.x))
-  )
+    geom_boxplot(outlier.size = 1, outlier.stroke = 0.1) 
 
 prelerr <- prelerr +
   mriids_plot_theme$onecol_theme +
@@ -176,14 +175,23 @@ prelerr <- prelerr +
 
 
 prelerr <- prelerr +
-  xlab("Week of projection") +
-  ylab("log(relative mean absolute error)")
+  xlab("") +
+  ylab("relative mean absolute error")
 
 prelerr
 ```
 
+```{r forecasts-assess-by-datasource-6}
+prelerr_log <- prelerr +
+      scale_y_log10(
+    breaks = scales::trans_breaks(trans = "log10", inv = function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(.x))) +
+     ylab("log(rmae)") +   theme(
+        axis.title = ggplot2::element_text(margin = margin(t = 0, r = 0, b = 0, l = 0), size = 6)
+    ) 
+```
 
-```{r forecasts-assess-by-datasource-6 }
+```{r forecasts-assess-by-datasource-7 }
 ## outfile <- here::here(
 ##   params$outdir,
 ##   paste0(
@@ -202,15 +210,16 @@ legend <- cowplot::get_legend(pbias +
     legend.title = element_blank()
   ))
 
-prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
-  psharp + theme(legend.position = "none"),
+prow <- cowplot::plot_grid(
   prel + theme(legend.position = "none"),
   prelerr + theme(legend.position = "none"),
+  pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
   align = "vh",
   labels = c("A", "B", "C", "D"),
-  label_size = 6,
-  ##hjust = c(-1, 1, -3, 1),
-  ##vjust = c(3, 3, -2.5, 0),
+  label_size = 8,
+  hjust = c(-1, 1, -3, 1),
+  vjust = c(3, 3, -2.5, 0),
   nrow = 2
 )
 
@@ -227,3 +236,30 @@ p <- cowplot::plot_grid(prow,
 p
 ```
 
+And with log scale.
+
+```{r forecasts-assess-by-datasource-8 }
+prow <- cowplot::plot_grid(
+  prel + theme(legend.position = "none"),
+  prelerr_log + theme(legend.position = "none"),
+  pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
+  align = "vh",
+  labels = c("A", "B", "C", "D"),
+  label_size = 8,
+  hjust = c(-1, 1, -3, 1),
+  vjust = c(3, 3, -2.5, 0),
+  nrow = 2
+)
+
+
+# add the legend underneath the row we made earlier. Give it 10% of the height
+# of one plot (via rel_heights).
+p <- cowplot::plot_grid(prow,
+  legend,
+  ncol = 1,
+  rel_heights = c(1, .1)
+)
+
+p
+```

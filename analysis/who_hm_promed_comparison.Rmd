@@ -202,7 +202,7 @@ all_R <- map_dfr(list(
         start,
         end,
         function(st, ed) {
-          any(x$interpolated[st:ed])
+          all(x$interpolated[st:ed])
         }
       )
 
@@ -317,7 +317,8 @@ coeffs <- split(
   list(
     all_mean_R$country,
     all_mean_R$time_window_in_weeks
-  )
+  ),
+  sep = "_"
 ) %>%
   map(~ Hmisc::rcorr(as.matrix(select(
     .x,
@@ -340,12 +341,12 @@ coeffs <- map_dfr(coeffs,
     WHO_HealthMap_n = .x$n["WHO", "HealthMap"],
     HealthMap_ProMED_n = .x$n["HealthMap", "ProMED"]
   ),
-  .id = "country.tw"
+  .id = "country_tw"
 )
 
-
+#coeffs <- purrr::map_dfr(coeffs, broom::tidy, .id = "country_tw")
 coeffs <- tidyr::separate(coeffs,
-  col = "country.tw",
+  col = "country_tw",
   into = c("country", "time_window_in_weeks"),
   sep = -1
 )
@@ -353,7 +354,7 @@ coeffs <- tidyr::separate(coeffs,
 ## Get rid of the periods in country names
 coeffs$country <- stringr::str_remove(
   coeffs$country,
-  stringr::fixed(".")
+  stringr::fixed("_")
 )
 
 knitr::kable(coeffs)
@@ -483,6 +484,7 @@ p_who_hm <- p_who_hm +
     ),
     lineheight = .7
   ) +
+  xlim(0, 6) + ylim(0, 6) +   
   xlab("Mean(R) WHO") +
   ylab("Mean(R) HealthMap") +
   geom_abline(slope = 1)
@@ -640,7 +642,7 @@ p <- p + facet_wrap(country ~ .,
   nrow = 3
 )
 
-p <- p + xlab("") + ylab("Retrospective R")
+p <- p + xlab("") + ylab("R")
 p <- p +
   scale_colour_manual(
     values = mriids_plot_theme$color_scale,

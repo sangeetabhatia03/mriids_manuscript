@@ -66,7 +66,7 @@ all_alerts <- function(alerts, by = 0.05) {
             shape = new_obs
             )
     ) + geom_point() +
-    scale_shape_manual(values = c(YES = 24, NO = 15)) +
+    scale_shape_manual(values = c(YES = 17, NO = 15)) +
     scale_size_manual(values = c(YES = 1, NO = 0.5)) +
     scale_colour_manual(values = values) +
     scale_y_continuous(
@@ -125,8 +125,8 @@ alerts_by_week <- function(alerts, by = 0.05) {
         )
     ) +
         geom_point() +
-        scale_shape_manual(values = c(YES = 24, NO = 15)) +
-        scale_size_manual(values = c(YES = 1, NO = 0.5)) +
+        scale_shape_manual(values = c(YES = 17, NO = 15)) +
+        scale_size_manual(values = c(YES = 0.75, NO = 0.5)) +
         scale_colour_manual(
             values = values
         ) +
@@ -137,13 +137,6 @@ alerts_by_week <- function(alerts, by = 0.05) {
 
     pfacet <- pfacet + mriids_plot_theme$theme +
         mriids_plot_theme$legend +
-        theme(
-            axis.text.y = element_text(
-                angle = 0,
-                hjust = 0.5,
-                size = 4
-            )
-        )  +
         scale_x_date(labels = mriids_plot_theme$dateformat) +
         mriids_plot_theme$xticklabels +
         xlab("") + ylab("")
@@ -156,7 +149,8 @@ alerts_by_week <- function(alerts, by = 0.05) {
         geom_hline(
             data = lines,
             aes(yintercept = y),
-            alpha = "0.05"
+            alpha = "0.05",
+            size = 0.3 ## default is 0.5. Looks quite thick in this plot.
         )
     pfacet2
 
@@ -166,7 +160,7 @@ source(here::here("analysis/common_plot_properties.R"))
 
 message("Reading from and writing to ", all_files[[datasource]]$outdir)
 
-incid_pred <- readr::read_csv(
+incid_pred <- vroom::vroom(
   file = here::here(
     all_files[[datasource]]$outdir,
     glue::glue("{Sys.Date()}_weekly_alerts.csv")
@@ -221,12 +215,12 @@ alerts_byparams <- split(
 ## same combination fo parameters.
 params <- names(alerts_byparams)
 
-values <- c(`Missed Alert.FALSE` = "red",
-            `Missed Alert.TRUE` = "#ffb2b2",
+values <- c(`Missed Alert.FALSE` = "#ff0000",
+            `Missed Alert.TRUE` = "#ff7f7f",
             `True Alert.FALSE` = "#009E73",
-            `True Alert.TRUE` = "#99d8c7",
+            `True Alert.TRUE` = "#7fceb9",
             `False Alert.FALSE` = "#cc8400",
-            `False Alert.TRUE` = "#f4e6cb"
+            `False Alert.TRUE` = "#e5c17f"
             )
 
 
@@ -257,6 +251,18 @@ purrr::walk(
         alerts <- alerts_byparams[[param]]
         ## Plot 1. All countries, all weeks
         p <- alerts_by_week(alerts)
+        p <- p +  theme(
+            axis.text.y = element_text(
+                angle = 0,
+                hjust = 0.5,
+                size = 2
+            ),
+            axis.ticks.y = element_line(size = 0.3),
+            axis.text.x = element_text(
+                size = 2
+            )
+        )
+
         ggplot2::ggsave(
             filename = here::here(
                 all_files[[datasource]]$outdir,
@@ -269,7 +275,7 @@ purrr::walk(
         )
 
     }
-    )
+  )
 
 
 purrr::walk(
@@ -339,6 +345,57 @@ purrr::walk(
         alerts <- alerts_byparams[[param]]
         rates <- roc_byparams[[param]]
         byweek <- split(alerts, alerts$week_of_projection)
+
+       ## ROC curve for all weeks plotted along with
+       ## alerts for the first week.
+
+        p1 <- alerts_by_week(byweek[["1"]])
+        p1 <- p1 + theme(
+                  strip.background = element_blank(),
+                  strip.text.x = element_blank()
+                  )
+        p1 <- p1 +  theme(
+            axis.text.y = element_text(
+                angle = 0,
+                hjust = 0.5,
+                size = 4
+            ),
+            axis.ticks.y = element_line(size = 0.3),
+            axis.text.x = element_text(
+                size = 4
+            )
+        )
+
+        p2 <- roc(rates)
+        plot <- cowplot::plot_grid(
+            p2,
+            p1,
+            align = "hv",
+            axis = "rlbt",
+            nrow = 1,
+            ncol = 2,
+            ##rel_widths = c(1, 1.5),
+            labels = "AUTO",
+            label_size = 8
+        )
+        ggplot2::ggsave(
+            filename = here::here(
+                all_files[[datasource]]$outdir,
+                glue::glue("{Sys.Date()}_alerts_in_1_all_roc",
+                           "_{datasource}_{param}.pdf")),
+            plot = plot,
+            units = mriids_plot_theme$units,
+            width = mriids_plot_theme$double_col_width,
+            height = mriids_plot_theme$double_col_width / 2,
+            )
+
+        readr::write_rds(
+            x = plot,
+            path = here::here(
+                all_files[[datasource]]$outdir,
+                glue::glue("{Sys.Date()}_alerts_in_1_all_roc",
+                           "_{datasource}_{param}.rds"))
+        )
         roc_byweek <- split(rates, rates$week_of_projection)
         purrr::walk(
             names(byweek),
@@ -369,7 +426,7 @@ purrr::walk(
                   units = mriids_plot_theme$units,
                   width = mriids_plot_theme$double_col_width,
                   height = mriids_plot_theme$double_col_width / 2,
-                 )
+                  )
 
             }
         )
