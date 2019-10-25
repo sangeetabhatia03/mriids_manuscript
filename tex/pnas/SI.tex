@@ -1,169 +1,126 @@
-\documentclass[11pt,]{article}
-\usepackage[]{mathpazo}
-\usepackage{amssymb,amsmath, booktabs}
-\usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\else % if luatex or xelatex
-\ifxetex
-\usepackage{mathspec}
-\else
-\usepackage{fontspec}
-\fi
-\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
-\fi
-% use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{%
-  \usepackage{microtype}
-  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
-}{}
-\usepackage[margin=1in]{geometry}
-\usepackage{hyperref}
-\hypersetup{unicode=true,
-  pdftitle={Supplement for: Using Digital Surveillance Tools for Near Real-Time Mapping of the Risk of International Infectious Disease Spread: A Case Study},
-  pdfauthor={Sangeeta Bhatia, Britta Lassmann, Emily Cohn, Moritz Kraemer, Mark Herringer, John Brownstein, Larry Madoff, Anne Cori, Pierre Nouvellet},
-  pdfborder={0 0 0},
-  breaklinks=true}
-\urlstyle{same}  % don't use monospace font for urls
-\usepackage{graphicx,grffile}
-\makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\IfFileExists{parskip.sty}{%
-  \usepackage{parskip}
-}{% else
-  \setlength{\parindent}{0pt}
-  \setlength{\parskip}{6pt plus 2pt minus 1pt}
-}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-%\setcounter{secnumdepth}{5}
-% Redefines (sub)paragraphs to behave more like sections
-\ifx\paragraph\undefined\else
-\let\oldparagraph\paragraph
-\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
-\fi
-\ifx\subparagraph\undefined\else
-\let\oldsubparagraph\subparagraph
-\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
-\fi
-
-%%% Use protect on footnotes to avoid problems with footnotes in titles
-\let\rmarkdownfootnote\footnote%
-\def\footnote{\protect\rmarkdownfootnote}
-
-%%% Change title format to be more compact
-\usepackage{titling}
-
-% Create subtitle command for use in maketitle
-\providecommand{\subtitle}[1]{
-  \posttitle{
-    \begin{center}\large#1\end{center}
-  }
-}
-
-\setlength{\droptitle}{-2em}
-
-\title{Supplement for: Using Digital Surveillance Tools for Near Real-Time
-  Mapping of the Risk of International Infectious Disease Spread: A Case
+\documentclass[9pt,twoside,lineno]{pnas-new}
+\templatetype{pnassupportinginfo}
+\title{Using Digital Surveillance Tools for Near Real-Time Mapping of
+  the Risk of International Infectious Disease Spread: Ebola as a Case
   Study}
-\pretitle{\vspace{\droptitle}\centering\huge}
-\posttitle{\par}
-\author{Sangeeta Bhatia, Britta Lassmann, Emily Cohn, Moritz Kraemer, Mark
-  Herringer, John Brownstein, Larry Madoff, Anne Cori, Pierre Nouvellet}
-\preauthor{\centering\large\emph}
-\postauthor{\par}
-\predate{\centering\large\emph}
-\postdate{\par}
-\date{September 04, 2019}
+
+\author{Sangeeta Bhatia, Britta Lassmann, Emily Cohn, Malwina Carrion,
+Moritz Kraemer, Mark Herringer, John Brownstein, Larry Madoff, Anne
+Cori, Pierre Nouvellet}
+\correspondingauthor{Sangeeta Bhatia.\\E-mail: s.bhatia@imperial.ac.uk}
+
+% \usepackage[]{mathpazo}
+\usepackage{amssymb,amsmath, booktabs}
+% \usepackage[T1]{fontenc}
+% \usepackage[utf8]{inputenc}
+ \usepackage{graphicx,grffile}
 
 \usepackage{caption}
-%\captionsetup[figure]{labelformat=empty}
+\captionsetup[figure]{labelformat=empty}
 
-\graphicspath{{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures}}
+% \graphicspath{{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures}}
 \renewcommand{\figurename}{Fig SI}
+%\usepackage{hyperref}
 \begin{document}
 \maketitle
 
-{
-  \setcounter{tocdepth}{2}
-  \tableofcontents
-}
-\hypertarget{overview}{%
-\section*{Overview}\label{overview}}
-\addcontentsline{toc}{section}{Overview}
+%% Adds the main heading for the SI text. Comment out this line if you do not have any supporting information text.
+\SItext
+
+ 
+\tableofcontents
+
+
+\section*{Overview}\label{overview}
 
 In this supplement, we present the details of the pre-processing of
-ProMED and HealthMap feeds SI Section 1, the model results using ProMED,
+ProMED and HealthMap feeds \ref{sec:data-cleaning}, 
+the model results using ProMED,
 HealthMap and WHO data and the impact of the datasources and model
 parameters on the performance of the model. We varied the length of the
-time window used for model fitting (see Methods for details). SI Section
+time window used for model fitting (see Methods for details). SI Sections
 2, SI Section 3 and SI Section 4 present the forecasts using ProMED,
-HealthMap and WHO data respectively using different time windows (2, 4
-and 6 weeks) and forecast horizons (4, 6 and 8 weeks). The time window
+HealthMap and WHO data respectively using different calibration windows (2, 4
+and 6 weeks) and forecast horizons (4, 6 and 8 weeks). The calibration window
 did not have a strong influence on the model performance (SI Figure 28).
 Similarly, the data used also did not influence the model performance
 (SI Figure 29). We explored the impact of alternate priors for the
 gravity model parameter on the results from the model. The results of
-this sensitivity analysis are presented in SI Section 7.
+this sensitivity analysis are presented in SI Section 7. We present
+additional analysis on the predicting the spatial spread of the
+epidemic in Section~\ref{sec:spatial-spread}.
 
-\hypertarget{data-cleaning}{%
-  \section{Data cleaning}\label{data-cleaning}}
+
+\section{Data cleaning}\label{sec:data-cleaning}
+
+The data from ProMED and HealthMap was pre-processed to remove
+inconsistencies and address missing data (see Methods). The data on
+cumulative number of confirmed and suspected Ebola cases in Guinea,
+Liberia, Sierra Leone, Senegal, Mali, Nigeria and Ghana were extracted
+from ProMED and HealthMap feeds. The pre-processing workflow is 
+illustrated using data for Sierra Leone from ProMED.
 
 \begin{figure}
   \centering
-  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/27062019_promed_loglinear_SierraLeone.pdf} 
+  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/27062019-promed-loglinear-SierraLeone.pdf}
   \caption{Illustration of workflow for Processing ProMED feed.
-    Raw ProMED feed consisted of suspected and confirmed cases and suspected and confirmed
-    deaths. The top left figure (a) shows the suspected and confirmed cases in Sierra Leone in the raw feed.
+    Raw ProMED feed consisted of suspected and confirmed
+    cases and suspected and confirmed
+    deaths. The top left figure (a) shows the suspected (blue) and
+    confirmed (red) cases in Sierra Leone in the raw feed.
     We used the suspected and confirmed cases to derive cumulative
-    incidence data (b). Dupliacte alerts on a day were then removed (c).
+    incidence data (b). Duplicate alerts on a day were then removed
+    by assigning the median of the cases reported to this day.
+    (c).
     If there were outliers in the data, we removed them in the next step (d).
     We then made the cumulative case count monotonically increasing (e) by
     removing inconsistent records. Finally, missing data was imputed using
-    log-linear interpolation (f). Interpolated points are show in light blue.
-    See Methods for details.}\label{fig:dataclean}
+    log-linear interpolation (f). Imputed points are show in light blue.
+    See Methods for details.}
+\label{fig:dataclean}
 \end{figure}
 
-\hypertarget{correlation-between-r-estimates}{%
-  \subsection{Correlation between R estimates}\label{correlation-between-r-estimates}}
+\subsection{Weekly incidence from ProMED, HealthMap and WHO data}
 
-\begin{table}
+We processed the data from ProMED and HealthMap and derived daily and
+weekly incidence. The weekly incidence series derived from the three
+data sources were highly correlated.
+
+\begin{figure}
   \centering
-  \caption{Correlation between reproduction number estimated from
-    ProMED, HealthMap and WHO data.}
-  \label{tab:rcorr}
-  \begin{tabular}{lllll}
-    \toprule
-    Country  & Growing & Declining & Neither & Overall \\
-    \midrule
-    Guinea  & 44.0\% & 42.2\% & 71.9\% & 54.4\% \\
-    Liberia & 18.3\% & 31.5\% & 69.5\% & 49.3\% \\
-    Sierra Leone & 25.9\% & 46.0\% & 55.7\% & 42.5\% \\
-    All & 30.8\% & 40.2\% & 66.7\% & 48.7\% \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-10-25_weekly_incid.pdf}
+  \caption{Comparison of national weekly incidene trends from ProMED (blue),
+    HealthMap (green) and WHO (yellow) data for Guinea, Liberia and
+    Sierra Leone. Weeks for which all daily data points were imputed
+    are shown in lighter shades of blue and green respectively. The
+y-axis differs for each plot.}
+\label{fig:weekly}
+\end{figure}
 
 
-\hypertarget{forecasts-using-promed-data}{%
-  \section{Forecasts using ProMED data}\label{forecasts-using-promed-data}}
+\subsection{Correlation between R estimates}\label{correlation-between-r-estimates}
+
+The correlation between estimates of time-varying reproduction number 
+estimated using ProMED, HealthMap and WHO data depended on the
+time window used for estimation and the country.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-10-25_median_R_corr.pdf}
+  \caption{Correlation between time-varying reproduction number estimated from
+    ProMED, HealthMap and WHO data. The reporduction numbers were
+    estimated using R package EpiEstim over a 2, 4 or 6 week sliding
+    window. Median estimates from WHO data are on the x-axis and the
+    median estimates using ProMED (blue) and HealthMap (green) data
+    are on the y-axis. All correlation coefficients were statistically
+  significant.}
+  \label{fig:rcorr}
+\end{figure}
 
 
-\hypertarget{calibration-window-of-2-weeks}{%
-  \subsection{Calibration window of 2 weeks}\label{calibration-window-of-2-weeks}}
-
-\subsection{Forecast horozon of 4 weeks}
+\section{Forecasts using ProMED data}\label{forecasts-using-promed-data}
+\subsection{Calibration window of 2 weeks}\label{calibration-window-of-2-weeks}
+\subsubsection{Forecast horozon of 4 weeks}
 
 \begin{table}
   \centering
@@ -862,4 +819,5 @@ results using ProMED data only.
     the percentage of weeks for which the 95% forecast interval contained
     the observed incidence.}\label{fig:perfbygamma}
 \end{figure}
+
 \end{document}

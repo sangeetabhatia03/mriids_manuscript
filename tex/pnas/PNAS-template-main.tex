@@ -8,8 +8,20 @@
 % {pnasinvited} %= Template for a PNAS invited submission
 \newcommand{\sangeeta}[1]{\textcolor{blue}{#1}}
 % Added to be able to reference figures across SI.
-%\usepackage{xr}
-%\externaldocument{SI}
+\usepackage{xr}
+\makeatletter
+\long\def\XR@test#1#2#3#4\XR@{%
+  \let\XR@next\@gobbletwo
+  \ifx#1\newlabel
+    \let\XR@next\@firstoftwo%
+  \else\ifx#1\@input
+     \let\XR@next\@secondoftwo
+  \fi\fi
+   \XR@next{\newlabel{\XR@prefix#2}{#3}}{\edef\XR@list{\XR@list#2\relax}}%
+  \ifeof\@inputcheck\expandafter\XR@aux
+  \else\expandafter\XR@read\fi}
+\makeatother
+\externaldocument{SI}
 
 \title{Using Digital Surveillance Tools for Near Real-Time Mapping of
   the Risk of International Infectious Disease Spread: Ebola as a Case Study}
@@ -222,7 +234,8 @@ more than a year after the epidemic was declared to be over. However,
 despite these discrepancies, the weekly incidence derived from ProMED
 and HealthMap was moderately to highly correlated with that reported by
 WHO later (Pearson's correlation coefficients aggregated across the
-three countries 0.44 and 0.74 respectively, p value \textless{} 0.001).
+three countries 0.44 and 0.74 respectively, p value \textless{} 0.001,
+also see SI Fig~\ref{fig:weekly} for weekly trends).
 
 To broadly assess the extent to which such discrepancies in incidence
 would impact the quantification of transmissibility throughout the
@@ -235,10 +248,10 @@ independently for each country using the R package EpiEstim
 substantial differences in the estimates of \(R^t\) according to the
 incidence data source used (Figure 1B). The correlation between the
 median $R^t$ estimates on sliding 4-week windows from ProMED or HealthMap
-data with the estimates from WHO data varied from weak (0.27, between
+data with the estimates from WHO data varied from weak (0.30, between
 reproduction number from WHO and ProMED in Guinea) to very strong
-(0.81, between reproduction number from WHO and HealthMap in Sierra
-Leone, SI Table \ref{tab:rcorr}).
+(0.72, between reproduction number from WHO and \sangeeta{ProMED} in Sierra
+Leone, SI Fig~\ref{fig:rcorr}).
 
 Since HealthMap uses ProMED alerts in addition to other online data
 sources, ProMED represents the more conservative data source between the
@@ -357,8 +370,8 @@ percentiles of the forecast (e.g., the median or the
 95\textsuperscript{th} percentile)
 yielded different rates of true, false and missed alerts, \sangeeta{which} were
 summarised in a ROC curve (Fig \ref{fig:alerts}A). Overall, our model 
-achieved high sensitivity but variable specificity. In general, using higher
-percentiles as cut-off led to increased sensitivity but poorer
+achieved high sensitivity but variable specificity \sangeeta{with} higher
+percentiles as cut-off \sangeeta{yielding} increased sensitivity but poorer
 specificity. Maximising the average between
 sensitivity and specificity led to \sangeeta{95.9\%} sensitivity and 
 \sangeeta{98.0\%} specificity at \sangeeta{50\% threshold}. \sangeeta{The
@@ -370,11 +383,12 @@ specificity (98\%) when all countries in Africa other than
 the three majorly affected countries (Guinea, Liberia and Sierra
 Leone) were considered \ref{fig:alertsallbut3}. 
 Again, at 50\% threshold, the model exhibited 
-high specificity (98.0\%) but poor sensitivity in predicting presence
-of cases in weeks following a week with no observed cases in each
+high specificity (98.0\%) but poor sensitivity (42.9\%) in predicting 
+presence of cases in weeks following a week with no observed cases in each
 country. In both cases, higher sensitivity with a reasonably high
 specificity was achieved by increasing the cut-off at which an alert
-is raised \ref{fig:tprbythreshold}.} The cut-off for raising an alert can thus be chosen based
+is raised \ref{fig:tprbythreshold}.} The cut-off for raising an alert 
+can thus be chosen based
 on the relative costs of missed and false alerts \sangeeta{potentially
 using a higher cut-off when the observed incidence is low.}
 
@@ -388,8 +402,8 @@ using a higher cut-off when the observed incidence is low.}
 The high sensitivity of the model suggests that the model is able to
 capture and even anticipate the spatial spread of the epidemic. 
 \sangeeta{ Importantly, as the model is fit to data accumulating over
-  the course of the epidemic, it is able to predict the presence of
-  cases with a high degree of sensitivity and specificity relatively 
+the course of the epidemic, it is able to predict the presence of
+cases with a high degree of sensitivity and specificity relatively 
 early in the epidemic \ref{fig:tprovertime} 
 when such inputs would be particularly useful.}
 
@@ -604,7 +618,7 @@ epidemic data, with important operational and actionable outputs.}
 \subsection*{Figures}\label{figures}
 
 \begin{figure*}
-\includegraphics{{../../ms-figures/who-hm-promed-comparison}.pdf}
+\includegraphics{{../../ms-figures/2019-10-25_who-hm-promed-comparison}.pdf}
 \caption{Comparison of national daily
 incidence trends and R estimates from ProMED, HealthMap and WHO data for
 Guinea, Liberia and Sierra Leone. (A) Daily incidence derived from
@@ -753,11 +767,12 @@ cleaning and pre-processing:
   Each unique record in ProMED is associated with a
   unique alert id. \sangeeta{A alert id can correspond to various reports from
   different sources (news, social media etc.) which might report
-  different case numbers. In such cases, we assigned the median of the case numbers
-  to the record.}
+  different case numbers. In such cases, we assigned the median of the 
+  case numbers to the record.}
 \item
   In some instances, cumulative case count was inconsistent in that it
-  failed to be monotonically increasing. We identified consecutive dates
+  failed to be monotonically \sangeeta{non-decreasing}. 
+  We identified consecutive dates
   (\(t_k\) and \(t_{k + 1}\)) where the cumulative case count was not
   increasing. If removing either \(t_k\) or \(t_{k + 1}\) made the
   cumulative case count increasing, we adopted this option. If however
