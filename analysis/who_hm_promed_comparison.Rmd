@@ -50,35 +50,34 @@ library(ggpubr)
 ## Comparison of daily incidence trends
 
 
-```{r who-hm-promed-comparison-3, echo = FALSE}
+```{r who-hm-promed-comparison-2, echo = FALSE}
 
 datasources <- c("ProMED", "HealthMap", "WHO")
 names(datasources) <- datasources
 daily_incid <- purrr::map_dfr(
-    datasources,
-    function(datasource) {
-        infile <- here::here(
-            all_files[[datasource]]$incidtall
-            )
-        message("Reading ", infile)
-        out <- readr::read_csv(infile)
-        out
-    },
-    .id = "datasource"
+  datasources,
+  function(datasource) {
+    infile <- here::here(
+      all_files[[datasource]]$incidtall
+    )
+    message("Reading ", infile)
+    out <- readr::read_csv(infile)
+    out
+  },
+  .id = "datasource"
 )
 daily_incid <- daily_incid[daily_incid$country %in%
-                           c("LBR", "GIN", "SLE"), ]
-
+  c("LBR", "GIN", "SLE"), ]
 ```
 
 
-```{r who-hm-promed-comparison-4, eval = TRUE}
+```{r who-hm-promed-comparison-3, eval = TRUE}
 
 daily_incid$country <- forcats::fct_recode(
-    daily_incid$country,
-    Guinea = "GIN",
-    Liberia = "LBR",
-    `Sierra Leone` = "SLE"
+  daily_incid$country,
+  Guinea = "GIN",
+  Liberia = "LBR",
+  `Sierra Leone` = "SLE"
 )
 
 ## Comparison of daily incidence trends
@@ -118,8 +117,8 @@ p_daily <- p_daily +
   ylab("Daily Incidence")
 
 p_daily <- p_daily +
-    scale_x_date(labels = mriids_plot_theme$dateformat) +
-    mriids_plot_theme$xticklabels
+  scale_x_date(labels = mriids_plot_theme$dateformat) +
+  mriids_plot_theme$xticklabels
 # p_daily <- p_daily +
 #   ##     theme(axis.text.x = element_text(angle = -10, hjust = 0)) +
 #   scale_x_date(
@@ -141,7 +140,7 @@ p_daily
 
 Culled from literature.
 
-```{r who-hm-promed-comparison-5, eval = TRUE}
+```{r who-hm-promed-comparison-4, eval = TRUE}
 
 mean_SI <- 14.2
 CV_SI <- 9.6 / 14.2
@@ -156,69 +155,70 @@ R estimate is strongly influenced by the choice of time window and we
 want to capture that. Hence, estimate R for different values of time
 window.
 
-```{r who-hm-promed-comparison-6 }
+```{r who-hm-promed-comparison-5 }
 
 all_groups <- split(
-    daily_incid,
-    list(
-  daily_incid$datasource,
-  daily_incid$country
+  daily_incid,
+  list(
+    daily_incid$datasource,
+    daily_incid$country
   )
 )
 
 all_R <- purrr::map_dfr(
-    list(`2` = 2, `4` = 4, `6` = 6),
-    function(tw) {
-        time_window <- 7 * tw
-        df <- purrr::map_dfr(
-            all_groups,
-            function(x) {
-                I <- x$incid
-                start <- 2:(nrow(x) - time_window)
-                end <- start + time_window
-                res <- EpiEstim::EstimateR(
-                    I,
-                    T.Start = start,
-                    T.End = end,
-                    method = "NonParametricSI",
-                    SI.Distr = SI_Distr,
-                    plot = FALSE,
-                    CV.Posterior = 1,
-                    Mean.Prior = 1,
-                    Std.Prior = 0.5
-                )
-                res$R$date <- x$date[end]
-                ## Append an interpolated = TRUE flag if
-                ## any point in the window was interpolated.
-                res$R$interpolated <- purrr::map2_lgl(
-                    start,
-                    end,
-                    function(st, ed) {
-                        all(x$interpolated[st:ed])
-                    }
-                )
-                res$R
-            },
-            .id = "source.country"
+  list(`2` = 2, `4` = 4, `6` = 6),
+  function(tw) {
+    time_window <- 7 * tw
+    df <- purrr::map_dfr(
+      all_groups,
+      function(x) {
+        I <- x$incid
+        start <- 2:(nrow(x) - time_window)
+        end <- start + time_window
+        res <- EpiEstim::EstimateR(
+          I,
+          T.Start = start,
+          T.End = end,
+          method = "NonParametricSI",
+          SI.Distr = SI_Distr,
+          plot = FALSE,
+          CV.Posterior = 1,
+          Mean.Prior = 1,
+          Std.Prior = 0.5
         )
-        df
-    }, .id = "time_window_in_weeks")
+        res$R$date <- x$date[end]
+        ## Append an interpolated = TRUE flag if
+        ## any point in the window was interpolated.
+        res$R$interpolated <- purrr::map2_lgl(
+          start,
+          end,
+          function(st, ed) {
+            all(x$interpolated[st:ed])
+          }
+        )
+        res$R
+      },
+      .id = "source.country"
+    )
+    df
+  },
+  .id = "time_window_in_weeks"
+)
 
 
 all_R <- tidyr::separate(
-    all_R,
-    source.country,
-    into = c("Source", "country"),
-    extra = "merge",
-    fill = "left"
-    )
-
+  all_R,
+  source.country,
+  into = c("Source", "country"),
+  extra = "merge",
+  fill = "left"
+)
 ```   
 
 Checking how the choice of time window impacts R estimates and
 correlation.
 
-```{r who-hm-promed-comparison-7 }
+```{r who-hm-promed-comparison-6 }
 
 all_median_R <- dplyr::select(
   all_R,
@@ -227,14 +227,14 @@ all_median_R <- dplyr::select(
   country,
   `Median(R)`,
   date
-  )
+)
 
 
 all_median_R <- tidyr::spread(
   all_median_R,
   Source,
   `Median(R)`
-  )
+)
 
 ## dim(all_median_R)
 ## [1] 6669    6
@@ -246,7 +246,7 @@ all_median_R <- na.omit(all_median_R)
 
 Correlation between R series.
 
-```{r who-hm-promed-comparison-8 }
+```{r who-hm-promed-comparison-7 }
 byparams <- split(
   all_median_R,
   list(
@@ -257,37 +257,38 @@ byparams <- split(
 )
 
 coeffs <- purrr::map_dfr(
-    byparams,
-    function(df) {
-        df <- dplyr::select(df, WHO, ProMED, HealthMap)
-        out <- Hmisc::rcorr(as.matrix(df), type = "pearson")
-        out <- broom::tidy(out)
-        out
-    },
-    .id = "params"
-    )
+  byparams,
+  function(df) {
+    df <- dplyr::select(df, WHO, ProMED, HealthMap)
+    out <- Hmisc::rcorr(as.matrix(df), type = "pearson")
+    out <- broom::tidy(out)
+    out
+  },
+  .id = "params"
+)
 
 coeffs <- tidyr::separate(
-    coeffs,
-    col = "params",
-    into = c("country", "time_window_in_weeks"),
-    sep = "_"
+  coeffs,
+  col = "params",
+  into = c("country", "time_window_in_weeks"),
+  sep = "_"
 )
 
 coeffs <- dplyr::mutate_if(
-    coeffs, is.numeric, round, 3
+  coeffs, is.numeric, round, 2
 )
 
 knitr::kable(coeffs)
 ```
 
-```{r}
+```{r who-hm-promed-comparison-8}
 ## Impact of time_window on R estimation and correlation
 pm <- dplyr::filter(coeffs, column1 == "WHO", column2 == "ProMED")
 hm <- dplyr::filter(coeffs, column1 == "WHO", column2 == "HealthMap")
+pm_hm <- dplyr::filter(coeffs, column1 == "ProMED", column2 == "HealthMap")
 pm$label <- glue::glue("R(WHO-ProMED): {pm$estimate}")
 hm$label <- glue::glue("R(WHO-HealthMap): {hm$estimate}")
-
+pm_hm$label <- glue::glue("R(ProMED-HealthMap): {pm_hm$estimate}")
 p_r_tw <- ggplot(all_median_R) +
   geom_point(aes(
     x = WHO,
@@ -304,21 +305,25 @@ p_r_tw <- ggplot(all_median_R) +
   col = mriids_plot_theme$color_scale[["HealthMap"]],
   shape = 20, size = 0.5
   ) +
-    xlim(0, 7) + ylim(0, 7) +
-    geom_abline(
-        slope = 1, intercept = 0, alpha = 0.2, linetype = "dashed"
-    ) +
-    geom_text(
-        data = pm, aes(x = 4, y = 1, label = label),
-        color = mriids_plot_theme$color_scale[["ProMED"]],
-        size = 2
-    ) +
-    geom_text(
-        data = hm, aes(x = 4, y = 2, label = label),
-        color = mriids_plot_theme$color_scale[["HealthMap"]],
-        size = 2
-    ) +
-    
+  xlim(0, 7) + ylim(0, 7) +
+  geom_abline(
+    slope = 1, intercept = 0, alpha = 0.2, linetype = "dashed"
+  ) +
+  geom_text(
+    data = pm, aes(x = 4, y = 1, label = label),
+    color = mriids_plot_theme$color_scale[["ProMED"]],
+    size = 5 / .pt
+  ) +
+  geom_text(
+    data = hm, aes(x = 4, y = 1.7, label = label),
+    color = mriids_plot_theme$color_scale[["HealthMap"]],
+    size = 5 / .pt
+  ) +
+  geom_text(
+    data = pm_hm, aes(x = 4, y = 2.5, label = label),
+    size = 5 / .pt
+  ) +
+
   facet_grid(time_window_in_weeks ~ country,
     scales = "fixed",
     labeller = labeller(
@@ -348,8 +353,8 @@ p_r_tw
 
 
 
-```{r who-hm-promed-comparison-16 }
-all_R_6 <- dplyr::filter(all_R, time_window_in_weeks == 2)
+```{r who-hm-promed-comparison-9 }
+all_R_6 <- dplyr::filter(all_R, time_window_in_weeks == 4)
 p <- ggplot() +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend
@@ -405,7 +410,7 @@ p <- p +
   )
 
 p <- p + scale_x_date(labels = mriids_plot_theme$dateformat) +
-     mriids_plot_theme$xticklabels
+  mriids_plot_theme$xticklabels
 ## Add correlation coefficient
 ## median_coeffs <- mutate_if(
 ##   median_coeffs,
@@ -438,7 +443,7 @@ p
 
 
 
-```{r who-hm-promed-comparison-18 }
+```{r who-hm-promed-comparison-10 }
 
 p_all <- ggarrange(p_daily,
   p,
@@ -459,7 +464,7 @@ ggplot2::ggsave(
   width = mriids_plot_theme$double_col_width,
   height = mriids_plot_theme$double_col_height,
   units = mriids_plot_theme$units
-  )
+)
 
 ## ggexport(p_all,
 ##   filename = here::here(
@@ -474,7 +479,7 @@ ggplot2::ggsave(
 
 
 
-```{r who-hm-promed-comparison-21 }
+```{r who-hm-promed-comparison-11 }
 
 readr::write_csv(
   x = all_R,
@@ -489,6 +494,6 @@ readr::write_csv(
   )
 )
 ```
-```{r who-hm-promed-comparison-22}
+```{r who-hm-promed-comparison-12 }
 devtools::session_info()
 ```
