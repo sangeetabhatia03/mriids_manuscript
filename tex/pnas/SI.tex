@@ -16,7 +16,6 @@ Cori, Pierre Nouvellet}
  \usepackage{graphicx,grffile}
 
 \usepackage{caption}
-\captionsetup[figure]{labelformat=empty}
 
 % \graphicspath{{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures}}
 \renewcommand{\figurename}{Fig SI}
@@ -62,7 +61,7 @@ illustrated using data for Sierra Leone from ProMED.
 
 \begin{figure}
   \centering
-  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/27062019-promed-loglinear-SierraLeone.pdf}
+  \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/27062019-promed-loglinear-SierraLeone.pdf}
   \caption{Illustration of workflow for Processing ProMED feed.
     Raw ProMED feed consisted of suspected and confirmed
     cases and suspected and confirmed
@@ -88,7 +87,7 @@ data sources were highly correlated.
 
 \begin{figure}
   \centering
-  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-10-25_weekly_incid.pdf}
+  \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-10-25_weekly_incid.pdf}
   \caption{Comparison of national weekly incidene trends from ProMED (blue),
     HealthMap (green) and WHO (yellow) data for Guinea, Liberia and
     Sierra Leone. Weeks for which all daily data points were imputed
@@ -118,9 +117,18 @@ time window used for estimation and the country.
 \end{figure}
 
 
-\section{Forecasts using ProMED data}\label{forecasts-using-promed-data}
-\subsection{Calibration window of 2 weeks}\label{calibration-window-of-2-weeks}
-\subsubsection{Forecast horozon of 4 weeks}
+\section{Forecasts using ProMED data}\label{sec:pm} 
+
+This section presents the forecast produced using ProMED data with
+calibration window of 2 (Section~\ref{sec:pm2}), 
+4 (Section~\ref{sec:pm4}) and 6 
+(Section~\ref{sec:pm6}) weeks over a 
+forecast horizon of 4, 6 and 8 weeks. Results using calibration window
+of 2 weeks and forecast horizon of 4 weeks are presented in the main
+text.
+
+\subsection{Calibration window of 2 weeks}\label{sec:pm2}
+\subsubsection{Forecast horozon of 4 weeks}\label{sec:pm24}
 
 \begin{table}
   \centering
@@ -130,12 +138,12 @@ time window used for estimation and the country.
     estimate used for forecasting was less than 1, we defined the epidemic
     to be in the declining phase during this period. Similarly, if the 2.5th
     percentile of R was greater than 1, we defined the epidemic to be in a
-    growing phase. The phase was set to neither where the 95\% Credible
+    growing phase. The phase was set to stable where the 95\% Credible
     Interval of the R estimates contained 1.}
   \label{tab:propinci}
   \begin{tabular}{lllll}
     \toprule
-    Country  & Growing & Declining & Neither & Overall \\
+    Country  & Growing & Declining & Stable & Overall \\
     \midrule
     Guinea  & 44.0\% & 42.2\% & 71.9\% & 54.4\% \\
     Liberia & 18.3\% & 31.5\% & 69.5\% & 49.3\% \\
@@ -145,484 +153,703 @@ time window used for estimation and the country.
   \end{tabular}
 \end{table}
 
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:pm26} 
 
-\hypertarget{forecast-horizon-6-weeks}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks}}
-
-\begin{figure}
-  \centering
-  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_14_42} 
-  \caption{Observed and predicted
-    incidence, and reproduction number estimates from ProMED data.
-    The top panel shows the weekly incidence derived from ProMED
-    data and 6 weeks incidence forecast on log scale.
-    The solid dots represent the observed weekly incidence where
-    the light blue dots show
-    weeks for which at least one data point was obtained using
-    interpolation. The forecasts are made over 6 week windows, based on the
-    reproduction number estimated in the previous 2 weeks.
-    The middle figure in each panel shows the reproduction number
-    used to make projections over each 4 week forecast horizon.
-    The bottom figure shows the effective reproduction number estimated
-    retrospectively using the full dataset up to the length of one time window before the end.
-    In each case, the solid gray line is the median
-    estimate and the shaded region represents the 95% Credible Interval.
-    The red horizontal dashed line indicates the $R_t = 1$ threshold.
-    Results are shown for the three mainly affected countries although the
-    analysis was done using data for all countries on African mainland.
-    All figures in Sections 2, 3 and 4 of the Supplementary material follow
-    the same layout and color convention. }
-  \label{fig:pm26}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_14_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from ProMED data. The top
+  panel shows the weekly incidence derived from ProMED data and the 2
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light blue
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 2 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:pm26}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks}{%
-  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:pm28} 
 
-\begin{figure}
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_14_56} 
-
-  }
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from ProMED data.The calibration window is 2 weeks and
-    the forecast horizon is 8 weeks.}
-  \label{fig:pm28}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_14_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from ProMED data. The top
+  panel shows the weekly incidence derived from ProMED data and the 2
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light blue
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 2 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:pm28}
 \end{figure}
 
-\hypertarget{calibration-window-of-4-weeks}{%
-  \subsection{Calibration window of 4 weeks}\label{calibration-window-of-4-weeks}}
 
-\hypertarget{forecast-horizon-4-weeks}{%
-  \subsubsection{Forecast horizon 4
-    weeks}\label{forecast-horizon-4-weeks}}
+\subsection{Calibration window of 4 weeks}\label{sec:pm4}
+\subsubsection{Forecase horizon of 4 weeks}\label{sec:pm44} 
 
-\begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_28} 
-  }
-  \caption{SI Figure  4: Observed and predicted incidence, and
-    reproduction number estimates from ProMED data.The calibration
-    window is 4 weeks and the forecast horizon is 4 weeks.}
-  \label{fig:pm44}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_28}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from ProMED data. The top
+  panel shows the weekly incidence derived from ProMED data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light blue
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 4 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 4
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:pm44}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-1}{%
-  \subsubsection{Forecast horizon 6
-    weeks}\label{forecast-horizon-6-weeks-1}}
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:pm46} 
 
-\begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_42} 
-
-  }
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from ProMED data.The calibration window is 4 weeks and
-    the forecast horizon is 6 weeks.}
-  \label{fig:pm46}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from ProMED data. The top
+  panel shows the weekly incidence derived from ProMED data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light blue
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:pm46}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-1}{%
-  \subsubsection{Forecast horizon 8
-    weeks}\label{forecast-horizon-8-weeks-1}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:pm48} 
 
-\begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_56} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from ProMED data.The calibration window is 4 weeks and
-    the forecast horizon is 8 weeks.}
-  \label{fig:pm48}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_28_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from ProMED data. The top
+  panel shows the weekly incidence derived from ProMED data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light blue
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:pm48}
 \end{figure}
 
-\hypertarget{calibration-window-of-6-weeks}{%
-  \subsection{Calibration window of 6 weeks}\label{calibration-window-of-6-weeks}}
 
-\hypertarget{forecast-horizon-4-weeks-1}{%
-  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-1}}
+\subsection{Calibration window of 6 weeks}\label{sec:pm6}
+\subsubsection{Forecase horizon of 4 weeks}\label{sec:pm64} 
 
-\begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_28} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from ProMED data.The calibration window is 6 weeks and
-    the forecast horizon is 4 weeks.}
-  \label{fig:pm64}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_28}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from ProMED data. The top
+  panel shows the weekly incidence derived from ProMED data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light blue
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 4 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 4
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:pm64}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-2}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-2}}
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:pm66} 
 
-\begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_42} 
-  }
-  \caption{Observed and predicted incidence, and
-    reproduction number estimates from ProMED data.The calibration
-    window is 6 weeks and the forecast horizon is 6 weeks.}
-  \label{fig:pm66}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from ProMED data. The top
+  panel shows the weekly incidence derived from ProMED data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light blue
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:pm66}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-2}{%
-  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-2}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:pm68} 
 
-\begin{figure}
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_56} 
-  }
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from ProMED data.The calibration window is 6 weeks and
-    the forecast horizon is 8 weeks.}
-  \label{fig:pm68}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/ProMED/projections-viz-fixed-country-15-1.ProMED_42_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from ProMED data. The top
+  panel shows the weekly incidence derived from ProMED data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light blue
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:pm68}
 \end{figure}
 
-\hypertarget{forecasts-using-healthmap-data}{%
-  \section{Forecasts using HealthMap data}\label{forecasts-using-healthmap-data}}
+\section{Forecasts using HealthMap data}\label{sec:hm}
 
-\hypertarget{calibration-window-of-2-weeks-1}{%
-  \subsection{Calibration window of 2 weeks}\label{calibration-window-of-2-weeks-1}}
+This section presents the forecasts over 4, 6 and 8 weeks produced
+using HealthMap data and calibration window of 2, 4 and 6 weeks.
 
-\hypertarget{forecast-horizon-4-weeks-2}{%
-  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-2}}
+\subsection{Calibration window of 2 weeks}\label{sec:hm2}
+\subsubsection{Forecase horizon of 4 weeks}\label{sec:hm24} 
 
-\begin{figure}
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_28} 
-  }
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from HealthMap data.The calibration window is 2 weeks
-    and the forecast horizon is 4 weeks.}
-  \label{fig:hm24}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_28}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 2
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 4 week windows, based on the reproduction
+  number estimated in the previous 2 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 4
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm24}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-3}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-3}}
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:hm26} 
 
-\begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_42} 
-  }
-  \caption{Observed and predicted incidence, and
-    reproduction number estimates from HealthMap data.The calibration
-    window is 2 weeks and the forecast horizon is 6 weeks.}
-    \label{fig:hm26}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 2
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 2 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm26}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-3}{%
-  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-3}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:hm28} 
 
-\begin{figure}
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_56} 
-  }
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from HealthMap data.The calibration window is 2 weeks
-    and the forecast horizon is 8 weeks.}
-    \label{fig:hm28}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_14_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 2
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 2 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm28}
 \end{figure}
 
-\hypertarget{calibration-window-of-4-weeks-1}{%
-  \subsection{Calibration window of 4 weeks}\label{calibration-window-of-4-weeks-1}}
 
-\hypertarget{forecast-horizon-4-weeks-3}{%
-  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-3}}
+\subsection{Calibration window of 4 weeks}\label{sec:hm4}
+\subsubsection{Forecase horizon of 4 weeks}\label{sec:hm44} 
 
-\begin{figure}
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_28} 
-  }
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from HealthMap data.The calibration window is 4 weeks
-    and the forecast horizon is 4 weeks.}
-      \label{fig:hm44}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_28}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 4 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 4
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm44}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-4}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-4}}
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:hm46} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_42} 
-
-  }
-
-  \caption{Observed and predicted incidence, and
-    reproduction number estimates from HealthMap data.The calibration
-    window is 4 weeks and the forecast horizon is 6 weeks.}
-  \label{fig:hm46}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm46}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-4}{%
-  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-4}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:hm48} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_56} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from HealthMap data.The calibration window is 4 weeks
-    and the forecast horizon is 8 weeks.}
-  \label{fig:hm48}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_28_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm48}
 \end{figure}
 
-\hypertarget{calibration-window-of-6-weeks-1}{%
-  \subsection{Calibration window of 6 weeks}\label{calibration-window-of-6-weeks-1}}
 
-\hypertarget{forecast-horizon-4-weeks-4}{%
-  \subsubsection{Forecast horizon 4
-    weeks}\label{forecast-horizon-4-weeks-4}}
+\subsection{Calibration window of 6 weeks}\label{sec:hm6}
+\subsubsection{Forecase horizon of 4 weeks}\label{sec:hm64} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_28} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from HealthMap data.The calibration window is 6 weeks
-    and the forecast horizon is 4 weeks.}
-  \label{fig:hm64}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_28}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 4 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 4
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm64}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-5}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-5}}
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:hm66} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_42} 
-
-  }
-
-  \caption{Observed and predicted incidence, and
-    reproduction number estimates from HealthMap data.The calibration
-    window is 6 weeks and the forecast horizon is 6 weeks.}
-  \label{fig:hm66}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm66}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-5}{%
-  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-5}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:hm68} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_56} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from HealthMap data.The calibration window is 6 weeks
-    and the forecast horizon is 8 weeks.}
-  \label{fig:hm68}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/HealthMap/projections-viz-fixed-country-15-1.HealthMap_42_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from HealthMap data. The top
+  panel shows the weekly incidence derived from HealthMap data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence where the light green
+  dots show weeks for which
+  all data points were obtained using interpolation. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:hm68}
 \end{figure}
 
-\hypertarget{forecasts-using-who-data}{%
-  \section{Forecasts using WHO data}\label{forecasts-using-who-data}}
+\section{Forecasts using WHO data}\label{sec:who}
 
-\hypertarget{calibration-window-of-2-weeks-2}{%
-  \subsection{Calibration window of 2 weeks}\label{calibration-window-of-2-weeks-2}}
+This section presents the model forecasts over 4 6 and 6 weeks horizon
+produced using WHO data and calibration window of 2, 4 or 6 weeks.
 
-\hypertarget{forecast-horizon-4-weeks-5}{%
-  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-5}}
+\subsection{Calibration window of 2 weeks}\label{sec:who2}
+\subsubsection{Forecase horizon of 4 weeks}\label{sec:who24} 
 
-\begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_28} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from WHO data.The calibration window is 2 weeks and the
-    forecast horizon is 4 weeks.}
-  \label{fig:who24}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_28}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 2
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 4 week windows, based on the reproduction
+  number estimated in the previous 2 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 4
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who24}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-6}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-6}}
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:who26} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_42} 
-
-  }
-
-  \caption{SI Figure  20: Observed and predicted incidence, and
-    reproduction number estimates from WHO data.The calibration window
-    is 2 weeks and the forecast horizon is 6 weeks.}
-  \label{fig:who26}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 2
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 2 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who26}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-6}{%
-  \subsubsection{Forecast horizon 8
-    weeks}\label{forecast-horizon-8-weeks-6}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:who28} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_56} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number
-    estimates from WHO data.The calibration window is 2 weeks and the
-    forecast horizon is 8 weeks.}
-  \label{fig:who28}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_14_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 2
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 2 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who28}
 \end{figure}
 
-\hypertarget{calibration-window-of-4-weeks-2}{%
-  \subsection{Calibration window of 4
-    weeks}\label{calibration-window-of-4-weeks-2}}
 
-\hypertarget{forecast-horizon-4-weeks-6}{%
-  \subsubsection{Forecast horizon 4
-    weeks}\label{forecast-horizon-4-weeks-6}}
+\subsection{Calibration window of 4 weeks}\label{sec:who4}
+\subsubsection{Forecase horizon of 4 weeks}\label{sec:who44} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_28} 
-
-  }
-
-  \caption{Observed and predicted incidence, and
-    reproduction number estimates from WHO data.The calibration window
-    is 4 weeks and the forecast horizon is 4 weeks.}
-  \label{fig:who44}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_28}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 4 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 4
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who44}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-7}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-7}}
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:who46} 
 
-\begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_42} 
-
-  }
-
-  \caption{Observed and predicted incidence, and
-    reproduction number estimates from WHO data.The calibration window
-    is 4 weeks and the forecast horizon is 6 weeks.}
-  \label{fig:who46}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who46}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-7}{%
-  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-7}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:who48} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_56} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number estimates from WHO data.The calibration window is 4 weeks and the forecast horizon is 8 weeks.}\label{fig:SI-27}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_28_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 4
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 4 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who48}
 \end{figure}
 
-\hypertarget{calibration-window-of-6-weeks-2}{%
-  \subsection{Calibration window of 6
-    weeks}\label{calibration-window-of-6-weeks-2}}
 
-\hypertarget{forecast-horizon-4-weeks-7}{%
-  \subsubsection{Forecast horizon 4
-    weeks}\label{forecast-horizon-4-weeks-7}}
+\subsection{Calibration window of 6 weeks}\label{sec:who6}
+\subsubsection{Forecase horizon of 4 weeks}\label{sec:who64} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_28} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number estimates from WHO data.The calibration window is 6 weeks and the forecast horizon is 4 weeks.}\label{fig:SI-28}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_28}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 4 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 4
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who64}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-8}{%
-  \subsubsection{Forecast horizon 6
-    weeks}\label{forecast-horizon-6-weeks-8}}
+\subsubsection{Forecase horizon of 6 weeks}\label{sec:who66} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_42} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number estimates from WHO data.The calibration window is 6 weeks and the forecast horizon is 6 weeks.}\label{fig:SI-29}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_42}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 6 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 6
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who66}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-8}{%
-  \subsubsection{Forecast horizon 8
-    weeks}\label{forecast-horizon-8-weeks-8}}
+\subsubsection{Forecase horizon of 8 weeks}\label{sec:who68} 
 
-\begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_56} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number estimates from WHO data.The calibration window is 6 weeks and the forecast horizon is 8 weeks.}\label{fig:SI-30}
+\begin{figure}\centering
+\includegraphics[width = \textwidth]{{../../ms-figures/si-figures/WHO/projections-viz-fixed-country-15-1.WHO_42_56}.pdf}
+\caption{Observed and predicted
+  incidence, and reproduction number estimates from WHO data. The top
+  panel shows the weekly incidence derived from WHO data and the 6
+  weeks incidence forecast on log scale. The solid dots represent the
+  observed weekly incidence. The
+  projections are made over 8 week windows, based on the reproduction
+  number estimated in the previous 6 weeks. The middle figure in each
+  panel shows the reproduction number used to make forecasts over each 8
+  week forecast horizon. The bottom figure shows the effective
+  reproduction number estimated retrospectively using the full dataset up
+  to the length of one calibration window before the end.
+  In each case, the solid black line is the median estimate and
+  the shaded region represents the 95\% Credible Interval. The red
+  horizontal dashed line indicates the $R_t = 1$ threshold. Results are
+  shown for the three mainly affected countries although the analysis was
+  done jointly using data for all countries in Africa.}
+\label{fig:who68}
 \end{figure}
 
-\hypertarget{impact-of-time-window-on-model-performance}{%
-  \section{Impact of time window on model
-    performance}\label{impact-of-time-window-on-model-performance}}
+\section{Impact of calibration window on model performance}
+\label{sec:perftw}
+
+Since changing the length of the calibration window modified the model
+complexity with shorter windows introducing more parameters in the
+model, we assessed the imapct of this length on the performance of the
+model. 
 
 \begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/forecasts-assess-by-time-window-13-1.ProMED_28_assess_by_twindow} 
-
-  }
-
+  \centering \includegraphics[width=\textwidth]{{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/forecasts-assess-by-time-window-11-1.ProMED_28_assess_by_twindow}.pdf} 
   \caption{Model performance metrics stratified by the time window used for
-    model calibration. The performance metrics (anti-clockwise from top left) are
-    bias, sharpness, relative mean absolute error (show on log scale) and
-    the percentage of weeks for which the 95% forecast interval contained
-    the observed incidence.}
+    model calibration. The performance metrics are
+    (A) the percentage of weeks for which the 95\% forecast interval contained
+    the observed incidence, (B) relative mean absolute error, (C)
+    bias, and (D) sharpness. See methods for details.}
   \label{fig:perftw}
 \end{figure}
 
-\hypertarget{impact-of-datasource-on-model-performance}{%
-  \section{Impact of datasource on model
-    performance}\label{impact-of-datasource-on-model-performance}}
+
+\section{Impact of datasource on model performance}\label{impact-of-datasource-on-model-performance}
 
 \begin{figure}
 
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/forecasts-assess-by-datasource-6-1} 
-
-  }
-
+  \centering 
+   \includegraphics[width=\textwidth]{{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/forecasts-assess-by-datasource-7-1.14_28}.pdf} 
   \caption{Model performance metrics stratified by datasource
     ProMED (blue), HealthMap (green), and WHO (yellow).
-    The performance metrics (anti-clockwise from top left) are
-    bias, sharpness, relative mean absolute error (show on log scale) and
-    the percentage of weeks for which the 95% forecast interval contained
-    the observed incidence.}\label{fig:perfds}
+    The performance metrics are
+    (A) the percentage of weeks for which the 95\% forecast interval contained
+    the observed incidence, (B) relative mean absolute error, (C)
+    bias, and (D) sharpness. See methods for details.}
+\label{fig:perfds}
 \end{figure}
 
-\hypertarget{sensitivity-analysis}{%
-  \section{Sensitivity Analysis}\label{sensitivity-analysis}}
 
-For the results presented in the main text, we choose an uninformative
-uniform prior for the parameter \(\gamma\) with an upper bound 2. We
-then fitted the model with a uniform prior for \(\gamma\) allowing it to
-vary from 1 to 10. In this section we present the results from the
-sensitivity analyses. Although the analysis was carried out for the
-three data sources (ProMED, HealthMap and WHO), for brevity we present
-results using ProMED data only.
+\section{Mobility Model Parameters}\label{mobility-model-parameters}
 
-\hypertarget{mobility-model-parameters}{%
-  \subsection{Mobility Model Parameters}\label{mobility-model-parameters}}
+
 
 \begin{figure}
-  \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/gravity_model_pars_14.pdf}
+  \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/gravity_model_pars_14.pdf}
   \caption{Estimates of mobility model
     parameters during the epidemic. Population movement was modelled using a
     gravity model where the flow between locations \(i\) and \(j\) is
@@ -638,12 +865,22 @@ results using ProMED data only.
 \end{figure}
 
 
-\textbackslash \begin{figure}
+\section{Sensitivity Analysis}\label{sec:sensitivity-analysis}
 
-  \{\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/gravity_model_pars_14}
+For the results presented in the main text, we choose an uninformative
+uniform prior for the parameter \(\gamma\) with an upper bound 2. We
+then fitted the model with a uniform prior for \(\gamma\) allowing it to
+vary from 1 to 10. In this section we present the results from the
+sensitivity analyses. Although the analysis was carried out for the
+three data sources (ProMED, HealthMap and WHO), for brevity we present
+results using ProMED data only.
 
-  \}
 
+
+
+ \begin{figure}
+  \centering 
+   \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/gravity_model_pars_14}
   \caption{Estimates of mobility model
   parameters during the epidemic. Population movement was modelled using a
   gravity model where the flow between locations \(i\) and \(j\) is
@@ -655,38 +892,28 @@ results using ProMED data only.
   given location during their infectious period. The solid lines
   represents the median estimates obtained using ProMED data. The shaded
   regions represent the 95\% CrI.}
-\label{fig:SI-33}
+\label{fig:gravitymodelpars}
 \end{figure}
 
-\hypertarget{forecasts-using-promed-data-1}{%
-  \subsection{Forecasts using ProMED
-    data}\label{forecasts-using-promed-data-1}}
-
-\hypertarget{calibration-window-of-2-weeks-3}{%
-  \subsubsection{Calibration window of 2
-    weeks}\label{calibration-window-of-2-weeks-3}}
-
-\hypertarget{forecast-horizon-4-weeks-8}{%
-  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-8}}
+\subsection{Forecasts using ProMED data}\label{forecasts-using-promed-data-1}
+\subsubsection{Calibration window of 2 weeks}\label{sec:pm2-3-2}
+\subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-8}
 
 \begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_28} 
-
-  }
-
+  \centering 
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_28} 
   \caption{Observed and predicted incidence, and reproduction number
-    estimates from ProMED data. The calibration window is 2 weeks and the forecast horizon is 4 weeks.}\label{fig:SI-34}
+estimates from ProMED data. The calibration window is 2 weeks and the
+forecast horizon is 4 weeks.}
+\label{fig:SI-34}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-9}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-9}}
+
+\subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-9}
 
 \begin{figure}
 
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_42} 
-
-  }
+  \centering \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_42} 
 
   \caption{Observed and predicted incidence, and reproduction number
     estimates from ProMED data.The calibration window is 2 weeks and
@@ -694,125 +921,99 @@ results using ProMED data only.
   \label{fig:SI-35}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-9}{%
-  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-9}}
+
+\subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-9}
 
 \begin{figure}
 
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_56} 
-
-  }
-
-  \caption{Observed and predicted incidence, and reproduction number estimates from ProMED data.The calibration window is 2 weeks and the forecast horizon is 8 weeks.}\label{fig:SI-36}
+  \centering 
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_14_56} 
+  \caption{Observed and predicted incidence, and reproduction number
+    estimates from ProMED data.The calibration window is 2 weeks and
+    the forecast horizon is 8 weeks.}
+\label{fig:SI-36}
 \end{figure}
 
-\hypertarget{calibration-window-of-4-weeks-3}{%
-  \subsubsection{Calibration window of 4 weeks}\label{calibration-window-of-4-weeks-3}}
 
-\hypertarget{forecast-horizon-4-weeks-9}{%
-  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-9}}
+\subsubsection{Calibration window of 4 weeks}\label{calibration-window-of-4-weeks-3}
+\subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-9}
 
 \begin{figure}
-
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_28} 
-
-  }
-
+    \centering \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_28} 
   \caption{Observed and predicted incidence, and reproduction number
     estimates from ProMED data.The calibration window is 4 weeks and
     the forecast horizon is 4 weeks.}
   \label{fig:pm44gamma}
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-10}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-10}}
+\subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-10}
 
 \begin{figure}
-
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_42} 
-
-  }
-
+  \centering \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_42} 
   \caption{Observed and predicted incidence, and reproduction number
     estimates from ProMED data.The calibration window is 4 weeks and
     the forecast horizon is 6 weeks.}
   \label{fig:pm46gamma}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-10}{%
-  \subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-10}}
 
+\subsubsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-10}
 \begin{figure}
-
-  {
-    \centering
-    \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_56} 
-  }
+  \centering
+    \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_28_56} 
   \caption{Observed and predicted incidence, and reproduction number
     estimates from ProMED data.The calibration window is 4 weeks and
     the forecast horizon is 8 weeks.}
   \label{fig:pm48gamma}
 \end{figure}
 
-\hypertarget{calibration-window-of-6-weeks-3}{%
-  \subsubsection{Calibration window of 6 weeks}\label{calibration-window-of-6-weeks-3}}
 
-\hypertarget{forecast-horizon-4-weeks-10}{%
-  \subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-10}}
+\subsubsection{Calibration window of 6 weeks}\label{calibration-window-of-6-weeks-3}
 
-\begin{figure}
 
-  {
-    \centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_28} 
+\subsubsection{Forecast horizon 4 weeks}\label{forecast-horizon-4-weeks-10}
 
-  }
-
+\begin{figure}  
+    \centering 
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_28} 
   \caption{Observed and predicted incidence, and reproduction number
     estimates from ProMED data.The calibration window is 6 weeks and
     the forecast horizon is 4 weeks.}
   \label{fig:pm64gamma }
 \end{figure}
 
-\hypertarget{forecast-horizon-6-weeks-11}{%
-  \subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-11}}
+
+\subsubsection{Forecast horizon 6 weeks}\label{forecast-horizon-6-weeks-11}
 
 \begin{figure}
 
-  {\centering \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_42} 
-
-  }
+  \centering 
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_42} 
   \caption{Observed and predicted incidence, and reproduction number
     estimates from ProMED data.The calibration window is 6 weeks and
     the forecast horizon is 6 weeks.}
   \label{fig:pm66gamma}
 \end{figure}
 
-\hypertarget{forecast-horizon-8-weeks-11}{%
-  \subsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-11}}
+
+\subsection{Forecast horizon 8 weeks}\label{forecast-horizon-8-weeks-11}
 
 \begin{figure}
-
-  {
     \centering
-    \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_56} 
-  }
+    \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/projections-viz-fixed-country-15-1.ProMED_42_56} 
   \caption{Observed and predicted incidence, and reproduction number
     estimates from ProMED data.The calibration window is 6 weeks and
     the forecast horizon is 8 weeks.}
   \label{fig:pm68gamma}
 \end{figure}
 
-\hypertarget{model-performance-with-alternate-priors-for-mobility-model-parameter}{%
-  \subsection{Model performance with alternate priors for mobility
-    model parameter}\label{model-performance-with-alternate-priors-for-mobility-model-parameter}}
+
+\subsection{Model performance with alternate priors for mobility
+  model parameter}\label{model-performance-with-alternate-priors-for-mobility-model-parameter}
 
 \begin{figure}
-  {
     \centering
-    \includegraphics{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/forecasts_assess_by_gamma_ul} 
-  }
-
+    \includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/sensitivity_analyses/forecasts_assess_by_gamma_ul} 
   \caption{Model performance metrics allowing $\gamma$ to vary from
     1 to 2 or 10. The performance metrics (anti-clockwise from top left) are
     bias, sharpness, relative mean absolute error (show on log scale) and

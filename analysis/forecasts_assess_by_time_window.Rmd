@@ -63,7 +63,6 @@ weekly_metrics <- readr::read_csv(
     glue::glue("{params$datasource}_weekly_metrics.csv")
   )
 )
-
 ```
 
 
@@ -72,7 +71,7 @@ weekly_metrics <- readr::read_csv(
 
 Join it with R estimate categorisation.
 
-```{r forecasts-assess-by-time-window-4 }
+```{r forecasts-assess-by-time-window-3 }
 epidemic_phase <- readr::read_csv(
   file = here::here(
     params$outdir,
@@ -91,20 +90,20 @@ weekly_metrics <- dplyr::left_join(
 
 weekly_metrics <- weekly_metrics[
   weekly_metrics$n.dates.sim == params$n.dates.sim,
-  ]
-weekly_metrics <-  dplyr::rename(weekly_metrics, relsharpness = "rel_sness")
+]
+weekly_metrics <- dplyr::rename(weekly_metrics, relsharpness = "rel_sness")
 ```
 
 Overall performace
 
-```{r forecasts-assess-by-time-window-5}
+```{r forecasts-assess-by-time-window-4 }
 weekly_metrics_overall <- weekly_metrics
 weekly_metrics_overall$ci <- "Overall"
 weekly_metrics <- rbind(weekly_metrics, weekly_metrics_overall)
 ```
 
 ## Fix column classes
-```{r forecasts-assess-by-time-window-6 }
+```{r forecasts-assess-by-time-window-5 }
 
 weekly_metrics <- dplyr::mutate_if(
   weekly_metrics,
@@ -137,7 +136,7 @@ weekly_metrics$twindow <- factor(weekly_metrics$twindow)
 
 ## Bias
 
-```{r forecasts-assess-by-time-window-9 }
+```{r forecasts-assess-by-time-window-6 }
 pbias <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -147,8 +146,8 @@ pbias <- ggplot(
 ) +
   geom_boxplot(position = "dodge")
 pbias <- pbias +
-  xlab("Week of projection") +
-  ylab("Bias") +
+  xlab("") +
+  ylab("bias") +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
   NULL
@@ -159,7 +158,7 @@ pbias
 ## Sharpness
 
 
-```{r forecasts-assess-by-time-window-10 }
+```{r forecasts-assess-by-time-window-7 }
 
 psharp <- ggplot(
   weekly_metrics,
@@ -168,16 +167,11 @@ psharp <- ggplot(
     col = twindow
   )
 ) +
-  geom_boxplot() +
-  scale_y_log10(
-    breaks = scales::trans_breaks("log10", function(x) 10^x),
-    labels = scales::trans_format("log10", scales::math_format(10^.x))
-  )
-
+  geom_boxplot() 
 
 psharp <- psharp +
-  xlab("Week of projection") +
-  ylab("log(sharpness)") +
+  xlab("") +
+  ylab("sharpness") +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
   NULL
@@ -188,12 +182,12 @@ psharp
 ## Proportion of observations in CrI
 
 
-```{r forecasts-assess-by-time-window-11 }
+```{r forecasts-assess-by-time-window-8 }
 
 propinci_perc <- group_by(
-    weekly_metrics,
-    week_of_projection,
-    twindow
+  weekly_metrics,
+  week_of_projection,
+  twindow
 ) %>% summarise(nweeks = 100 * sum(propinci) / n())
 
 propinci_perc <- dplyr::ungroup(propinci_perc)
@@ -210,12 +204,12 @@ prel <- ggplot(
 ##            alpha = 0.7,
 ##            position = position_jitterdodge())
 prel <- prel +
-  xlab("Week of projection") +
-  ylab("% weeks") +
+  xlab("") +
+  ylab(stringr::str_wrap("% weeks in 95% forecast interval", width = 15)) +
   mriids_plot_theme$theme +
   mriids_plot_theme$legend +
-  ylim(0, 100) 
-  
+  ylim(0, 100)
+
 
 prel
 ```
@@ -224,7 +218,7 @@ prel
 ## Relative mean absolute error
 
 
-```{r forecasts-assess-by-time-window-12 }
+```{r forecasts-assess-by-time-window-9 }
 prelerr <- ggplot(
   weekly_metrics,
   aes(week_of_projection,
@@ -232,11 +226,7 @@ prelerr <- ggplot(
     col = twindow
   )
 ) +
-  geom_boxplot() +
-  scale_y_log10(
-    breaks = scales::trans_breaks("log10", function(x) 10^x),
-    labels = scales::trans_format("log10", scales::math_format(10^.x))
-  )
+  geom_boxplot()
 
 prelerr <- prelerr +
   mriids_plot_theme$theme +
@@ -245,14 +235,54 @@ prelerr <- prelerr +
 
 
 prelerr <- prelerr +
-  xlab("Week of projection") +
-  ylab("log(relative mean absolute error)")
+  xlab("") +
+  ylab("relative mean absolute error")
 
 prelerr
 ```
 
 
-```{r forecasts-assess-by-time-window-13 }
+
+```{r forecasts-assess-by-time-window-10 }
+prelerr_log <- prelerr +
+  ## scale_y_continuous(trans = "log10") +
+  ## annotation_logticks(sides = "l") +
+  scale_y_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(.x))
+  ) +
+  ylab("log(rmae)") + theme(
+    axis.title = ggplot2::element_text(margin = margin(t = 0, r = 0, b = 0, l = 0), size = 6)
+  )
+```
+
+```{r forecasts-assess-by-time-window-11}
+prow <- cowplot::plot_grid(
+  prel + theme(legend.position = "none"),
+  prelerr + theme(legend.position = "none"),
+  pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
+  align = "vh",
+  labels = c("A", "B", "C", "D"),
+  label_size = 8,
+  hjust = c(-1, 1, -3, 1),
+  vjust = c(3, 3, -2.5, 0),
+  nrow = 2
+)
+
+
+# add the legend underneath the row we made earlier. Give it 10% of the height
+# of one plot (via rel_heights).
+p <- cowplot::plot_grid(prow,
+  legend,
+  ncol = 1,
+  rel_heights = c(1, .1)
+)
+
+p
+```
+
+```{r forecasts-assess-by-time-window-12 }
 
 ## Affix legend manually otherwise I can't get rid of the
 ## annoying legend title.
@@ -262,10 +292,11 @@ legend <- cowplot::get_legend(pbias +
     legend.title = element_blank()
   ))
 
-prow <- cowplot::plot_grid(pbias + theme(legend.position = "none"),
-  psharp + theme(legend.position = "none"),
+prow <- cowplot::plot_grid(
   prel + theme(legend.position = "none"),
-  prelerr + theme(legend.position = "none"),
+  prelerr_log + theme(legend.position = "none"),
+  pbias + theme(legend.position = "none"),
+  psharp + theme(legend.position = "none"),
   align = "vh",
   labels = c("A", "B", "C", "D"),
   label_size = 8,
