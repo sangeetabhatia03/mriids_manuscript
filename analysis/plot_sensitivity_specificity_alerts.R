@@ -297,6 +297,20 @@ purrr::walk(
                   width = mriids_plot_theme$single_col_width,
                   height = mriids_plot_theme$single_col_height
                   )
+                ## Only for new weekly observations.
+                df <- dplyr::filter(df, new_obs == "YES")
+                p <- alerts_by_week(df)
+                ggplot2::ggsave(
+                  filename = here::here(
+                     all_files[[datasource]]$outdir,
+                     glue::glue("{Sys.Date()}_alerts_in_{week}_{datasource}",
+                                "_no_cases_last_week_{param}.pdf")),
+                  plot = p,
+                  units = mriids_plot_theme$units,
+                  width = mriids_plot_theme$single_col_width,
+                  height = mriids_plot_theme$single_col_height
+                  )
+
 
             }
         )

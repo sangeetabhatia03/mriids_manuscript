@@ -1,3 +1,10 @@
+datasources <- c("ProMED", "HealthMap", "WHO")
+names(datasources) <- datasources
+all_files[["ProMED"]]$outdir <- "data/promed_stanfits_gamma_ul_10_output"
+all_files[["HealthMap"]]$outdir <- "data/healthmap_gamma_ul_10_output"
+all_files[["WHO"]]$outdir <- "data/who_stanfits_gamma_ul_10_output"
+
+
 all_quantiles <- purrr::map_dfr(
     datasources,
     function(ds) {

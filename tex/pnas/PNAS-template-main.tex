@@ -258,8 +258,8 @@ sources, ProMED represents the more conservative data source between the
 two. Therefore we present the results based on ProMED data in the main
 text, unless otherwise \sangeeta{specified}. The analysis based on HealthMap and
 WHO data are presented in the
-Supplementary Information (SI) (SI Sections \ref{forecasts-using-healthmap-data}
-and \ref{forecasts-using-who-data}).
+Supplementary Information (SI) (SI Sections \ref{sec:hm}
+and \ref{sec:who}).
 
 
 \subsection*{Short term forecasts}\label{short-term-forecasts}
@@ -386,7 +386,7 @@ Leone) were considered \ref{fig:alertsallbut3}.
 Again, at 50\% threshold, the model exhibited 
 high specificity (98.0\%) but poor sensitivity (42.9\%) in predicting 
 presence of cases in weeks following a week with no observed cases in each
-country. In both cases, higher sensitivity with a reasonably high
+country \ref{fig:rocnocases}. In both cases, higher sensitivity with a reasonably high
 specificity was achieved by increasing the cut-off at which an alert
 is raised \ref{fig:tprbythreshold}.} The cut-off for raising an alert 
 can thus be chosen based
@@ -1019,7 +1019,7 @@ exponents \(\alpha\) and \(\beta\) on the populations to be 1.
 \(\gamma\) was allowed to vary between 1 and 2 in the results presented
 in the main text. We performed a sensitivity analysis where \(\gamma\)
 has a uniform prior between 1 and 10. The results of this analysis are
-presented in the SI (SI Section \ref{sensitivity-analysis}).
+presented in the SI (SI Section \ref{sec:sensitivity-analysis}).
 
 Model fitting was done in a Bayesian framework using a Markov Chain
 Monte Carlo (MCMC) as implemented in the software Stan
