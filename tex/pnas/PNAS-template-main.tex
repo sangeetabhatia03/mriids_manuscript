@@ -219,7 +219,7 @@ weaknesses, especially if used in near real-time forecasting.
 
 Incidence time series were computed from ProMED, HealthMap and WHO data
 (see Methods) for the three mainly affected countries, Guinea,
-Liberia and Sierra Leone, and are shown in Figure 1. The raw and
+Liberia and Sierra Leone, and are shown in Fig~\ref{fig:whopmhm}. The raw and
 processed (see Methods) data from ProMED and HealthMap for all countries
 included in the feed are available in the Github repository for this
 article. There were
@@ -235,7 +235,7 @@ despite these discrepancies, the weekly incidence derived from ProMED
 and HealthMap was moderately to highly correlated with that reported by
 WHO later (Pearson's correlation coefficients aggregated across the
 three countries 0.44 and 0.74 respectively, p value \textless{} 0.001,
-also see SI Fig~\ref{fig:weekly} for weekly trends).
+also see Fig~\ref{fig:weekly} for weekly trends).
 
 To broadly assess the extent to which such discrepancies in incidence
 would impact the quantification of transmissibility throughout the
@@ -251,7 +251,7 @@ median $R^t$ estimates on sliding 4-week windows from ProMED or HealthMap
 data with the estimates from WHO data varied from weak (0.30, between
 reproduction number from WHO and ProMED in Guinea) to very strong
 (0.72, between reproduction number from WHO and \sangeeta{ProMED} in Sierra
-Leone, SI Fig~\ref{fig:rcorr}).
+Leone, Fig~\ref{fig:rcorr}).
 
 Since HealthMap uses ProMED alerts in addition to other online data
 sources, ProMED represents the more conservative data source between the
@@ -287,7 +287,7 @@ trajectory was limited and depended on the data source (Fig \ref{fig:pm24})
 as well as on the time window used for inference (calibration window)
 and the forecast horizon. Results using a 2-week calibration window
 and a 4-week forecast horizon using ProMED data are presented in
-the main text (see SI Figs \ref{fig:pm26} and \ref{fig:pm28} for other 
+the main text (see Figs \ref{fig:pm26} and \ref{fig:pm28} for other 
 forecast horizons and calibration windows).
 Overall, 48.7\% of weekly observed incidence across
 all three countries were included in the 95\%
@@ -352,8 +352,8 @@ while under-predicting in the declining phase (Fig \ref{fig:perfpm24}A).
 % windows, and thus parameters, over the course of the epidemic increases
 % with shorter time windows.
 Overall, the model performed moderately better using WHO data compared
-to ProMED and HealthMap data (SI Fig \ref{fig:perfds}) \sangeeta{and with shorter 
-calibration windows} (SI Fig \ref{fig:perftw}).
+to ProMED and HealthMap data (Fig \ref{fig:perfds}) \sangeeta{and with shorter 
+calibration windows} (Fig \ref{fig:perftw}).
 
 \subsection*{Risk of spatial spread}
 Although our model was not always able to robustly predict the future
@@ -377,18 +377,19 @@ specificity. Maximising the average between
 sensitivity and specificity led to \sangeeta{95.9\%} sensitivity and 
 \sangeeta{98.0\%} specificity at \sangeeta{50\% threshold}. \sangeeta{The
 sensitivity of the model remained high over longer forecast horizon 
-while the specificity deteriorated \ref{fig:alerts}A with more false alerts being raised
-4 week ahead \ref{fig:alerts4weekahead}. At the same
-threshold, the model attained poor sensitivity (42.9\%) but high
-specificity (98\%) when all countries in Africa other than
+while the specificity deteriorated (Fig~\ref{fig:alerts}A) with more false alerts being raised
+4 week ahead (Fig~\ref{fig:alerts4weekahead}). At the same
+threshold, the model attained high
+specificity (98\%) but poor sensitivity (42.9\%)
+when all countries in Africa other than
 the three majorly affected countries (Guinea, Liberia and Sierra
-Leone) were considered \ref{fig:alertsallbut3}. 
+Leone) were considered (Fig~\ref{fig:alertsallbut3}). 
 Again, at 50\% threshold, the model exhibited 
 high specificity (98.0\%) but poor sensitivity (42.9\%) in predicting 
 presence of cases in weeks following a week with no observed cases in each
-country \ref{fig:rocnocases}. In both cases, higher sensitivity with a reasonably high
+country (Fig~\ref{fig:rocnocases}). In both cases, higher sensitivity with a reasonably high
 specificity was achieved by increasing the cut-off at which an alert
-is raised \ref{fig:tprbythreshold}.} The cut-off for raising an alert 
+is raised (Fig~\ref{fig:tprbythreshold}).} The cut-off for raising an alert 
 can thus be chosen based
 on the relative costs of missed and false alerts \sangeeta{potentially
 using a higher cut-off when the observed incidence is low.}
@@ -417,8 +418,8 @@ estimated over the time-window of inference, here over the most recent
 two weeks (Fig 2, second row). We found that these near real-time
 estimates of \(R_t\) were in good agreement with retrospective estimates
 obtained using the entire incidence time-series (Fig 2, bottom row,
-correlation coefficients varying between 0.93 and 0.99 for the three
-countries, SI Table \ref{tab:rcorr}).
+correlation coefficients varying between \sangeeta{0.58 and 0.90}, 
+Fig~\ref{fig:rcorrrealretro}).
 
 The risk of spatial spread in our model relies on estimating movement
 \sangeeta{patterns} of infectious cases. Our method also provides estimates of
@@ -427,7 +428,7 @@ the probability of a case staying within a country throughout their
 infectious period, and  the extent to which
 distance between two locations affects the flow between them. The
 real-time estimates of these parameters over the course of the
-epidemic (SI Fig \ref{fig:parsul2}), suggest that while the relative flow
+epidemic (Fig \ref{fig:parsul2}), suggest that while the relative flow
 between locations did not vary substantially over time, the probability
 of travel across national borders may have decreased after the initial
 phase of the epidemic.
@@ -580,8 +581,7 @@ surveillance. Another}  interesting research
 avenue would be to explore ways of integrating
 timely data from ProMED and HealthMap with delayed data from ground
 surveillance \sangeeta{ to generate timely insights into the spatial spread
-  of an outbreak}.
-
+of an outbreak}.
 
 The framework presented in this paper was developed as a
 proof-of-concept to use digital surveillance data for near real-time
@@ -603,14 +603,24 @@ and duration, there is a scope for optimising the model implementation.
 Importantly, many other open data sources could be included in our
 framework to improve model performance. For example, data on human
 mobility could be used to further inform the parametric form and
-parameter values of our mobility model. When relevant,
+parameter values of our mobility model. \sangeeta{We have incorporated
+a simple and well-characterised model of population movement in the
+current work. In
+addition to utilising other possible data sources, future
+work could consider other models of human population movement
+\cite{simini2012universal}.}
+When relevant,
 spatially-explicit data on population-level immunity to the circulating
 pathogen (e.g.~following previous epidemics and/or due to vaccination)
-could also be used to refine our transmission model. Finally,
+could also be used to refine our transmission model. \sangeeta{
+Finally, the impact of the health capacity of a region to respond to a
+public health emergency could also be accounted for in future iterations of
+the model. Ongoing efforts to collate } 
 quantitative information on the performance of health systems and the
 ability of regions or countries to respond to an epidemic
-\cite{healthsites}, \cite{maina2019spatial} could also be accounted for
-in future iterations of the model. \sangeeta{Here using a relatively simple
+\cite{healthsites}, \cite{maina2019spatial} \sangeeta{can potentially provide
+ valuable data sources for future work}. 
+\sangeeta{Here using a relatively simple
 modelling approach we provide one of the first pieces of evidence of the potential
 value of digital surveillance for real-time quantitative analysis of
 epidemic data, with important operational and actionable outputs.}
@@ -634,6 +644,7 @@ intervals (95\% CrI) for the \(R_t\) estimates. The reproduction
 number was estimated on sliding windows of 28 days, using the R package
 EpiEstim \cite{cori2013new}. Estimates shown at time \(t\) are for the
 28-day window finishing on day \(t\).}
+\label{fig:whopmhm}
 \end{figure*}
 
 \begin{figure*}
@@ -660,7 +671,7 @@ done jointly using data for all countries in Africa.}
 
 
 \begin{figure*}
-\includegraphics{{../../ms-figures/forecasts-assess-viz-26-1.ProMED_14_28_assess}.pdf}
+\includegraphics{{../../ms-figures/forecasts-assess-viz-24-1.ProMED_14_28_assess}.pdf}
 \caption{Model performance metrics overall and stratified by
 week of projection and epidemic phase. The performance metrics 
 are bias (A), sharpness (B), the percentage of weeks for which the 95\% forecast interval
@@ -678,7 +689,7 @@ Methods for definitions of each metric.}
 \end{figure*}
 
 \begin{figure*}
-\includegraphics{{../../ms-figures/ProMED_roc_alerts_14}.pdf}
+\includegraphics{{../../ms-figures/2019-10-29_alerts_in_1_all_roc_ProMED_14_28}.pdf}
 \caption{Predicted weekly presence of cases in
 each country. The left panel shows the True and False alert rates using
 different thresholds for classification when forecasting ahead for 4
@@ -803,7 +814,7 @@ cleaning and pre-processing:
 \end{itemize}
 
 An example of the pre-processing of ProMED feed is presented in the
-supplementary text (SI Figure 1).
+supplementary text (Figure 1).
 
 \subsection*{Data collated by WHO}\label{data-collated-by-who}
 
@@ -999,7 +1010,7 @@ were grouped together. These were Mali, Côte d'Ivoire, Guinea-Bissau
 and Gambia. The rest of the countries were assigned to the fifth group.
 A comparison
 of the performance of different models is presented in the Supplementary
-Material (SI Fig \ref{fig:perftw}).
+Material (Fig~\ref{fig:perftw}).
 
 We assumed a Gamma distributed serial interval with mean 14.2 days and
 standard deviation 9.6 days \cite{team2015west}. For the reproduction
