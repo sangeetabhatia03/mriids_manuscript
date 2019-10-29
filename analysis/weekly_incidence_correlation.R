@@ -69,7 +69,7 @@ purrr::iwalk(
             filename = filename,
             plot = p,
             width = mriids_plot_theme$double_col_width,
-            height = mriids_plot_theme$double_col_width /2,
+            height = mriids_plot_theme$double_col_width / 1.6,
             units = mriids_plot_theme$units
         )
     }
