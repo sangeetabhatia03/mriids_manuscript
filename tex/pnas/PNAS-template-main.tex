@@ -1154,6 +1154,13 @@ under-predicts, then
 is 0 and the bias is -1. For a model for which all
 predictions match the observed values exactly, the bias is 0.
 
+\section*{Epidemic Phase}
+We defined the epidemic to be in a ``growing'' phase at time $t$ if the 
+2.5\textsuperscript{th} percentile of the distribution of the reproduction
+number at this time was greater than 1. Similarly, the epidemic was
+defined to be in ``declining'' phase if the 97.5\textsuperscript{th} 
+percentile of the distribution of the reproduction number was below
+1. In all other cases, the epidemic was defined to be in a ``stable'' phase.
 
 \section*{Code and data availability}
 All analysis was carried out in the statistical software R version
