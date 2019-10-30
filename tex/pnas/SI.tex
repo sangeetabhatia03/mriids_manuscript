@@ -68,12 +68,13 @@ illustrated using data for Sierra Leone from ProMED.
     deaths. The top left figure (a) shows the suspected (blue) and
     confirmed (red) cases in Sierra Leone in the raw feed.
     We used the suspected and confirmed cases to derive cumulative
-    incidence data (b). Duplicate alerts on a day were then removed
+    incidence data (b). If there were more than one alert on a day, 
+    these were then removed
     by assigning the median of the cases reported to this day.
     (c).
     If there were outliers in the data, we removed them in the next step (d).
     We then made the cumulative case count monotonically increasing (e) by
-    removing inconsistent records. Finally, missing data was imputed using
+    removing inconsistent records. Finally, missing data were imputed using
     log-linear interpolation (f). Imputed points are show in light blue.
     See Methods for details.}
 \label{fig:dataclean}
@@ -83,7 +84,7 @@ illustrated using data for Sierra Leone from ProMED.
 
 We processed the data from ProMED and HealthMap and derived daily and
 weekly incidence. The weekly incidence series derived from the three
-data sources were highly correlated.
+data sources were highly correlated (Fig~\ref{fig:weekly}).
 
 \begin{figure}
   \centering
@@ -101,13 +102,18 @@ y-axis differs for each plot.}
 
 The correlation between estimates of time-varying reproduction number 
 estimated using ProMED, HealthMap and WHO data depended on the
-time window used for estimation and the country.
+time window used for estimation and the country
+(Fig~\ref{fig:rcorr}). Similarly, for each data source, the
+retrospective estimates of R obtained using the full incidence curve
+were in reasonably good agreement with the real-time estimates of R.
+The strength of the correlation varied depending on the country and
+the length of the calibration window (Fig~\ref{fig:rcorrrealretro}).
 
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-10-25_median_R_corr.pdf}
   \caption{Correlation between time-varying reproduction number estimated from
-    ProMED, HealthMap and WHO data. The reporduction numbers were
+    ProMED, HealthMap and WHO data. The reproduction numbers were
     estimated using R package EpiEstim over a 2, 4 or 6 week sliding
     window. Median estimates from WHO data are on the x-axis and the
     median estimates using ProMED (blue) and HealthMap (green) data
@@ -120,18 +126,14 @@ time window used for estimation and the country.
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-10-29_r_real_retro_correlation.pdf}
-  \caption{Correlation between time-varying reproduction number estimated from
-    ProMED, HealthMap and WHO data. The reporduction numbers were
-    estimated using R package EpiEstim over a 2, 4 or 6 week sliding
-    window. Median estimates from WHO data are on the x-axis and the
-    median estimates using ProMED (blue) and HealthMap (green) data
-    are on the y-axis. All correlation coefficients were statistically
-  significant.}
+  \caption{Correlation between real-time and retrospective estimates
+    of time-varying reproduction number from
+    ProMED (blue), HealthMap (green) and WHO (yellow) data. 
+    Median real-time estimates are on the x-axis and the
+    median retrospective estimates are on the y-axis. 
+   All correlation coefficients were statistically significant.}
   \label{fig:rcorrrealretro}
 \end{figure}\FloatBarrier
-
-
-
 
 \section{Forecasts using ProMED data}\label{sec:pm} 
 
@@ -167,7 +169,7 @@ text.
     All & 30.8\% & 40.2\% & 66.7\% & 48.7\% \\
     \bottomrule
   \end{tabular}
-\end{table}
+\end{table}\FloatBarrier
 
 \subsubsection{Forecase horizon of 6 weeks}\label{sec:pm26} 
 
