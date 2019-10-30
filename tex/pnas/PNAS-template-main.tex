@@ -638,9 +638,9 @@ that were not directly available from ProMED and HealthMap data and
 which were therefore imputed (see Methods) are shown in lighter shade of blue
 and green respectively. WHO data were aggregated to country level. The
 y-axis differs for each plot. (B) The median time-varying reproduction
-number \(R_t\) estimated using the WHO data (orange), ProMED (blue) and
+number \(R^t\) estimated using the WHO data (orange), ProMED (blue) and
 HealthMap (green) data. The shaded regions depicts the 95\% credible
-intervals (95\% CrI) for the \(R_t\) estimates. The reproduction
+intervals (95\% CrI) for the \(R^t\) estimates. The reproduction
 number was estimated on sliding windows of 28 days, using the R package
 EpiEstim \cite{cori2013new}. Estimates shown at time \(t\) are for the
 28-day window finishing on day \(t\).}
@@ -674,14 +674,13 @@ done jointly using data for all countries in Africa.}
 \includegraphics{{../../ms-figures/forecasts-assess-viz-24-1.ProMED_14_28_assess}.pdf}
 \caption{Model performance metrics overall and stratified by
 week of projection and epidemic phase. The performance metrics 
-are bias (A), sharpness (B), the percentage of weeks for which the 95\% forecast interval
-contained the observed incidence (C), and relative mean absolute error
-(D, shown on log scale).
+are (A) the percentage of weeks for which the 95\% forecast interval contained the observed incidence,
+(B) relative mean absolute error, (C) bias, and (D) sharpness. 
 In forecasting ahead, we assumed
 transmissibility to be constant over the forecast horizon. If the 97.5\textsuperscript{th}
 percentile of the R estimate used for forecasting was less than 1, we
 defined the epidemic to be in the declining phase during this period.
-Similarly, if the 2.5th percentile of R was greater than 1, we defined
+Similarly, if the 2.5\textsuperscript{th} percentile of R was greater than 1, we defined
 the epidemic to be in a growing phase. The phase was set to stable
 where the 95\% Credible Interval of the R estimates contained 1. See
 Methods for definitions of each metric.}
@@ -692,13 +691,16 @@ Methods for definitions of each metric.}
 \includegraphics{{../../ms-figures/2019-10-29_alerts_in_1_all_roc_ProMED_14_28}.pdf}
 \caption{Predicted weekly presence of cases in
 each country. The left panel shows the True and False alert rates using
-different thresholds for classification when forecasting ahead for 4
-(blue), 6 (dark pink), or 8 (light pink) weeks. For a given threshold (\(x^{th}\)
+different thresholds for classification for alerts raised 1 (violet), 2
+(light violet), 3 (dark pink) and 4 (light pink) weeks ahead. The
+black curve depicts the overall True and False alert rates. On each
+curve, the dot shows the True and False Alert rates at 50\% threshold.
+For a given threshold (\(x^{th}\)
 percentile of the forecast interval), we defined a True alert for a week
 where the \(x^{th}\) percentile of the forecast interval and the
 observed incidence for a country were both greater than 0; false alert
 for a week where the threshold for a country was greater than 0 but the
-observed incidence for that country was 0; and missed alert: week where
+observed incidence for that country was 0; and missed alert for a week where
 the threshold for a country was 0 but the observed incidence for that
 country was greater than 0. True alert rate is the ratio of correctly
 classified true alerts to the total number of true and missed alerts
@@ -706,22 +708,22 @@ classified true alerts to the total number of true and missed alerts
 similarly the ratio of false alerts to the total number of false alerts
 and weeks of no alert (where the observed and the threshold incidence
 are both 0). The right panel shows the True (green), False (orange) and
-Missed (red) alerts using the 50\textsuperscript{th} percentile of the
-forecast interval as threshold. The figure only shows countries on the
+Missed (red) 1 week ahead alerts using the 50\textsuperscript{th} percentile of the
+forecast interval as threshold. 
+The figure only shows countries on the
 African continent for which either the 50\textsuperscript{th}
 percentile of the predicted incidence or the
-observed incidence was greater than 0 at least once. The x-axis shows
-the date on which forecasts were made. For each country,
-four rows are shown corresponding to the 1, 2, 3 and 4 week ahead
-predictions respectively. The first alert in each country is shown
+observed incidence was greater than 0 at least once. 
+The first alert in each country is shown
 using larger symbols (square or triangle). Alerts in a country in a
 week where there were no observed cases in the previous week are shown
-using hollow triangles. Country codes, shown on the y-axis, are as
-follows: BEN - Benin, BFA - Burkina Faso, CIV - Côte d'Ivoire, CMR -
-Cameroon, COD - Democratic Republic of Congo, GIN - Guinea, GNB -
-Guinea-Bissau, LBR - Liberia, MLI - Mali, NER - Niger, NGA - Nigeria,
-SEN - Senegal, SLE - Sierra Leone, TGO - Togo. Predictions used here are
-using the ProMED data, a 2-week window for inference and a 4 week
+using hollow triangles. In each case, weeks for which all observed points
+were imputed are shown in lighter shades.
+Country codes, shown on the y-axis, are as
+follows: BEN - Benin, BFA - Burkina Faso, CIV - Côte d'Ivoire,
+GHA - Ghana, GIN - Guinea, LBR - Liberia, MLI - Mali, NGA - Nigeria,
+SEN - Senegal, SLE - Sierra Leone. The alerts are based on forecasts 
+using the ProMED data, a 2-week calibration window and a 4 week
 forecast horizon.}
 \label{fig:alerts}
 \end{figure*}
@@ -739,10 +741,11 @@ for each country is shown in the figure. Blue indicates low relative
 risk while deeper shades of red represent higher relative risk of
 acting as a source of importation. White is used to denote no risk.
 The estimates presented here
-use ProMED data with a 2 week window for inference. The country for
+use ProMED data with a 2 week calibration window. The country for
 which risk is estimated is shown in gray. The black circle represents
 the actual source of importation as retrospectively identified through
-epidemiological and genomic investigations. For each country, the figure shows only the risk
+epidemiological and genomic investigations. 
+For each country, the figure shows only the risk
 of importation from other countries and does not show the risk of
 transmission within the country.}
 \label{fig:imprisk}
