@@ -6,6 +6,15 @@ source(here::here("analysis/utils.R"))
 source(here::here("analysis/common_plot_properties.R"))
 source(here::here("analysis/flow_matrix_estim.R"))
 
+for (datasource in c("ProMED", "HealthMap")) {
+    message("Working on ", datasource)
+    params2 <- list(
+        datasource = datasource,
+        infile = all_files[[datasource]]$raw
+    )
+    rmarkdown::render("analysis/data_cleanup.Rmd", params = params2)
+}
+
 
 for (ds in c("ProMED", "HealthMap", "WHO")) {
     message("Working on ", datasource)
@@ -412,6 +421,7 @@ for (datasource in c("ProMED", "HealthMap", "WHO")) {
     source(
         "analysis/combine_forecasts_incidence.R", local = TRUE
     )
+
     source(
         "analysis/sensitivity_specificity_alerts.R", local = TRUE
     )
