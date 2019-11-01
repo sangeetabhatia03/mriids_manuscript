@@ -397,12 +397,21 @@ Leone) were considered (Fig~\ref{fig:alertsallbut3}).
 Again, at 50\% threshold, the model exhibited 
 high specificity (98.0\%) but poor sensitivity (42.9\%) in predicting 
 presence of cases in weeks following a week with no observed cases in each
-country (Fig~\ref{fig:rocnocases}). In both cases, higher sensitivity with a reasonably high
+country (Fig~\ref{fig:rocnocases}). Out of the 8 missed alerts in this
+case, 3 are in Liberia are towards the end of the epidemic, after
+Liberia had been declared Ebola free on two separate occasions
+\cite{liberiaef1, liberiaef2}.} 
+
+\sangeeta{In both cases, higher sensitivity with a reasonably high
 specificity was achieved by increasing the cut-off at which an alert
-is raised (Fig~\ref{fig:tprbythreshold}).} The cut-off for raising an alert 
+is raised (Fig~\ref{fig:tprbythreshold})}. The cut-off for raising an alert 
 can thus be chosen based
 on the relative costs of missed and false alerts \sangeeta{potentially
-using a higher cut-off when the observed incidence is low.}
+using a higher cut-off when the observed incidence is low. 
+It is also worth noting that in each instance where our model failed to raise an
+alert (a missed alert) in a week, either a true or a false alert had
+been raised in the recent weeks indicating a potential risk of spread
+of the epidemic in that country.}
 
 % For instance, in May 2014, the model \sangeeta{correctly predicted} the
 % presence of cases in Liberia after three consecutive weeks with no
