@@ -20,10 +20,9 @@ bibliography:
 biblio-style: apsr
 endnote: no
 params:
-  infile: data/raw/HealthMap_Ebola_GNE_WHO.csv
-  outfile: 14102019_hm_loglinear
-  ofinterest: data/processed/all_african_centroids.csv
   datasource: HealthMap
+  infile: data/raw/HealthMap_Ebola_GNE_WHO.csv
+  ofinterest: data/processed/all_african_centroids.csv
 ---
 
 
@@ -64,6 +63,8 @@ wafrica <- c(
   "Mali",
   "Nigeria"
 )
+datasource <- params$datasource
+outfile <- glue::glue("{Sys.Date()}_{datasource}_loglinear")
 ```
 
 Visualising the raw data.
@@ -110,7 +111,8 @@ by.location <- feed %>%
 ```{r data-cleanup-6 }
 ## Deaths are not used anywhere. No use plotting them
 raw_p <- purrr::map(by.location, function(x) {
-  x <- select(x, issue_date, sc, cc, country) %>%
+
+x <- dplyr::select(x, issue_date, sc, cc, country) %>%
     tidyr::gather(
       case_type,
       count, -c(issue_date, country)
@@ -123,19 +125,20 @@ raw_p <- purrr::map(by.location, function(x) {
     aes(issue_date, count, col = case_type)
   ) +
     geom_point(size = 0.5)
-  p <- p + mriids_plot_theme$onecol_theme
+  p <- p + mriids_plot_theme$onecol_theme + mriids_plot_theme$legend
   p <- p + xlab("") + ylab("Cases")
   p <- p + theme(panel.border = element_blank(), axis.line = element_line())
   ##p <- p + theme(axis.text.x = element_text(angle = 80, hjust = 1))
   p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
   p <- p + theme(legend.title = element_blank())
   p <- p + xlab("")
-  p <- p + scale_x_date(date_labels = "%b %Y")
+  p <- p + scale_x_date(labels = mriids_plot_theme$dateformat)
+  p <- p + scale_color_manual(values = c("sc" = "#00BFC4", "cc" = "#F8766D"))  
   ##p <- p + ggtitle(x$country[1])
-  p <- p + scale_color_discrete(
-    breaks = c("sc", "sd", "cc", "cd"),
-    labels = c("SC", "SD", "CC", "CD")
-  )
+  ## p <- p + scale_color_discrete(
+  ##   breaks = c("sc", "sd", "cc", "cd"),
+  ##   labels = c("SC", "SD", "CC", "CD")
+  ## )
   p
  }
 )
@@ -149,7 +152,7 @@ ggpubr::ggarrange(plotlist = raw_p, common.legend = TRUE)
   ##   filename = here::here(
   ##     "figures/",
   ##     paste0(
-  ##       params$outfile,
+  ##       outfile,
   ##       "_raw.pdf"
   ##     )
   ##   ),
@@ -172,14 +175,14 @@ cum_cases <- purrr::map(by.location, function(df) {
 })
 
 
-outfile <- paste0(params$outfile, "_cumulative.csv")
 
-bind_rows(cum_cases) %>%
-  select(country, date, cases) %>%
+
+dplyr::bind_rows(cum_cases) %>%
+  dplyr::select(country, date, cases) %>%
   readr::write_csv(
     path = here::here(
-      "data/processed",
-      outfile
+      all_files[[datasource]]$outdir,
+      glue::glue("{outfile}_cumulative.csv")
     )
   )
 ```
@@ -251,12 +254,53 @@ interpolated <- purrr::map(
   )
 )
 ```
+
+
 Check that each dataframe within interpolated corresponds to daily 
 series.
 
-```{r}
+```{r data-cleanup-14}
 purrr::map(interpolated, function(x) diff(x$date))
 ```
+
+## Derive incidence time series from interpolated cumulative cases
+
+Stan is not going to like real numbers for a Poisson process.
+So first we cast the cumulative case counts as integers and then 
+take the difference.
+
+
+```{r data-cleanup-15 }
+incid_tall <- purrr::map_dfr(interpolated, function(x) {
+  x <- select(x,
+    date = interpolated_date,
+    cases = interpolated_cases
+  )
+  x$cases <- as.integer(x$cases)
+  x$incid <- c(0, diff(x$cases))
+  x <- select(x, date, incid)
+  x
+}, .id = "country")
+```
+
+## Manually fix Ghana 
+
+Manually fix the erroneous entry for Ghana on 2014-04-08
+
+
+```{r data-cleanup-16 }
+incid_tall$country <- countrycode::countrycode(
+  incid_tall$country,
+  "country.name",
+  "iso3c"
+)
+
+fix <- which(incid_tall$date == "2014-04-08" &
+  incid_tall$country == "GHA")
+incid_tall$incid[fix] <- 0
+```
+
+
 ## Plot
 
 
@@ -264,7 +308,7 @@ purrr::map(interpolated, function(x) diff(x$date))
 
 Common plotting logic. x must have a date and a cases column.
 
-```{r data-cleanup-14 }
+```{r data-cleanup-17 }
 cases_ts <- function(x) {
   p <- ggplot(x, aes(date, cases)) + geom_point(size = 0.5, col = mriids_plot_theme$color_scale[[params$datasource]])
   p <- p + mriids_plot_theme$onecol_theme
@@ -275,7 +319,7 @@ cases_ts <- function(x) {
 }
 ```
 
-```{r data-cleanup-15 }
+```{r data-cleanup-18 }
 total_p <- purrr::map(cum_cases, cases_ts)
 total_p <- purrr::map(total_p, function(p) {
     p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
@@ -287,7 +331,7 @@ total_p <- purrr::map(total_p, function(p) {
 
 ### Remove duplicate alerts
 
-```{r data-cleanup-16 }
+```{r data-cleanup-19 }
 nodups_p <- purrr::map(no_dups, cases_ts)
 nodups_p <- purrr::map(nodups_p, function(p) {
         p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
@@ -297,7 +341,7 @@ nodups_p <- purrr::map(nodups_p, function(p) {
 
 ## Remove outliers 
 
-```{r data-cleanup-17 }
+```{r data-cleanup-20 }
 nooutss_p <- purrr::map(no_outliers, cases_ts)
 nooutss_p <- purrr::map(nooutss_p, function(p) {
         p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
@@ -307,7 +351,7 @@ nooutss_p <- purrr::map(nooutss_p, function(p) {
 
 ### Make increasing
 
-```{r data-cleanup-18 }
+```{r data-cleanup-21 }
 monoinc_p <- purrr::map(mono_inc, cases_ts)
 monoinc_p <- purrr::map(monoinc_p, function(p) {
         p <- p + theme(axis.text.x = element_text(hjust = 0.5))
@@ -320,7 +364,7 @@ monoinc_p <- purrr::map(monoinc_p, function(p) {
 
 This needs a slightly different viz.
 
-```{r data-cleanup-19, eval = TRUE}
+```{r data-cleanup-22, eval = TRUE}
 interp_p <- purrr::map(interpolated, function(x) {
   x$src <- glue::glue("{params$datasource}.FALSE")
   idx <- which(is.na(x$cases))
@@ -344,10 +388,37 @@ interp_p <- purrr::map(interpolated, function(x) {
   p
 })
 ```
+## Daily Incidence Series
 
+```{r data-cleanup-23}
+daily_bycountry <- split(incid_tall, incid_tall$country)
+
+names(daily_bycountry) <- countrycode::countrycode(
+    names(daily_bycountry), "iso3c", "country.name"
+)
+
+daily_p <- purrr::map(
+    daily_bycountry,
+    function(df) {
+
+        p <- ggplot(df, aes(date, incid)) +
+            geom_point(size = 0.5, col = mriids_plot_theme$color_scale[[datasource]])
+        p <- p + mriids_plot_theme$onecol_theme + mriids_plot_theme$legend
+        p <- p + xlab("") + ylab("Daily incidence")
+        p <- p + theme(axis.text.x = element_text(hjust = 0.5))
+        p <- p + theme(
+                     panel.border = element_blank(),
+                     axis.line = element_line()
+                 )
+        p <- p + scale_x_date(labels = mriids_plot_theme$dateformat)
+        p
+
+    }    
+)
+```
 Putting them together.
 
-```{r data-cleanup-20, eval = TRUE}
+```{r data-cleanup-24, eval = TRUE}
 
 countries <- names(by.location)
 graphs <- list(
@@ -356,64 +427,43 @@ graphs <- list(
   nodups_p,
   nooutss_p,
   monoinc_p,
-  interp_p
+  interp_p,
+  daily_p
 )
-purrr::map(countries, function(c) {
-  cspecific <- purrr::map(graphs, ~ .x[[c]])
-  p <- ggpubr::ggarrange(plotlist = cspecific, nrow = 3, ncol = 2, labels = "auto", align = "hv", font.label = list(size = 6))
-  ggplot2::ggsave(
-    plot = p,
-    filename = here::here(
-      glue::glue("analysis/figures/{params$outfile}_{c}.pdf")
-    ),
-    width = mriids_plot_theme$single_col_width,
-    height = mriids_plot_theme$single_col_height,
-    units = mriids_plot_theme$units
+
+purrr::walk(
+    countries,
+    function(c) {
+        cspecific <- purrr::map(graphs, ~ .x[[c]])
+        names(cspecific) <- 1:length(cspecific)
+        purrr::iwalk(
+            cspecific,
+            function(p, idx) {
+                filename <- here::here(
+                   all_files[[datasource]]$outdir, 
+                   glue::glue("{outfile}_{c}_{idx}.pdf")
+                   )
+                ggplot2::ggsave(
+                    plot = p,
+                    filename = filename,
+                    width = mriids_plot_theme$single_col_width,
+                    height = mriids_plot_theme$single_col_height,
+                    units = mriids_plot_theme$units
+                )                
+                
+            }    
+        )
+    }
   )
-  }
-)
+
+
+
 ```
 
-## Derive incidence time series from interpolated cumulative cases
-
-Stan is not going to like real numbers for a Poisson process.
-So first we cast the cumulative case counts as integers and then 
-take the difference.
-
-
-```{r data-cleanup-21 }
-incid_tall <- purrr::map_dfr(interpolated, function(x) {
-  x <- select(x,
-    date = interpolated_date,
-    cases = interpolated_cases
-  )
-  x$cases <- as.integer(x$cases)
-  x$incid <- c(0, diff(x$cases))
-  x <- select(x, date, incid)
-  x
-}, .id = "country")
-```
-
-## Manually fix Ghana 
-
-Manually fix the erroneous entry for Ghana on 2014-04-08
-
-
-```{r data-cleanup-22 }
-incid_tall$country <- countrycode::countrycode(
-  incid_tall$country,
-  "country.name",
-  "iso3c"
-)
-
-fix <- which(incid_tall$date == "2014-04-08" &
-  incid_tall$country == "GHA")
-incid_tall$incid[fix] <- 0
-```
 
 Also, get rid of the first row of all 0s to get Stan started.
 
-```{r data-cleanup-23 }
+```{r data-cleanup-25 }
 
 incid_tall <- dplyr::filter(
   incid_tall,
@@ -422,7 +472,7 @@ incid_tall <- dplyr::filter(
 ```
 And reshape.
 
-```{r data-cleanup-24 }
+```{r data-cleanup-26 }
 incid_wide <- tidyr::spread(incid_tall, country, incid, fill = 0)
 ```
 
@@ -432,7 +482,7 @@ incid_wide <- tidyr::spread(incid_tall, country, incid, fill = 0)
 Finally, we add 0 incidence for all countries other than ones for
 which we already have data. 
 
-```{r data-cleanup-25 }
+```{r data-cleanup-27 }
 ofinterest <- readr::read_csv(here::here(params$ofinterest)) %>%
   filter(include == "TRUE")
 
@@ -456,7 +506,7 @@ incid_wide_all <- cbind(incid_wide, df)
 Finally ensure that the order of countries in centroids and incid 
 files is the same.
 
-```{r data-cleanup-26, eval = TRUE}
+```{r data-cleanup-28, eval = TRUE}
 inorder <- ofinterest$ISO3
 ## Some of the countries of interest may not be present in
 ## incid_wide_all
@@ -471,19 +521,22 @@ incid_wide_all <- dplyr::select(
 
 ## Write the output
 
-```{r data-cleanup-27 }
+```{r data-cleanup-29 }
 
-outfile <- paste0(params$outfile, "_wide.csv")
-here::here("data/processed", outfile) %>%
+
+
   readr::write_csv(
     x = incid_wide_all,
-    path = .
+    path = here::here(
+        all_files[[datasource]]$outdir,
+        glue::glue("{outfile}_wide.csv")
+    )
   )
 ```
  
 ## Also make note of what points were interpolated.
 
-```{r data-cleanup-28 }
+```{r data-cleanup-30 }
 incid_extracols <- purrr::map_dfr(
   interpolated, function(x) {
   idx <- which(is.na(x$cases))
@@ -510,7 +563,7 @@ Reshaping from tall to wide and back to tall allows us to get the same
 dates for all countries. We do this fror both data frames and then 
 join the tall forms of both.
 
-```{r}
+```{r data-cleanup-31}
 incid_tall <- tidyr::gather(
     data = incid_wide,
     key = country,
@@ -560,7 +613,7 @@ incid_extracols <- tidyr::gather(
 ```
 Now we can join the two.
 
-```{r data-cleanup-29 }
+```{r data-cleanup-32 }
 ## dim(incid_tall) 2310    3
 ## dim(incid_extracols) 2311    3
 ## The 1 row (Ghana) that we deleted from incid_tall
@@ -586,7 +639,7 @@ incid_tall <- dplyr::left_join(
 ```
 
 
-```{r data-cleanup-30 }
+```{r data-cleanup-33 }
 ## This is wrong; see notes
 ## incid_extracols <- dplyr::left_join(
 ##   incid_tall,
@@ -627,12 +680,15 @@ incid_tall <- rbind(
 ## [1] country      date         incid        interpolated
 ## <0 rows> (or 0-length row.names)
 
-outfile <- paste0(params$outfile, "_tall.csv")
 
-here::here("data/processed", outfile) %>%
-  readr::write_csv(
+
+
+readr::write_csv(
     x = incid_tall,
-    path = .
+    path = here::here(
+        all_files[[datasource]]$outdir,
+        glue::glue("{outfile}_tall.csv")
+    ) 
   )
 ```
 
@@ -640,7 +696,7 @@ here::here("data/processed", outfile) %>%
 
 Add a flag to indicate if all points in the week were reconstructed.
 
-```{r data-cleanup-31}
+```{r data-cleanup-34 }
 
 ## No NAs at this point
 ## incid_extracols[is.na(incid_extracols$incid), ]
@@ -704,12 +760,24 @@ weekly <- split(daily, weeks) %>%
 ## Check that the numbers look ok.
 
 
-outfile <- paste0(params$outfile, "_weekly.csv")
+
 readr::write_csv(
   x = weekly,
   path = here::here(
-    "data/processed",
-    outfile
+    all_files[[datasource]]$outdir,
+    glue::glue("{outfile}_weekly.csv")
   )
 )
+
+outfile <- paste0(outfile, "_no_dups.csv")
+
+dplyr::bind_rows(no_dups) %>%
+  dplyr::select(country, date, cases) %>%
+  readr::write_csv(
+  path = here::here(
+    all_files[[datasource]]$outdir,
+    glue::glue("{outfile}_no_dups.csv")
+  )
+ )
+
 ```
