@@ -1,3 +1,15 @@
+## Reset the countries so that all counries with 0 alerts in week 1
+## are grouped together
+arrange_by_alerts <- function(df) {
+        out <- dplyr::count(df, country, week_of_projection, .drop = FALSE)
+        out <- tidyr::spread(out, key = week_of_projection, value = n, fill = 0)
+        out <- arrange(out, `1`)
+        df$country <- factor(df$country, levels = out$country, ordered = TRUE)
+        df
+}
+
+
+
 ## y level for each country and week
 ## x-axis is date, y-axis is country. So we need to artifically
 ## assign a y-level to each country so that successive weeks
@@ -20,7 +32,11 @@ yaxis_levels <- function(countries, weeks, by = 0.05) {
         forced_y_level$week_of_projection
     )
     ## Make sure the weeks are in order before assigning y level.
-
+    forced_y_level$country <- factor(
+        forced_y_level$country,
+        levels = countries,
+        ordered = TRUE
+    )
     forced_y_level <- dplyr::arrange(
         forced_y_level,
         country,
@@ -37,17 +53,21 @@ yaxis_levels <- function(countries, weeks, by = 0.05) {
 }
 ## All alerts for all weeks for all countries
 all_alerts <- function(alerts, by = 0.05) {
-    countries <- unique(alerts$country)
+
+    alerts <- arrange_by_alerts(alerts)
+    countries <- levels(alerts$country)
     weeks <- unique(alerts$week_of_projection)
     forced_y_level <- yaxis_levels(countries, weeks, by)
     forced_y_level$week_of_projection <- factor(
         forced_y_level$week_of_projection
     )
     alerts$week_of_projection <- factor(alerts$week_of_projection)
+    forced_y_level$country <- factor(forced_y_level$country)
     alerts <- dplyr::left_join(
         alerts,
         forced_y_level
         )
+
     ## Place the label in the middle of the 4 rows.
     label_levels <- dplyr::group_by(
         forced_y_level,
@@ -109,7 +129,7 @@ alerts_by_week <- function(alerts, by = 0.05) {
         country,
         forced_y
     )
-
+    forced_y_level$country <- factor(forced_y_level$country)
     alerts <- dplyr::left_join(
         alerts,
         forced_y_level,
@@ -211,6 +231,8 @@ alerts_byparams <- split(
     list(nonna_alerts$time_window, nonna_alerts$n.dates.sim),
     sep = "_"
 )
+
+
 ## Better to extract by name so that we get ROC and alerts for the
 ## same combination fo parameters.
 params <- names(alerts_byparams)
@@ -262,7 +284,6 @@ purrr::walk(
                 size = 2
             )
         )
-
         ggplot2::ggsave(
             filename = here::here(
                 all_files[[datasource]]$outdir,
@@ -273,8 +294,7 @@ purrr::walk(
             width = mriids_plot_theme$single_col_width,
             height = mriids_plot_theme$single_col_height
         )
-
-    }
+      }
   )
 
 
