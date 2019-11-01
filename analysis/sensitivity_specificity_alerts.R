@@ -7,27 +7,29 @@ incid_pred <- readr::read_csv(
   )
 
 ## 15102019 Analysis for West African countries only.
+## 31102019 Official list of West African countries
+##wafrica <-
+## wafrica <- c(
+##     "Benin",
+##     "Burkina Fase",
+##     "Gambia",
+##     "Ghana",
+##     "Guinea-Bissau",
+##     "Côte d'Ivoire",
+##     "Mali",
+##     "Mauritania",
+##     "Niger",
+##     "Nigeria",
+##     "Senegal",
+##     "Togo"
+## )
 ## wafrica <- countrycode::countrycode(
-##     c("Mauritania",
-##       "Senegal",
-##       "Mali",
-##       "Gambia",
-##       "Guinea-Bissau",
-##       "Guinea",
-##       "Sierra Leone",
-##       "Liberia",
-##       "Côte d'Ivoire",
-##       "Ghana",
-##       "Burkina Faso",
-##       "Nigeria",
-##       ##"Niger",
-##       "Cameroon",
-##       "Togo",
-##       "Benin"
-##     ),
+##     wafrica,
 ##     destination = "iso3c",
 ##     origin = "country.name"
 ## )
+
+
 ## incid_pred <- dplyr::filter(incid_pred, country %in% wafrica)
 
 ## 17102019 Analysis for all countries other than GIN, LBR and SLE.
