@@ -37,8 +37,9 @@
 \author[b]{Larry Madoff}
 \author[1, a]{Anne Cori}
 \author[1, g]{Pierre Nouvellet}
-\affil[a]{MRC Centre for Global Infectious Disease Analysis, Imperial College London,
-  Praed St London UK}
+\affil[a]{MRC Centre for Global Infectious Disease Analysis, School of
+  Public Health, Imperial College London, Faculty of Medicine, Norfolk
+  Place, London, W2 1PG, UK}
 \affil[b]{ProMED, International Society for Infectious Diseases,
   Brookline, MA 02446 USA}
 \affil[c]{Computational Epidemiology Group, Division of Emergency
@@ -219,8 +220,11 @@ weaknesses, especially if used in near real-time forecasting.
 
 Incidence time series were computed from ProMED, HealthMap and WHO data
 (see Methods) for the three mainly affected countries, Guinea,
-Liberia and Sierra Leone, and are shown in Fig~\ref{fig:whopmhm}. The raw and
-processed (see Methods) data from ProMED and HealthMap for all countries
+Liberia and Sierra Leone, and are shown in Fig~\ref{fig:whopmhm}. \sangeeta{We
+pre-processed the data from ProMED and HealthMap to
+remove inconsistencies and to fill gaps (see Methods for details).}
+The raw and
+processed data from ProMED and HealthMap for all countries
 included in the feed are available in the Github repository for this
 article. There were
 substantial differences between the incidence time series derived from
@@ -230,7 +234,10 @@ potential variability in digital surveillance reporting during the
 course of the epidemic. It is also worth highlighting that the WHO data
 used here are an extensively cleaned version of the data collected
 during the epidemic \cite{who2014ebola, team2015west}, published
-more than a year after the epidemic was declared to be over. However,
+more than a year after the epidemic was declared to be
+over. \sangeeta{Moreover, while ProMED and HealthMap did not record
+  probable cases for this epidemic, the WHO data contained confirmed,
+  probable and suspected cases}. However,
 despite these discrepancies, the weekly incidence derived from ProMED
 and HealthMap was moderately to highly correlated with that reported by
 WHO later (Pearson's correlation coefficients aggregated across the
@@ -241,7 +248,8 @@ To broadly assess the extent to which such discrepancies in incidence
 would impact the quantification of transmissibility throughout the
 epidemic, we estimated the time-varying transmissibility, measured by
 the reproduction number \(R^t\) (the average number of secondary cases
-infected by each individual infected at time \(t\)), using the incidence
+at time \(t\) per infected individual \cite{fraser2007estimating}), 
+using the incidence
 from each of the three data sources (Figure 1). \(R^t\) was estimated
 independently for each country using the R package EpiEstim
 \cite{cori2013new} over a sliding time window of 4 weeks. There were
@@ -258,7 +266,7 @@ sources, ProMED represents the more conservative data source between the
 two. Therefore we present the results based on ProMED data in the main
 text, unless otherwise \sangeeta{specified}. The analysis based on HealthMap and
 WHO data are presented in the
-Supplementary Information (SI) (SI Sections \ref{sec:hm}
+Supplementary Information (SI Sections \ref{sec:hm}
 and \ref{sec:who}).
 
 
@@ -336,8 +344,8 @@ second, third and fourth weeks of the forecast horizon.
 % 0.08 (IQR -0.53 - 0.94) and the mean sharpness up to 0.17 (IQR 0.07 -
 % 0.24).
 
-The model performance varied depending on the
-phase of the epidemic, defined as ``growing'', ``declining'', and 
+The model performance varied depending on the \sangeeta{country and
+ the } phase of the epidemic, defined as ``growing'', ``declining'', and 
 ``stable'' depending on $R^t$ estimates (see Methods). In
 general, the model performance was best in the stable phase with
 66.7\% of the observations contained in the 95\% forecasts interval
@@ -345,7 +353,8 @@ general, the model performance was best in the stable phase with
 SI Table \ref{tab:propinci}). However the forecast uncertainty was largest in the stable
 phase and smallest in the growing phase (Fig \ref{fig:perfpm24}B).
 Importantly, in the growing phase the model tended to over-predict
-while under-predicting in the declining phase (Fig \ref{fig:perfpm24}A).
+while under-predicting in the declining phase (Fig
+\ref{fig:perfpm24}A). 
 
 % Fitting the model with alternative calibration windows 
 % modifies the model complexity as the number of non-overlapping time
@@ -375,9 +384,10 @@ achieved high sensitivity but variable specificity \sangeeta{with} higher
 percentiles as cut-off \sangeeta{yielding} increased sensitivity but poorer
 specificity. Maximising the average between
 sensitivity and specificity led to \sangeeta{95.9\%} sensitivity and 
-\sangeeta{98.0\%} specificity at \sangeeta{50\% threshold}. \sangeeta{The
+\sangeeta{98.0\%} specificity at \sangeeta{50\% threshold}
+(Fig~\ref{fig:alerts}A). \sangeeta{The
 sensitivity of the model remained high over longer forecast horizon 
-while the specificity deteriorated (Fig~\ref{fig:alerts}A) with more false alerts being raised
+while the specificity deteriorated with more false alerts being raised
 4 week ahead (Fig~\ref{fig:alerts4weekahead}). At the same
 threshold, the model attained high
 specificity (98\%) but poor sensitivity (42.9\%)
@@ -401,12 +411,11 @@ using a higher cut-off when the observed incidence is low.}
 % and Mali) and the model sensitivity ranged from 11.4\%
 % (using 2.5th percentile) to 93.2\% (97.5th percentile). 
 
-The high sensitivity of the model suggests that the model is able to
+\sangeeta{These results} suggest that the model is able to
 capture and even anticipate the spatial spread of the epidemic. 
-\sangeeta{ Importantly, as the model is fit to data accumulating over
+\sangeeta{ Importantly, as the model is fitted to data accumulating over
 the course of the epidemic, it is able to predict the presence of
-cases with a high degree of sensitivity and specificity relatively 
-early in the epidemic \ref{fig:tprovertime} 
+cases relatively early in the epidemic (Fig~\ref{fig:tprovertime}) 
 when such inputs would be particularly useful.}
 
 Together with providing operational outputs such as the predicted
@@ -426,10 +435,11 @@ The risk of spatial spread in our model relies on estimating movement
 %parameters of the underlying gravity model (see Methods), \(p_{stay}\),
 the probability of a case staying within a country throughout their
 infectious period, and  the extent to which
-distance between two locations affects the flow between them. The
+distance between two locations affects the flow \sangeeta{of
+  infectious cases} between them. The
 real-time estimates of these parameters over the course of the
 epidemic (Fig \ref{fig:parsul2}), suggest that while the relative flow
-between locations did not vary substantially over time, the probability
+\sangeeta{of cases} between locations did not vary substantially over time, the probability
 of travel across national borders may have decreased after the initial
 phase of the epidemic.
 % Figure 6 also illustrates how accumulating data
@@ -440,12 +450,17 @@ Finally, we quantify the relative risk of importation of a case into a
 country from any other currently affected country. The risk of
 importation is proportional to the population flow into a country from
 all other countries estimated using a mobility model (here, gravity
-model) weighted by the infectivity at each country (see Methods). Our
+model) weighted by the infectivity at each country \sangeeta{(which
+  depends on the number of cases and time at which they were infected,
+ see Methods)}. Our
 estimates of the countries with higher risk of acting as source of
 importations are largely consistent with the reported source of cases
 (Fig \ref{fig:imprisk}). In 4 out of the 5 reported cases of international spread
-of the epidemic in West Africa, the model correctly attributed a high relative
-risk of acting as a source of importation to the actual source
+of the epidemic in West Africa, the model correctly attributed
+\sangeeta{the highest} relative
+risk of acting as a source of importation \sangeeta{(relative risk $ >
+  0.9$ for importation into 
+Liberia, Nigeria and Sierra Leone and 0.49 in case of Mali)} to the actual source
 identified through retrospective epidemiological and genomic
 investigations \cite{gire2014genomic}.
 
@@ -489,7 +504,7 @@ be a growing area of focus.
 In general, we found that, after systematic processing to remove
 inconsistencies, data from ProMED and HealthMap were in
 \sangeeta{reasonably} good agreement
-with the data collated by WHO through traditional surveillance methods.
+with the data collated by WHO \sangeeta{and collected} through traditional surveillance methods.
 In particular, both the incidence time-series and retrospective national
 estimates of transmissibility over time were well correlated across the
 three data sources. This suggests that digital surveillance data are a
@@ -541,7 +556,7 @@ model has very high sensitivity, predicting all instances of observed
 international spread 1 to 4 weeks in advance. Choosing a cut-off to
 maximise sensitivity led to low model specificity. On occasions the
 model predicted cases in countries, such as Côte d'Ivoire, where
-ProMED did not report any case.
+\sangeeta{neither WHO nor} ProMED reported any case.
 However this may also be due to imperfect case reporting. Thus our
 method could be used with a high cut-off as a highly sensitive
 surveillance system with an alert triggering further epidemiological
@@ -688,11 +703,11 @@ Methods for definitions of each metric.}
 \end{figure*}
 
 \begin{figure*}
-\includegraphics{{../../ms-figures/2019-10-29_alerts_in_1_all_roc_ProMED_14_28}.pdf}
+\includegraphics{{../../ms-figures/2019-10-31_alerts_in_1_all_roc_ProMED_14_28}.pdf}
 \caption{Predicted weekly presence of cases in
 each country. The left panel shows the True and False alert rates using
 different thresholds for classification for alerts raised 1 (violet), 2
-(light violet), 3 (dark pink) and 4 (light pink) weeks ahead. The
+(light violet), 3 (dark pink) and 4 (green) weeks ahead. The
 black curve depicts the overall True and False alert rates. On each
 curve, the dot shows the True and False Alert rates at 50\% threshold.
 For a given threshold (\(x^{th}\)
@@ -889,8 +904,8 @@ estimated using a population flow model; here we used a gravity model
 of individuals from area \(i\) to area \(j\),
 \(\phi_{i \rightarrow j}\), is proportional to the product of the
 populations of the two locations, \(N_i\) and \(N_j\) and inversely
-proportional to the distance between them \(d_{i, j}\), with all
-quantities raised to some power: 
+proportional to the distance between them \(d_{i, j}\) raised to a
+power $\gamma$:
 \begin{equation*}
   \phi_{i \rightarrow j} =  \frac{N_iN_j}{d_{i, j}^{\gamma}}.
 \end{equation*}
@@ -1005,8 +1020,9 @@ We varied the length of the time window to obtain different models, with short t
 windows increasing the number of parameters in the model. 
 To reduce
 the number of parameters in the model, we divided the 55 countries on
-African continent into 5 groups and estimated a reproduction number
-for each group in each time window. The first three groups correspond
+African continent into 5 groups and \sangeeta{forced each country in a
+group to have the same reproduction number} in each time window. 
+The first three groups correspond
 of the three mainly affected countries - Sierra Leone, Guinea and Liberia.
 The countries that shared a border with these three countries
 were grouped together. These were Mali, Côte d'Ivoire, Guinea-Bissau
@@ -1109,7 +1125,7 @@ s_{j}^{t}(\hat{I}_{j}^{t}) =
 mean 
 \left(
 \frac{\lvert \hat{I}_{j}^{t, s} - median(\hat{I}_{j}^{t}) \rvert} 
-{median(\hat{I}_{j}^{t})} 
+{median\left(\hat{I}_{j}^{t} + 1\right)} 
 \right).
 \end{equation*}
 
@@ -1186,7 +1202,7 @@ importation of case from $i$ into $j$ as the proportion of infectivity
 at $j$ due to infectivity at $i$. That is, 
 
 \begin{equation*}
-r_{j \leftarrow i}^{import}(t) = \frac{\lambda_i^t}{\Lambda_j^t},
+r_{j \leftarrow i}^{import}(t) = \frac{p_{i \rightarrow j}\lambda_i^t}{\Lambda_j^t},
 \end{equation*}
 
 where $\Lambda_j^t$ is as in Eq~\ref{eq:lambdajt}, and
@@ -1202,9 +1218,14 @@ $\lambda_i^t = R_{i}^{t} \sum\limits_{s =1}^{t} {I_{i}^{t - s}\omega_{s}}$.
   Threats: A Grand Challenge for Development'' Program (Award
   No. AID-0AA-F-16-00115). The contents of
   the manuscript are solely the responsibility of the authors and do
-  not necessarily represent the official views of the USAID. We
-  acknowledge joint Centre funding from the UK Medical Research
-  Council and Department for International Development.}
+  not necessarily represent the official views of the USAID. SB, AC
+  and PN acknowledge joint Centre funding from the UK Medical Research
+  Council and Department for International Development (MR/R015600/1),
+  funding from the UK National Institute for Health Research Health
+  Protection Research Unit (NIHR HPRU) in Modelling Methodology at
+  Imperial College London in partnership with Public Health England
+  (PHE) (HPRU-2012-10080), and funding from the Bill and Melinda Gates
+  Foundation (OPP1092240).}
 
 \showacknow{} % Display the acknowledgments section
 
