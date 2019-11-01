@@ -21,8 +21,8 @@ mriids_plot_theme <- list(
     "1" = "#891ea8", ## violet
     "2" = "#c48ed3", ## light violet
     "3" = "#f77be3", ## dark pink
-    "4" = "#ff8b8c", ## light pink,
-    "5" = "#85be13", ## green, diff from HealthMap green
+    "5" = "#ff8b8c", ## light pink,
+    "4" = "#85be13", ## green, diff from HealthMap green
     "6" = "#c2de89", ## light green
     "7" = "#b2b200", ## yellowish-black
     "8" = "#d8d87f" ## light yellowish-black
