@@ -63,6 +63,34 @@ names(importation_risk) <- first_case$twindow
 importation_risk <- dplyr::bind_rows(importation_risk, .id = "twindow")
 importation_risk <- dplyr::arrange(importation_risk, risk_on, risk_to)
 
+
+## How high is high risk?
+byparams <- split(
+    importation_risk,
+    list(importation_risk$twindow, importation_risk$risk_to),
+    sep = "_"
+)
+
+highrisk <- purrr::map_dfr(
+    byparams,
+    function(df) {
+        idx <- which.max(df$normalised_risk)
+        df[idx, ]
+    },
+    .id = "params"
+)
+
+
+## arrange(highrisk, twindow)
+## # A tibble: 13 x 10
+##    params twindow risk_from risk_to   low   med  high normalised_risk risk_on
+##    <chr>  <chr>   <chr>     <chr>   <dbl> <dbl> <dbl>           <dbl> <date>
+##  1 14_LBR 14      GIN       LBR     0.405 0.622 0.896           0.995 2014-04-11
+##  2 14_MLI 14      SLE       MLI     4.28  4.54  4.88            0.499 2014-11-14
+##  3 14_NGA 14      SLE       NGA     1.95  2.28  2.85            0.636 2014-07-25
+##  4 14_SEN 14      LBR       SEN     1.30  1.37  1.50            0.955 2014-09-05
+## 5 14_SLE 14      GIN       SLE     1.02  1.71  2.34            0.997 2014-05-30
+
 atrisk <- countrycode::countrycode(importation_risk$risk_to, "iso3c", "country.name")
 importation_risk$risk_to_on <- glue::glue(
     "{atrisk}\n{importation_risk$risk_on}"
