@@ -59,7 +59,7 @@ wafrica <- c(
   "Liberia",
   "Guinea",
   "Senegal",
-   "Ghana",
+  "Ghana",
   "Mali",
   "Nigeria"
 )
@@ -313,8 +313,7 @@ cases_ts <- function(x) {
   p <- ggplot(x, aes(date, cases)) + geom_point(size = 0.5, col = mriids_plot_theme$color_scale[[params$datasource]])
   p <- p + mriids_plot_theme$onecol_theme
   p <- p + xlab("") + ylab("Cases")
-  p <- p + xlab("")
-  p <- p + scale_x_date(date_labels = "%b %Y")
+  p <- p + scale_x_date(labels = mriids_plot_theme$dateformat)
   p
 }
 ```
@@ -384,7 +383,7 @@ interp_p <- purrr::map(interpolated, function(x) {
     axis.line = element_line()
   )
   p <- p + xlab("") + theme(legend.title = element_blank())
-  p <- p + scale_x_date(date_labels = "%b %Y")
+  p <- p + scale_x_date(labels = mriids_plot_theme$dateformat)
   p
 })
 ```
