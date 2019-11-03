@@ -138,13 +138,13 @@ of the spectrum. Digital disease surveillance consists of monitoring
 online information sources to collate relevant information about
 diseases. The sources of information \sangeeta{can} be formal such as advisories
 posted by a ministry of health, or informal such as \sangeeta{news media
-  items}, blogs or tweets.
+items}, blogs or tweets.
 Digital surveillance makes data collection less expensive and time
 consuming but the acquired data often \sangeeta{contain more noise} than those
 collected through \sangeeta{traditional public health} surveillance. \sangeeta{While traditional
-  surveillance systems report on select pathogens and depend on a
-  well-functioning public health infrastructure, digital surveillance
-  in contrast typically monitor a wide range of pathogens using little
+surveillance systems report on select pathogens and depend on a
+well-functioning public health infrastructure, digital surveillance
+in contrast typically monitor a wide range of pathogens using little
 to no additional infrastructure.} Thus, digital surveillance tools
 can play a significant role in the rapid recognition of public health
 emergencies \cite{grein2000rumors, anema2014digital}.
@@ -182,8 +182,8 @@ real-time.
 Collating timely data, while critical, is only the first step in the
 disease surveillance process. Compiling the data, conducting analysis,
 and generating reports that are easily understood and actionable are
-equally important. For instance, \sangeeta{one of the ProMED subject matter experts
- reported in March 2014 on the likely spread of Zika to the Americas 
+equally important. For instance, \sangeeta{one of the ProMED outbreak analysts
+reported in March 2014 on the likely spread of Zika to the Americas 
 \cite{promedzika}, well before the epidemic surfaced in South
 America in February 2015.} However, lacking an easy to use and openly
 accessible tool to quantify and visualize the \sangeeta{reported risk of
@@ -250,11 +250,12 @@ epidemic, we estimated the time-varying transmissibility, measured by
 the reproduction number \(R^t\) (the average number of secondary cases
 at time \(t\) per infected individual \cite{fraser2007estimating}), 
 using the incidence
-from each of the three data sources (Figure 1). \(R^t\) was estimated
+from each of the three data sources (Fig~\ref{fig:whopmhm}). 
+\(R^t\) was estimated
 independently for each country using the R package EpiEstim
 \cite{cori2013new} over a sliding time window of 4 weeks. There were
 substantial differences in the estimates of \(R^t\) according to the
-incidence data source used (Figure 1B). The correlation between the
+incidence data source used (Fig~\ref{fig:whopmhm}B). The correlation between the
 median $R^t$ estimates on sliding 4-week windows from ProMED or HealthMap
 data with the estimates from WHO data varied from weak (0.30, between
 reproduction number from WHO and ProMED in Guinea) to very strong
@@ -400,7 +401,15 @@ presence of cases in weeks following a week with no observed cases in each
 country (Fig~\ref{fig:rocnocases}). Out of the 8 missed alerts in this
 case, 3 are in Liberia are towards the end of the epidemic, after
 Liberia had been declared Ebola free on two separate occasions
-\cite{liberiaef1, liberiaef2}.} 
+\cite{liberiaef1, liberiaef2}. The serial interval distribution
+that we have used does not account for very long intervals between
+infections such as that associated with sexual transmission. Using the
+latest available data on pairs of primary and secondary infections
+and models
+that allow for more heterogeneity in the distribution of cases e.g.,
+using Negative Bionamial distributions
+could potentially improve the assessment of risk of spread in such
+cases \cite{thompson2019improved, eggo2015duration} .} 
 
 \sangeeta{In both cases, higher sensitivity with a reasonably high
 specificity was achieved by increasing the cut-off at which an alert
@@ -409,7 +418,7 @@ can thus be chosen based
 on the relative costs of missed and false alerts \sangeeta{potentially
 using a higher cut-off when the observed incidence is low. 
 It is also worth noting that in each instance where our model failed to raise an
-alert (a missed alert) in a week, either a true or a false alert had
+alert in a week, either a true or a false alert had
 been raised in the recent weeks indicating a potential risk of spread
 of the epidemic in that country.}
 
@@ -422,7 +431,8 @@ of the epidemic in that country.}
 
 \sangeeta{These results} suggest that the model is able to
 capture and even anticipate the spatial spread of the epidemic. 
-\sangeeta{ Importantly, as the model is fitted to data accumulating over
+\sangeeta{ Importantly, as the model is fitted to data from any of the
+  three data sources accumulating over
 the course of the epidemic, it is able to predict the presence of
 cases relatively early in the epidemic (Fig~\ref{fig:tprovertime}) 
 when such inputs would be particularly useful.}
@@ -433,9 +443,9 @@ spread to neighbouring countries, our method also provides near
 real-time estimates of parameters underlying the transmission model.
 First, the reproduction number \(R_t\) for each affected country is
 estimated over the time-window of inference, here over the most recent
-two weeks (Fig 2, second row). We found that these near real-time
+two weeks (Fig~\ref{fig:pm24}, second row). We found that these near real-time
 estimates of \(R_t\) were in good agreement with retrospective estimates
-obtained using the entire incidence time-series (Fig 2, bottom row,
+obtained using the entire incidence time-series (Fig~\ref{fig:pm24}, bottom row,
 correlation coefficients varying between \sangeeta{0.58 and 0.90}, 
 Fig~\ref{fig:rcorrrealretro}).
 
@@ -665,7 +675,8 @@ y-axis differs for each plot. (B) The median time-varying reproduction
 number \(R^t\) estimated using the WHO data (orange), ProMED (blue) and
 HealthMap (green) data. The shaded regions depicts the 95\% credible
 intervals (95\% CrI) for the \(R^t\) estimates. The reproduction
-number was estimated on sliding windows of 28 days, using the R package
+number was estimated on sliding windows of 28 days with a Gamma
+prior with mean 1 and variance 0.25, using the R package
 EpiEstim \cite{cori2013new}. Estimates shown at time \(t\) are for the
 28-day window finishing on day \(t\).}
 \label{fig:whopmhm}
@@ -845,7 +856,8 @@ supplementary text (Figure 1).
 
 \subsection*{Data collated by WHO}\label{data-collated-by-who}
 
-We used the \sangeeta{West African Ebola} incidence data collated by the WHO during the 
+We used the \sangeeta{West African Ebola} incidence data 
+collated by the WHO during the 
 epidemic \sangeeta{which was} made available by \cite{garske20160308}
 \sangeeta{approximately an year after the end of the epidemic}, referred to as
 the ``WHO data'' in the interest of brevity. The cleaned version of the
@@ -854,7 +866,15 @@ WHO data consisted of cases reported between December 2013 and October
 Liberia. The location of residence of cases was geo-coded to the second
 administrative level. We aggregated the WHO data to national level to
 match the spatial resolution of ProMED and HealthMap that were only
-available at the country level.
+available at the country level. 
+
+\sangeeta{Since the data collected by ProMED and
+  HealthMap are manually curated by outbreak analysts, we have used
+  the word ``curate'' in refering to their data collection
+  process. Similarly, we refer to the data ``collated'' by WHO 
+as WHO coordinated the international response to the outbreak and in
+this role, they collated the information from Ministries of Health,
+situation reports from NGOs, and local and foreign medical teams.}
 
 \subsection*{Demographic Data}\label{demographic-data}
 
@@ -862,7 +882,7 @@ We used LandScan\textsuperscript{TM} 2015 dataset grid \cite{landscan}
 for population estimates and centroids for all countries on African
 mainland.
 
-\subsection*{Statistical model}\label{statistical-model}
+\subsection*{Statistical Model}\label{statistical-model}
 
 Our model relies on a well-established statistical framework that
 assumes the daily incidence, \(I_t\) , can be approximated with a

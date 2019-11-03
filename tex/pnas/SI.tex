@@ -50,7 +50,8 @@ additional analysis on the predicting the spatial spread of the
 epidemic in Section~\ref{sec:spatial-spread}.
 
 
-\section{Data cleaning}\label{sec:data-cleaning}
+\section{Processing ProMED and HealthMap data}
+\subsection{Data cleaning}\label{sec:data-cleaning}
 
 The data from ProMED and HealthMap was pre-processed to remove
 inconsistencies and address missing data (see Methods). The data on
@@ -63,33 +64,33 @@ illustrated using data for Sierra Leone from ProMED.
   \centering
 \begin{subfigure}[b]{0.3\textwidth}
   \includegraphics[width = \textwidth]{/Volumes/Sangeeta
-    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-01_ProMED_loglinear_Sierra_Leone_1.pdf}
+    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-03_ProMED_loglinear_Sierra_Leone_1.pdf}
 \end{subfigure} \hfill
 \begin{subfigure}[b]{0.3\textwidth}
   \includegraphics[width = \textwidth]{/Volumes/Sangeeta
-    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-01_ProMED_loglinear_Sierra_Leone_2.pdf}
+    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-03_ProMED_loglinear_Sierra_Leone_2.pdf}
 \end{subfigure} \hfill
 \begin{subfigure}[b]{0.3\textwidth}
   \includegraphics[width = \textwidth]{/Volumes/Sangeeta
-    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-01_ProMED_loglinear_Sierra_Leone_3.pdf} 
+    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-03_ProMED_loglinear_Sierra_Leone_3.pdf} 
 \end{subfigure} \hfill
 \\
 \begin{subfigure}[b]{0.3\textwidth}
   \includegraphics[width = \textwidth]{/Volumes/Sangeeta
-    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-01_ProMED_loglinear_Sierra_Leone_4.pdf}
+    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-03_ProMED_loglinear_Sierra_Leone_4.pdf}
 \end{subfigure} \hfill
 \begin{subfigure}[b]{0.3\textwidth}
   \includegraphics[width = \textwidth]{/Volumes/Sangeeta
-    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-01_ProMED_loglinear_Sierra_Leone_5.pdf}
+    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-03_ProMED_loglinear_Sierra_Leone_5.pdf}
 \end{subfigure} \hfill
 \begin{subfigure}[b]{0.3\textwidth}
   \includegraphics[width = \textwidth]{/Volumes/Sangeeta
-    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-01_ProMED_loglinear_Sierra_Leone_6.pdf}
+    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-03_ProMED_loglinear_Sierra_Leone_6.pdf}
 \end{subfigure} \hfill%
 \\
 \begin{subfigure}[t]{0.3\textwidth}
   \includegraphics[width = \textwidth]{/Volumes/Sangeeta
-    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-01_ProMED_loglinear_Sierra_Leone_7.pdf}
+    EHD/mriids_manuscript/ms-figures/si-figures/ProMED/2019-11-03_ProMED_loglinear_Sierra_Leone_7.pdf}
 \end{subfigure} \hfill
 \begin{subfigure}[t]{0.3\textwidth}
 \end{subfigure} \hfill
@@ -1214,8 +1215,8 @@ using hollow triangles. In each case, weeks for which all observed points
 were imputed are shown in lighter shades.
 Country codes, shown on the y-axis, are as
 follows: BFA - Burkina Faso, CIV - Côte d'Ivoire,
-GHA - Ghana, GIN - Guinea, LBR - Liberia, MLI - Mali, NGA - Nigeria,
-SEN - Senegal, SLE - Sierra Leone. The alerts are based on forecasts 
+GHA - Ghana, MLI - Mali, NGA - Nigeria,
+SEN - Senegal. The alerts are based on forecasts 
 using the ProMED data, a 2-week calibration window and a 4 week
 forecast horizon.}
 \label{fig:alertsallbut3}
@@ -1284,8 +1285,8 @@ forecast horizon.}
 \caption{True and False alert rates at various thresholds for (A) all
   countries except Guinea, Liberia and Sierra Leone, and (B) all
   countries in weeks following a week with no observed cases. The
-  circles depict the True alert rate and the triangles show the False
-  alert rate 1 (violet), 2 (light violet), 3 (pink) and 4
+  solid and dashed lines depict the True and False alert rates
+  respectively at 1 (violet), 2 (light violet), 3 (pink) and 4
   (light green) week ahead.}
 \label{fig:tprbythreshold}
 \end{figure}\FloatBarrier
@@ -1293,14 +1294,14 @@ forecast horizon.}
 
 \begin{figure}
 \centering
-\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-10-23_tpr_fpr_by_date_obs_ds_14_28}
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-11-03_tpr_fpr_by_date_obs_ds_14_28}
 \caption{True and False alert rates at 50\% threshold using ProMED
   (blue), HealthMap (green) and WHO (yellow) data 
   over the course of the epidemic. The solid lines show the True Alert
 rate and the dashed lines show the False alert rate
 averaged over the 4 weeks forecast horizon. The bottom panel shows the
-weekly incidence for Guinea, Liberia and Sierra Leone obtained from
-ProMED data.}
+weekly incidence for Guinea (deep orange), Liberia (green) and 
+Sierra Leone (violet) obtained from ProMED data.}
 \label{fig:tprovertime}
 \end{figure}\FloatBarrier
 
