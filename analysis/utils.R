@@ -121,9 +121,10 @@ tpr_by_threshold <- function(df) {
     df$week_of_projection <- factor(df$week_of_projection)
     df$specificity <- 1 - df$fpr
     p <- ggplot(df) +
-        geom_line(aes(threshold, tpr, col = week_of_projection), size = 0.3) +
+        geom_line(aes(threshold, tpr, col = week_of_projection),
+                  size = 0.4) + ##default thickness is 0.5 too thick; 0.3 is too thin.
     geom_line(aes(threshold, specificity, col = week_of_projection),
-               linetype = "dashed", size = 0.3)
+               linetype = "dashed", size = 0.4)
     p <- p + scale_color_manual(
                  values = mriids_plot_theme$week_color_scale
              )

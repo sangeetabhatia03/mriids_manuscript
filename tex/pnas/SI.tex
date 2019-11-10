@@ -33,25 +33,26 @@ Cori, Pierre Nouvellet}
 \section*{Overview}\label{overview}
 
 In this supplement, we present the details of the pre-processing of
-ProMED and HealthMap feeds \ref{sec:data-cleaning}, 
+ProMED and HealthMap feeds (Section~\ref{sec:data-cleaning}), 
 the model results using ProMED,
 HealthMap and WHO data and the impact of the datasources and model
 parameters on the performance of the model. We varied the length of the
 time window used for model fitting (see Methods for details). SI Sections
 2, SI Section 3 and SI Section 4 present the forecasts using ProMED,
 HealthMap and WHO data respectively using different calibration windows (2, 4
-and 6 weeks) and forecast horizons (4, 6 and 8 weeks). The calibration window
-did not have a strong influence on the model performance (SI Figure 28).
-Similarly, the data used also did not influence the model performance
-(SI Figure 29). We explored the impact of alternate priors for the
+and 6 weeks) and forecast horizons (4, 6 and 8 weeks). The model
+performance was moderately better with shorter calibration windows
+(Fig~\ref{fig:perftw}) and with WHO data (Fig~\ref{fig:perfds}).
+We explored the impact of alternate priors for the
 gravity model parameter on the results from the model. The results of
-this sensitivity analysis are presented in SI Section 7. We present
-additional analysis on the predicting the spatial spread of the
+this sensitivity analysis are presented in
+Section~\ref{sec:sensitivity-analysis}. 
+We present additional analysis on the predicting the spatial spread of the
 epidemic in Section~\ref{sec:spatial-spread}.
 
 
-\section{Processing ProMED and HealthMap data}
-\subsection{Data cleaning}\label{sec:data-cleaning}
+\section{Processing ProMED and HealthMap data}\label{sec:data-cleaning}
+\subsection{Data cleaning}
 
 The data from ProMED and HealthMap was pre-processed to remove
 inconsistencies and address missing data (see Methods). The data on
@@ -96,11 +97,10 @@ illustrated using data for Sierra Leone from ProMED.
 \end{subfigure} \hfill
 \begin{subfigure}[t]{0.3\textwidth}
 \end{subfigure} \hfill
-
   \caption{Illustration of workflow for Processing ProMED feed.
     Raw ProMED feed consisted of suspected and confirmed
     cases and suspected and confirmed
-    deaths. The top left figure (a) shows the suspected (blue) and
+    deaths. The top left figure (a) shows the suspected (teal) and
     confirmed (red) cases in Sierra Leone in the raw feed.
     We used the suspected and confirmed cases to derive cumulative
     incidence data (b). If there were more than one alert on a day, 
@@ -138,9 +138,13 @@ y-axis differs for each plot.}
 The correlation between estimates of time-varying reproduction number 
 estimated using ProMED, HealthMap and WHO data depended on the
 time window used for estimation and the country
-(Fig~\ref{fig:rcorr}). Similarly, for each data source, the
-retrospective estimates of R obtained using the full incidence curve
-were in reasonably good agreement with the real-time estimates of R.
+(Fig~\ref{fig:rcorr}). Restricting the analysis was robust to using
+reproduction number estimates with lower uncertainty (coefficient of
+variation less than 0.25, Fig~\ref{fig:lowcv})
+Similarly, for each data source, the
+retrospective estimates of reproduction number in the Bayesian
+framework using the full incidence curve
+were in reasonably good agreement with the real-time estimates.
 The strength of the correlation varied depending on the country and
 the length of the calibration window (Fig~\ref{fig:rcorrrealretro}).
 
@@ -149,7 +153,7 @@ the length of the calibration window (Fig~\ref{fig:rcorrrealretro}).
   \includegraphics[width=\textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-10-25_median_R_corr.pdf}
   \caption{Correlation between time-varying reproduction number estimated from
     ProMED, HealthMap and WHO data. The reproduction numbers were
-    estimated using R package EpiEstim over a 2, 4 or 6 week sliding
+    estimated using R package EpiEstim over a 4 week sliding
     window. Median estimates from WHO data are on the x-axis and the
     median estimates using ProMED (blue) and HealthMap (green) data
     are on the y-axis. All correlation coefficients were statistically
@@ -157,6 +161,20 @@ the length of the calibration window (Fig~\ref{fig:rcorrrealretro}).
   \label{fig:rcorr}
 \end{figure}\FloatBarrier
 
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/other/2019-11-08_who-hm-promed-comparison-8-1_low_cv}
+  \caption{Correlation between time-varying reproduction number estimated from
+    ProMED, HealthMap and WHO data. Only estimates with a coefficient
+    of variation less than 0.25 were included in this analysis. 
+    The reproduction numbers were
+    estimated using R package EpiEstim over a 4 week sliding
+    window. Median estimates from WHO data are on the x-axis and the
+    median estimates using ProMED (blue) and HealthMap (green) data
+    are on the y-axis. All correlation coefficients were statistically
+  significant.}
+  \label{fig:lowcv}
+\end{figure}\FloatBarrier
 
 \begin{figure}
   \centering
@@ -204,7 +222,7 @@ text.
     All & 30.8\% & 40.2\% & 66.7\% & 48.7\% \\
     \bottomrule
   \end{tabular}
-\end{table}\FloatBarrier
+\end{table}
 
 \subsubsection{Forecast horizon of 6 weeks}\label{sec:pm26} 
 
@@ -963,7 +981,8 @@ results using ProMED data only.
   population flow. Here \(\gamma\) is allowed to vary between 1 and 10.
   \(p_{stay}\) represents the probability of an individual to stay in a
   given location during their infectious period. The solid lines
-  represents the median estimates obtained using ProMED data. The shaded
+  represents the median estimates obtained using ProMED (blue),
+  HealthMap (green) and WHO (yellow) data. The shaded
   regions represent the 95\% CrI.}
 \label{fig:parsul10}
 \end{figure}\FloatBarrier
@@ -1115,8 +1134,8 @@ alerts raised 1, 2, 3, and 4 weeks ahead are shown in
 Fig~\ref{fig:alerts4weekahead}. We also assessed the sensitivity
 of the model when the analysis was restricted to countries other than
 Guinea, Liberia and Sierra Leone (Fig~\ref{fig:alertsallbut3}). At
-50\% threshold, the
-model exhibited high specificity (98.0\%) but poor sensitivity (42.9\%) in predicting 
+93\% threshold, the
+model exhibited high specificity (83.3\%) and sensitivity (82.0\%) in predicting 
 presence of cases in weeks following a week with no observed cases in each
 country (Fig~\ref{fig:rocnocases}). In predicting presence of cases in
 countries with no or low incidence, or in a
@@ -1131,7 +1150,7 @@ these three to WHO data for the purpose of classifying alerts.
  
 \begin{figure}
 \centering
-\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-10-30_alerts_by_week_ProMED_14_28}
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-11-09_alerts_by_week_ProMED_14_28_allcountries}
 \caption{Predicted weekly presence of cases in
 each country up to 4 weeks ahead. For a given threshold (\(x^{th}\)
 percentile of the forecast interval), we defined a True alert for a week
@@ -1142,9 +1161,9 @@ observed incidence for that country was 0; and missed alert for a week where
 the threshold for a country was 0 but the observed incidence for that
 country was greater than 0. The panels shows the True (green), False (orange) and
 Missed (red) 1, 2, 3 and 4 week ahead alerts using the 
-50\textsuperscript{th} percentile of the forecast interval as threshold. 
+42.5\textsuperscript{th} percentile of the forecast interval as threshold. 
 The figure only shows countries on the
-African continent for which either the 50\textsuperscript{th}
+African continent for which either the 42.5\textsuperscript{th}
 percentile of the forecast interval or the
 observed incidence was greater than 0 at least once. 
 The first alert in each country is shown
@@ -1181,14 +1200,14 @@ forecast horizon.}
 
 \begin{figure}
 \centering
-\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-10-31_alerts_in_1_all_roc_ProMED_14_28_allbut3}
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-11-09_alerts_in_1_all_roc_ProMED_14_28_allbut3}
 \caption{Predicted weekly presence of cases in
 countries other than the three majorly affected countries (Guinea,
 Liberia and Sierra Leone). The left panel shows the True and False alert rates using
 different thresholds for classification for alerts raised 1 (violet), 2
 (light violet), 3 (dark pink) and 4 (light green) weeks ahead. The
 black curve depicts the overall True and False alert rates. On each
-curve, the dot shows the True and False Alert rates at 50\% threshold.
+curve, the dot shows the True and False Alert rates at 92.5\% threshold.
 For a given threshold (\(x^{th}\)
 percentile of the forecast interval), we defined a True alert for a week
 where the \(x^{th}\) percentile of the forecast interval and the
@@ -1202,10 +1221,10 @@ classified true alerts to the total number of true and missed alerts
 similarly the ratio of false alerts to the total number of false alerts
 and weeks of no alert (where the observed and the threshold incidence
 are both 0). The right panel shows the True (green), False (orange) and
-Missed (red) 1 week ahead alerts using the 50\textsuperscript{th} percentile of the
+Missed (red) 1 week ahead alerts using the 92.5\textsuperscript{th} percentile of the
 forecast interval as threshold. 
 The figure only shows countries on the
-African continent for which either the 50\textsuperscript{th}
+African continent for which either the 92.5\textsuperscript{th}
 percentile of the predicted incidence or the
 observed incidence was greater than 0 at least once. 
 The first alert in each country is shown
@@ -1214,9 +1233,17 @@ week where there were no observed cases in the previous week are shown
 using hollow triangles. In each case, weeks for which all observed points
 were imputed are shown in lighter shades.
 Country codes, shown on the y-axis, are as
-follows: BFA - Burkina Faso, CIV - Côte d'Ivoire,
-GHA - Ghana, MLI - Mali, NGA - Nigeria,
-SEN - Senegal. The alerts are based on forecasts 
+follows: AGO - Angola, BEN - Benin, BFA - Burkina Faso, CIV - Côte
+d’Ivoire, CMR - Cameroon, COD - Congo - Kinshasa, DZA - Algeria, EGY -
+Egypt, ETH - Ethiopia, GHA - Ghana, GMB - Gambia, GNB - Guinea-Bissau,
+KEN - Kenya, MAR - Morocco, MLI - Mali, MRT - Mauritania, NER - Niger,
+NGA - Nigeria, SDN - Sudan, SEN - Senegal, TGO - Togo, TZA - Tanzania,
+UGA - Uganda, ZAF - South Africa, MOZ - Mozambique, MWI - Malawi, SSD
+- South Sudan, TCD - Chad, TUN - Tunisia, BDI - Burundi, CAF - Central
+African Republic, COG - Congo - Brazzaville, LBY - Libya, MDG -
+Madagascar, RWA - Rwanda, ZMB - Zambia, ZWE - Zimbabwe, ERI - Eritrea,
+GAB - Gabon, SOM - Somalia, CPV - Cape Verde, GNQ - Equatorial Guinea,
+NAM - Namibia. The alerts are based on forecasts 
 using the ProMED data, a 2-week calibration window and a 4 week
 forecast horizon.}
 \label{fig:alertsallbut3}
@@ -1225,11 +1252,10 @@ forecast horizon.}
 \begin{figure}
 \centering
 \begin{subfigure}[b]{0.45\textwidth}
-\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-10-31_roc_ProMEDno_cases_last_week_14_28}
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-11-10_roc_ProMEDno_cases_last_week_14_28}
 \end{subfigure}
 \begin{subfigure}[b]{0.45\textwidth}
-\includegraphics[width = \textwidth]{/Volumes/Sangeeta
-  EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-10-31_alerts_in_1_ProMED_no_cases_last_week_14_28}
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-11-09_alerts_in_1_ProMED_no_cases_last_week_14_28_allcountries.pdf}
 \end{subfigure}
 \caption{Predicted weekly presence of cases for each 
 country in weeks following a week with no observed cases. 
@@ -1237,7 +1263,7 @@ The left panel shows the True and False alert rates using
 different thresholds for classification for alerts raised 1 (violet), 2
 (light violet), 3 (dark pink) and 4 (light pink) weeks ahead. The
 black curve depicts the overall True and False alert rates. On each
-curve, the dot shows the True and False Alert rates at 50\% threshold.
+curve, the dot shows the True and False Alert rates at 93\% threshold.
 For a given threshold (\(x^{th}\)
 percentile of the forecast interval), we defined a True alert for a week
 where the \(x^{th}\) percentile of the forecast interval and the
@@ -1251,10 +1277,10 @@ classified true alerts to the total number of true and missed alerts
 similarly the ratio of false alerts to the total number of false alerts
 and weeks of no alert (where the observed and the threshold incidence
 are both 0). The right panel shows the True (green), False (orange) and
-Missed (red) 1 week ahead alerts using the 50\textsuperscript{th} percentile of the
+Missed (red) 1 week ahead alerts using the 93\textsuperscript{rd} percentile of the
 forecast interval as threshold. 
 The figure only shows countries on the
-African continent for which either the 50\textsuperscript{th}
+African continent for which either the 93\textsuperscript{rd}
 percentile of the predicted incidence or the
 observed incidence was greater than 0 at least once. 
 The first alert in each country is shown
@@ -1271,23 +1297,16 @@ forecast horizon.}
 \label{fig:rocnocases}
 \end{figure}\FloatBarrier
 
-
-
 \begin{figure}
 \centering
-\begin{subfigure}[b]{0.45\textwidth}
-\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-10-31_ProMED_tpr_by_threshold_14_28_allbut3}
-\end{subfigure}
-\begin{subfigure}[b]{0.45\textwidth}
-\includegraphics[width = \textwidth]{/Volumes/Sangeeta
-  EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-10-31_ProMED_tpr_by_threshold_14_28_no_cases_last_week}
-\end{subfigure}
-\caption{True and False alert rates at various thresholds for (A) all
-  countries except Guinea, Liberia and Sierra Leone, and (B) all
-  countries in weeks following a week with no observed cases. The
-  solid and dashed lines depict the True and False alert rates
-  respectively at 1 (violet), 2 (light violet), 3 (pink) and 4
-  (light green) week ahead.}
+\includegraphics[width = \textwidth]{/Volumes/Sangeeta EHD/mriids_manuscript/ms-figures/si-figures/ProMED/spatial_spread/2019-11-09_ProMED_tpr_by_threshold_14_28}
+\caption{Sensitivity and specificity at various thresholds for (A) all
+  countries in Africa (B) all
+  countries in Africa except Guinea, Liberia and Sierra Leone, and (C) all
+  in Africa in weeks following a week with no observed cases. The
+  solid and dashed lines depict the sensitivity and specificity
+  respectively of 1 (violet), 2 (light violet), 3 (pink) and 4
+  (light green) week ahead alerts.}
 \label{fig:tprbythreshold}
 \end{figure}\FloatBarrier
 
@@ -1303,6 +1322,6 @@ averaged over the 4 weeks forecast horizon. The bottom panel shows the
 weekly incidence for Guinea (deep orange), Liberia (green) and 
 Sierra Leone (violet) obtained from ProMED data.}
 \label{fig:tprovertime}
-\end{figure}\FloatBarrier
+\end{figure}\FloatBarrier 
 
 \end{document}

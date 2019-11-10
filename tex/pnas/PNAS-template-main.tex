@@ -6,7 +6,7 @@
 % {pnasresearcharticle} = Template for a two-column research article
 % {pnasmathematics} %= Template for a one-column mathematics article
 % {pnasinvited} %= Template for a PNAS invited submission
-\newcommand{\sangeeta}[1]{\textcolor{blue}{#1}}
+
 % Added to be able to reference figures across SI.
 \usepackage{xr}
 \makeatletter
@@ -31,12 +31,12 @@
 \author[b]{Britta Lassmann} 
 \author[c]{Emily Cohn}
 \author[b, d]{Malwina Carrion}
-\author[e]{Moritz Kraemer}
-\author[f]{Mark Herringer}
+\author[c, e, f]{Moritz U. G. Kraemer}
+\author[g]{Mark Herringer}
 \author[c]{John Brownstein}
 \author[b]{Larry Madoff}
 \author[1, a]{Anne Cori}
-\author[1, g]{Pierre Nouvellet}
+\author[1, h]{Pierre Nouvellet}
 \affil[a]{MRC Centre for Global Infectious Disease Analysis, School of
   Public Health, Imperial College London, Faculty of Medicine, Norfolk
   Place, London, W2 1PG, UK}
@@ -44,12 +44,16 @@
   Brookline, MA 02446 USA}
 \affil[c]{Computational Epidemiology Group, Division of Emergency
   Medicine, Boston Children’s Hospital, Boston, MA USA}
-\affil[e]{Spatial Ecology and Epidemiology Group, Tinbergen Building, Department of Zoology, Oxford University, Oxford, UK}
-\affil[f]{healthsites.io}
-\affil[g]{Evolution, Behaviour and Environment, University of Sussex,
-  Brighton, UK}
 \affil[d]{Department of Health Science, Sargent College, Boston
   University, Boston, MA USA}
+\affil[e]{Department of Zoology, Tinbergen Building, Oxford
+  University, Oxford, UK}
+\affil[f]{Department of Pediatrics, Harvard Medical School, Boston,
+  USA}
+\affil[g]{healthsites.io}
+\affil[h]{Evolution, Behaviour and Environment, University of Sussex,
+  Brighton, UK}
+
 % Please give the surname of the lead author for the running footer
 \leadauthor{Bhatia} 
 
@@ -60,7 +64,7 @@ critical to plan and implement adequate interventions. For example,
 during an outbreak, it is important to predict which countries or regions 
 will be affected next. This can be challenging because of delays in
 data collection and publication. Here we show
-how publicly available data from ProMED and HealthMap, the two
+how publicly available data from ProMED and HealthMap, two
 leading and pioneering internet-based disease surveillance platforms,
 could have been used in real-time to accurately predict
 the international spread of Ebola during 
@@ -86,7 +90,7 @@ ProMED and HealthMap data, especially when used during an outbreak.
   important early warning systems as well as complement the field
   surveillance during an ongoing outbreak. Here we present a flexible
   statistical model that uses data produced from digital surveillance
-  tools (ProMED and HealthMap) to forecast short term incidence trend
+  tools (ProMED and HealthMap) to forecast short term incidence trends
   in a spatially explicit manner. The model was
   applied to data collected by ProMED and HealthMap during the
   2013-2016 West African Ebola epidemic. The model was able to
@@ -108,56 +112,62 @@ ProMED and HealthMap data, especially when used during an outbreak.
 % If your first paragraph (i.e. with the \dropcap) contains a list environment (quote, quotation, theorem, definition, enumerate, itemize...), the line after the list may have some extra indentation. If this is the case, add \parshape=0 to the end of the list environment.
 
 Increasing globalization of commerce, finance, production, and services
-has fostered rapid movement of people, animals, plants, food, and
-feed \cite{morse2001factors}. With the transportation of people and
+has fostered rapid movement of people, animals, plants, and food
+ \cite{morse2001factors}. With the transportation of people and
 goods comes the widespread dispersion of pathogens that cause infectious
-diseases and the vectors that may spread them. Outbreaks that begin in
+diseases and the vectors that may spread them
+\cite{stoddard2009role}. Outbreaks that begin in
 the most remote parts of the world can now spread swiftly to urban
 centers and to countries far away with dangerous, global consequences
 \cite{ex1995communicable}. For instance, population mobility across
-borders played a critical role in the spread of Ebola \sangeeta{virus} in West Africa
+borders played a critical role in the spread of Ebola virus in West Africa
 during the 2013-2016 Ebola epidemic \cite{ebfactors}. A more recent
-example is the 2016 \sangeeta{y}ellow Fever outbreak in Angola. Infected travellers
+example is the 2016 yellow Fever outbreak in Angola
+\cite{kraemer2017spread}. Infected travellers
 from Angola reached China, representing the first ever reported cases of
-\sangeeta{y}ellow fever in Asia \cite{wasserman2016yellow}.
+yellow fever in Asia \cite{wasserman2016yellow}.
 
-Early detection and \sangeeta{monitoring} of infectious disease outbreaks through passive or
+Early detection and monitoring of infectious disease outbreaks through passive or
 active collection of surveillance data can help public health officials
 initiate interventions such as removing contaminated food sources,
 isolating affected individuals or launching vaccination campaigns.
 However, any data collection method involves trade-offs between speed,
-accuracy and costs. Data collected through \sangeeta{traditional} surveillance,
-\sangeeta{for example via} public health infrastructure, are generally reliable but
+accuracy and costs. Data collected through traditional surveillance,
+for example via public health infrastructure, are generally reliable but
 are resource intensive and are therefore typically available for
-upstream analysis with an (understandable) delay.
+upstream analysis with an (understandable) delay 
+\cite{tariq2019assessing}.
 
+In the past three decades, the internet has grown at a staggering
+pace, with approximately half of the world's population accessing
+internet in 2017 \cite{internetgrowth}. 
 The rapid growth of the internet has fostered a corresponding increase
-in tools for internet based disease detection \sangeeta{ and monitoring} 
+in tools for internet based disease detection and monitoring 
 that lie at the other end
 of the spectrum. Digital disease surveillance consists of monitoring
 online information sources to collate relevant information about
-diseases. The sources of information \sangeeta{can} be formal such as advisories
-posted by a ministry of health, or informal such as \sangeeta{news media
-items}, blogs or tweets.
+diseases. The sources of information can be formal such as advisories
+posted by a ministry of health, or informal such as news media
+items, blogs or tweets.
 Digital surveillance makes data collection less expensive and time
-consuming but the acquired data often \sangeeta{contain more noise} than those
-collected through \sangeeta{traditional public health} surveillance. \sangeeta{While traditional
+consuming but the acquired data often contain more noise than those
+collected through traditional public health surveillance. While traditional
 surveillance systems report on select pathogens and depend on a
 well-functioning public health infrastructure, digital surveillance
 in contrast typically monitor a wide range of pathogens using little
-to no additional infrastructure.} Thus, digital surveillance tools
+to no additional infrastructure. Thus, digital surveillance tools
 can play a significant role in the rapid recognition of public health
 emergencies \cite{grein2000rumors, anema2014digital}.
 
 The Program for Monitoring Emerging Diseases (ProMED,
 www.promedmail.org) was one of the first entrants in the field of
-digital disease \sangeeta{surveillance}. ProMED was created in 1994 as a surveillance
-network to provide early warning of emerging \sangeeta{and re-emerging}
+digital disease surveillance. ProMED was created in 1994 as a surveillance
+network to provide early warning of emerging and re-emerging
 infections \cite{morse2012public}. ProMED collates information from
 various sources that include media reports, official reports, local
 observers, and a network of clinicians throughout the world. The reports
 generated through bottom-up surveillance are reviewed by a team of
-subject matter experts before being posted to \sangeeta{the} ProMED network. ProMED now
+subject matter experts before being posted to the ProMED network. ProMED now
 provides free email based reports on outbreaks to over 70,000
 subscribers in at least 185 countries.
 
@@ -168,8 +178,8 @@ informal sources of information and allows for visualisation of alerts
 on a map \cite{freifeld2008healthmap}. 
 The surveillance data collected by HealthMap  has been incorporated into the Epidemic
 Intelligence from Open Sources (EIOS) surveillance system, developed
-by WHO. \sangeeta{Both ProMED and} HealthMap
-is used by key public health bodies, including the Centers for Disease
+by WHO. Both ProMED and HealthMap
+are used by key public health bodies, including the Centers for Disease
 Control and Prevention (CDC) and the World Health Organisation (WHO).
 
 Some other examples of digital disease detection tools include MediSys
@@ -180,14 +190,14 @@ rapidly detect new outbreaks and follow their evolution in near
 real-time.
 
 Collating timely data, while critical, is only the first step in the
-disease surveillance process. Compiling the data, conducting analysis,
+disease surveillance process. Compiling the data, conducting analyses,
 and generating reports that are easily understood and actionable are
-equally important. For instance, \sangeeta{one of the ProMED outbreak analysts
+equally important. For instance, one of the ProMED outbreak analysts
 reported in March 2014 on the likely spread of Zika to the Americas 
 \cite{promedzika}, well before the epidemic surfaced in South
-America in February 2015.} However, lacking an easy to use and openly
-accessible tool to quantify and visualize the \sangeeta{reported risk of
-  disease spread}, this report did not have any significant impact on public health resource
+America in February 2015. However, lacking an easy to use and openly
+accessible tool to quantify and visualize the reported risk of
+  disease spread, this report did not have any significant impact on public health resource
 allocation and decision making. While there has been a growing interest
 in using various internet data streams for epidemiological
 investigations \cite{generous2014global, milinovich2015role} and
@@ -202,8 +212,8 @@ In this study, we propose a new statistical framework to estimate and
 visualize risks posed by outbreak events using digital surveillance
 data. Our approach relies on a relatively simple statistical framework
 that integrates multiple data streams to predict the future incidence
-trajectory, and \sangeeta{quantifies} spatial heterogeneity in the risk of disease
-spread. In this paper, we present the model implemented in this \sangeeta{framework}
+trajectory, and quantifies spatial heterogeneity in the risk of disease
+spread. In this paper, we present the model implemented in this framework
 and as a case study, we report the analysis of ProMED and HealthMap data
 for the 2013-16 West African Ebola epidemic. To assess the robustness of
 the digital surveillance data, we also applied the framework to the data
@@ -220,9 +230,9 @@ weaknesses, especially if used in near real-time forecasting.
 
 Incidence time series were computed from ProMED, HealthMap and WHO data
 (see Methods) for the three mainly affected countries, Guinea,
-Liberia and Sierra Leone, and are shown in Fig~\ref{fig:whopmhm}. \sangeeta{We
+Liberia and Sierra Leone, and are shown in Fig~\ref{fig:whopmhm}. We
 pre-processed the data from ProMED and HealthMap to
-remove inconsistencies and to fill gaps (see Methods for details).}
+remove inconsistencies and to fill gaps (see Methods for details).
 The raw and
 processed data from ProMED and HealthMap for all countries
 included in the feed are available in the Github repository for this
@@ -235,9 +245,9 @@ course of the epidemic. It is also worth highlighting that the WHO data
 used here are an extensively cleaned version of the data collected
 during the epidemic \cite{who2014ebola, team2015west}, published
 more than a year after the epidemic was declared to be
-over. \sangeeta{Moreover, while ProMED and HealthMap did not record
-  probable cases for this epidemic, the WHO data contained confirmed,
-  probable and suspected cases}. However,
+over. Moreover, while ProMED and HealthMap did not record
+probable cases for this epidemic, the WHO data contained confirmed,
+probable and suspected cases. However,
 despite these discrepancies, the weekly incidence derived from ProMED
 and HealthMap was moderately to highly correlated with that reported by
 WHO later (Pearson's correlation coefficients aggregated across the
@@ -259,13 +269,13 @@ incidence data source used (Fig~\ref{fig:whopmhm}B). The correlation between the
 median $R^t$ estimates on sliding 4-week windows from ProMED or HealthMap
 data with the estimates from WHO data varied from weak (0.30, between
 reproduction number from WHO and ProMED in Guinea) to very strong
-(0.72, between reproduction number from WHO and \sangeeta{ProMED} in Sierra
+(0.72, between reproduction number from WHO and ProMED in Sierra
 Leone, Fig~\ref{fig:rcorr}).
 
 Since HealthMap uses ProMED alerts in addition to other online data
 sources, ProMED represents the more conservative data source between the
 two. Therefore we present the results based on ProMED data in the main
-text, unless otherwise \sangeeta{specified}. The analysis based on HealthMap and
+text, unless otherwise specified. The analysis based on HealthMap and
 WHO data are presented in the
 Supplementary Information (SI Sections \ref{sec:hm}
 and \ref{sec:who}).
@@ -309,15 +319,6 @@ error (Fig \ref{fig:perfpm24}D), see Methods for details). We found no evidence 
 systematic bias in any week of the forecast horizon (median bias 0.12,
 Fig \ref{fig:perfpm24}A).
 
-
-
-% To further assess the
-% potential tendency of our model to systematically under- or over-predict
-% observations, we used a measure of bias ranging from -1 for a model
-% which always under-predicts, to 1 for a model which always over-predicts
-% (see Methods). The mean bias over the forecast horizon was 0.077 (IQR
-% -0.93 - 0.98) indicating 
-
 Typically, individual forecasts were within 17.0\% (95\% CrI 0 - 80\%)
 of the median forecast (based on the median and 95\% CrI for
 relative sharpness, Fig \ref{fig:perfpm24}B, see Methods for details).
@@ -329,48 +330,28 @@ observed values (across the three countries) were within the 95\%
 forecasts interval, reducing to 49.4\%, 42.3\% and 45.0\% in the
 second, third and fourth weeks of the forecast horizon. 
 
-
-% The mean value of the relative mean absolute error
-% in the first week of the forecast horizon was 1.32 (Inter Quartile
-% Range, IQR: 0.18 - 0.68), suggesting that on average our central
-% one-week ahead predictions were about a third off either way of the
-% observations. The mean bias for one-week ahead projections was 0.07 (IQR
-% -0.81 - 0.94) indicating little systematic bias. The mean sharpness in
-% the first week of the forecast horizon is 0.13 (IQR 0.05 - 0.15) meaning
-% that on average our individual projected one-week ahead epidemic
-% trajectories are within 13\% of the median projection.
-
-%  Similarly, the mean relative error
-% increases up to 10.02 (IQR 0.32 - 2.19) in week 4, the mean bias up to
-% 0.08 (IQR -0.53 - 0.94) and the mean sharpness up to 0.17 (IQR 0.07 -
-% 0.24).
-
-The model performance varied depending on the \sangeeta{country and
- the } phase of the epidemic, defined as ``growing'', ``declining'', and 
+The model performance varied depending on the country and
+the phase of the epidemic, defined as ``growing'', ``declining'', and 
 ``stable'' depending on $R^t$ estimates (see Methods). In
 general, the model performance was best in the stable phase with
 66.7\% of the observations contained in the 95\% forecasts interval
 (versus 40.2\% and 30.8\% in the declining and growing phases respectively,
-SI Table \ref{tab:propinci}). However the forecast uncertainty was largest in the stable
+SI Table~\ref{tab:propinci}). However the forecast uncertainty was largest in the stable
 phase and smallest in the growing phase (Fig \ref{fig:perfpm24}B).
 Importantly, in the growing phase the model tended to over-predict
 while under-predicting in the declining phase (Fig
 \ref{fig:perfpm24}A). 
 
-% Fitting the model with alternative calibration windows 
-% modifies the model complexity as the number of non-overlapping time
-% windows, and thus parameters, over the course of the epidemic increases
-% with shorter time windows.
 Overall, the model performed moderately better using WHO data compared
-to ProMED and HealthMap data (Fig \ref{fig:perfds}) \sangeeta{and with shorter 
-calibration windows} (Fig \ref{fig:perftw}).
+to ProMED and HealthMap data (Fig \ref{fig:perfds}) and with shorter 
+calibration windows (Fig \ref{fig:perftw}).
 
 \subsection*{Risk of spatial spread}
 Although our model was not always able to robustly predict the future
 incidence in the three mainly affected countries, we found that it
 allowed to robustly predict the
-presence or absence of cases in all countries up to a week in
-advance. For each week and each country in \sangeeta{Africa}, our model
+presence or absence of cases in all countries in Africa up to a week in
+advance. For each week and each country in Africa, our model
 generated an alert if the predicted incidence (using a predetermined
 percentile of the forecast interval) was greater than 0. We classified
 an alert for a given week as a true
@@ -379,27 +360,29 @@ alert when no cases were observed, and as a missed alert if cases were
 observed but were not predicted by the model. Using different
 percentiles of the forecast (e.g., the median or the
 95\textsuperscript{th} percentile)
-yielded different rates of true, false and missed alerts, \sangeeta{which} were
+yielded different rates of true, false and missed alerts, which were
 summarised in a ROC curve (Fig \ref{fig:alerts}A). Overall, our model 
-achieved high sensitivity but variable specificity \sangeeta{with} higher
-percentiles as cut-off \sangeeta{yielding} increased sensitivity but poorer
-specificity. Maximising the average between
-sensitivity and specificity led to \sangeeta{95.9\%} sensitivity and 
-\sangeeta{98.0\%} specificity at \sangeeta{50\% threshold}
-(Fig~\ref{fig:alerts}A). \sangeeta{The
+achieved high sensitivity (i.e., true alert rate) but variable specificity
+(i.e., 1 - false alert rate). 
+Maximising the average between
+sensitivity and specificity led to 93.7\% sensitivity and 
+96.0\% specificity at 42.5\% threshold (Fig~\ref{fig:alerts}A). The
 sensitivity of the model remained high over longer forecast horizon 
 while the specificity deteriorated with more false alerts being raised
-4 week ahead (Fig~\ref{fig:alerts4weekahead}). At the same
-threshold, the model attained high
-specificity (98\%) but poor sensitivity (42.9\%)
-when all countries in Africa other than
+4 week ahead (Fig~\ref{fig:alerts4weekahead}). Both the sensitivity
+and the specificity of the model remained high when the 
+analysis was restricted to all countries in Africa other than
 the three majorly affected countries (Guinea, Liberia and Sierra
-Leone) were considered (Fig~\ref{fig:alertsallbut3}). 
-Again, at 50\% threshold, the model exhibited 
-high specificity (98.0\%) but poor sensitivity (42.9\%) in predicting 
-presence of cases in weeks following a week with no observed cases in each
-country (Fig~\ref{fig:rocnocases}). Out of the 8 missed alerts in this
-case, 3 are in Liberia are towards the end of the epidemic, after
+Leone). The average of sensitivity and specificity was maximum at
+92.5\% threshold in this case with 85.7\% sensitivity and 81.7\% specificity
+(Fig~\ref{fig:alertsallbut3}). 
+The model exhibited 
+high sensitivity (83.3\%) and specificity (82.0\%) in predicting 
+presence of cases in weeks following a week with no observed cases in 
+all countries in Africa (Fig~\ref{fig:rocnocases}) at 93\% threshold 
+(similarly chosen to maximise the average between sensitivity and
+specificity). Out of the 9 one-week ahead missed alerts in this
+case, 3 are in Liberia towards the end of the epidemic, after
 Liberia had been declared Ebola free on two separate occasions
 \cite{liberiaef1, liberiaef2}. The serial interval distribution
 that we have used does not account for very long intervals between
@@ -407,35 +390,30 @@ infections such as that associated with sexual transmission. Using the
 latest available data on pairs of primary and secondary infections
 and models
 that allow for more heterogeneity in the distribution of cases e.g.,
-using Negative Bionamial distributions
+using Negative Binomial distributions
 could potentially improve the assessment of risk of spread in such
-cases \cite{thompson2019improved, eggo2015duration} .} 
+cases \cite{thompson2019improved, eggo2015duration}. 
 
-\sangeeta{In both cases, higher sensitivity with a reasonably high
-specificity was achieved by increasing the cut-off at which an alert
-is raised (Fig~\ref{fig:tprbythreshold})}. The cut-off for raising an alert 
-can thus be chosen based
-on the relative costs of missed and false alerts \sangeeta{potentially
+The choice of a threshold at which to raise an alert is subjective and
+involves a trade-off between sensitivity and specificity. 
+In general, using a high threshold to raise an alert leads to 
+high sensitivity with a reasonably high specificity
+(Fig~\ref{fig:tprbythreshold}). 
+The cut-off for raising an alert can be informed by 
+the relative costs of missed and false alerts potentially
 using a higher cut-off when the observed incidence is low. 
-It is also worth noting that in each instance where our model failed to raise an
+It is also worth noting that where our model failed to raise an
 alert in a week, either a true or a false alert had
-been raised in the recent weeks indicating a potential risk of spread
-of the epidemic in that country.}
+been raised in the recent weeks in all but one instance,
+indicating a potential risk of spread of the epidemic to that country.
 
-% For instance, in May 2014, the model \sangeeta{correctly predicted} the
-% presence of cases in Liberia after three consecutive weeks with no
-% observed incidence (\ref{fig:alerts}B). No false alerts were raised
-% for any of these countries (Liberia, Sierra Leone, Nigeria, Senegal
-% and Mali) and the model sensitivity ranged from 11.4\%
-% (using 2.5th percentile) to 93.2\% (97.5th percentile). 
-
-\sangeeta{These results} suggest that the model is able to
+These results suggest that the model is able to
 capture and even anticipate the spatial spread of the epidemic. 
-\sangeeta{ Importantly, as the model is fitted to data from any of the
-  three data sources accumulating over
+Importantly, as the model is fitted to data from any of the
+three data sources accumulating over
 the course of the epidemic, it is able to predict the presence of
 cases relatively early in the epidemic (Fig~\ref{fig:tprovertime}) 
-when such inputs would be particularly useful.}
+when such inputs would be particularly useful.
 
 Together with providing operational outputs such as the predicted
 short-term incidence in currently affected countries or the risk of
@@ -446,45 +424,39 @@ estimated over the time-window of inference, here over the most recent
 two weeks (Fig~\ref{fig:pm24}, second row). We found that these near real-time
 estimates of \(R_t\) were in good agreement with retrospective estimates
 obtained using the entire incidence time-series (Fig~\ref{fig:pm24}, bottom row,
-correlation coefficients varying between \sangeeta{0.58 and 0.90}, 
+correlation coefficients varying between 0.58 and 0.90, 
 Fig~\ref{fig:rcorrrealretro}).
 
 The risk of spatial spread in our model relies on estimating movement
-\sangeeta{patterns} of infectious cases. Our method also provides estimates of
-%parameters of the underlying gravity model (see Methods), \(p_{stay}\),
+patterns of infectious cases. Our method also provides estimates of
 the probability of a case staying within a country throughout their
 infectious period, and  the extent to which
-distance between two locations affects the flow \sangeeta{of
-  infectious cases} between them. The
+distance between two locations affects the flow of
+infectious cases between them. The
 real-time estimates of these parameters over the course of the
 epidemic (Fig \ref{fig:parsul2}), suggest that while the relative flow
-\sangeeta{of cases} between locations did not vary substantially over time, the probability
+of cases between locations did not vary substantially over time, the probability
 of travel across national borders may have decreased after the initial
 phase of the epidemic.
-% Figure 6 also illustrates how accumulating data
-% throughout the course of the epidemic allows estimating such parameters
-% more precisely.
 
 Finally, we quantify the relative risk of importation of a case into a
 country from any other currently affected country. The risk of
 importation is proportional to the population flow into a country from
 all other countries estimated using a mobility model (here, gravity
-model) weighted by the infectivity at each country \sangeeta{(which
-  depends on the number of cases and time at which they were infected,
- see Methods)}. Our
+model) weighted by the infectivity at each country (which
+depends on the number of cases and time at which they were infected,
+see Methods). Our
 estimates of the countries with higher risk of acting as source of
 importations are largely consistent with the reported source of cases
 (Fig \ref{fig:imprisk}). In 4 out of the 5 reported cases of international spread
 of the epidemic in West Africa, the model correctly attributed
-\sangeeta{the highest} relative
-risk of acting as a source of importation \sangeeta{(relative risk $ >
+the highest relative
+risk of acting as a source of importation (relative risk $ >
   0.9$ for importation into 
-Liberia, Nigeria and Sierra Leone and 0.49 in case of Mali)} to the actual source
+Liberia, Nigeria and Sierra Leone and 0.49 in case of Mali) to the actual source
 identified through retrospective epidemiological and genomic
 investigations \cite{gire2014genomic}.
 
-% According to "retrspective" investigations
-% 
 
 \section*{Discussion}\label{discussion}
 
@@ -495,22 +467,22 @@ this study, we propose a statistical framework that relies on digital
 surveillance data from ProMED or HealthMap to 1) predict the short-term
 epidemic trajectory in currently affected countries, 2) quantify the
 short-term risk of spread to other countries and 3) for countries at
-risk \sangeeta{of importation}, quantifies where the risk comes from. We apply our model to data
+risk of importation, quantify where the risk comes from. We apply our model to data
 collected during the West African Ebola epidemic of 2013-2016, curated
-by the \sangeeta{outbreak analysts} at ProMED/HealthMap, and we compare the model's output
+by the outbreak analysts at ProMED/HealthMap, and we compare the model's outputs
 to those obtained when using the data collated by the WHO and made
 available at the end of the epidemic.
 
 In spite of the manual curation of the data carried out by
-\sangeeta{outbreak analysts} at ProMED and HealthMap, substantial issues remained in
+outbreak analysts at ProMED and HealthMap, substantial issues remained in
 the quality and consistency of the data feeds. Dealing with issues such
 as missing data and inconsistent records will be a key challenge in
 using these data for prospective real-time analysis. Despite these
 challenges, we show the potential of digital surveillance tools to
-1) \sangeeta{inform} early detection , 2) characterise the spread, and 3) forecast
+1) inform early detection, 2) characterise the spread, and 3) forecast
 the future trajectory of outbreaks. Particularly in an evolving outbreak
 scenario, when information from traditional surveillance is limited and
-only available with a significant delay, digital surveillance data \sangeeta{can}
+only available with a significant delay, digital surveillance data can
 be used to complement the information gap. For instance, during the West
 African Ebola epidemic, the first situation report by the WHO was
 published only at the end of August 2014 \cite{whositrep}, 
@@ -522,8 +494,8 @@ be a growing area of focus.
 
 In general, we found that, after systematic processing to remove
 inconsistencies, data from ProMED and HealthMap were in
-\sangeeta{reasonably} good agreement
-with the data collated by WHO \sangeeta{and collected} through traditional surveillance methods.
+reasonably good agreement
+with the data collected through traditional surveillance methods and collated by WHO.
 In particular, both the incidence time-series and retrospective national
 estimates of transmissibility over time were well correlated across the
 three data sources. This suggests that digital surveillance data are a
@@ -575,11 +547,11 @@ model has very high sensitivity, predicting all instances of observed
 international spread 1 to 4 weeks in advance. Choosing a cut-off to
 maximise sensitivity led to low model specificity. On occasions the
 model predicted cases in countries, such as Côte d'Ivoire, where
-\sangeeta{neither WHO nor} ProMED reported any case.
+neither WHO nor ProMED reported any case.
 However this may also be due to imperfect case reporting. Thus our
 method could be used with a high cut-off as a highly sensitive
 surveillance system with an alert triggering further epidemiological
-investigations \sangeeta{and implementation of epidemic preparedness measures}. 
+investigations and implementation of epidemic preparedness measures. 
 
 A key feature of our model is that it
 provides, for each country identified as at risk, a map of where the
@@ -591,7 +563,7 @@ risk. This could help translating data collected through
 digital surveillance into concrete operational outputs in real-time
 that could assist in epidemic management and control. 
 
-\sangeeta{The systematic collection, storage, organization and communication 
+The systematic collection, storage, organization and communication 
 of disease surveillance data were especially challenging during the 
 West African Ebola epidemic as the 
 deficiencies in transportation and communication resources, 
@@ -600,22 +572,22 @@ management structures posed unique challenges in this context \cite{boland2017ov
 The collection of case
 incidence data and rapid dissemination through digital surveillance
 systems was further hampered by the limited information technology and internet 
-service. Thus, }
+service in the countries most affected. Thus, 
 for the West African Ebola epidemic, ProMED and HealthMap data were
-available at a coarse spatial scale with the \sangeeta{sub-national} level information
+available at a coarse spatial scale with the sub-national level information
 for cases missing in most of the records. This limited our analysis to
 the spread of the outbreak across national borders only, although
-\sangeeta{in principle} our
-model could deal with data at any spatial scale. \sangeeta{Both ProMED and HealthMap
-collect more granular data for most outbreaks, utilizing these data
+in principle our
+model could deal with data at any spatial scale. Both ProMED and HealthMap
+collect more granular data for most outbreaks. Utilizing these data
 to investigate outbreaks and regions would provide further evidence of
 the ability of digital surveillance data to usefully complement data
 collected from traditional
-surveillance. Another}  interesting research
+surveillance. Another interesting research
 avenue would be to explore ways of integrating
 timely data from ProMED and HealthMap with delayed data from ground
-surveillance \sangeeta{ to generate timely insights into the spatial spread
-of an outbreak}.
+surveillance to generate timely insights into the spatial spread
+of an outbreak.
 
 The framework presented in this paper was developed as a
 proof-of-concept to use digital surveillance data for near real-time
@@ -637,27 +609,27 @@ and duration, there is a scope for optimising the model implementation.
 Importantly, many other open data sources could be included in our
 framework to improve model performance. For example, data on human
 mobility could be used to further inform the parametric form and
-parameter values of our mobility model. \sangeeta{We have incorporated
+parameter values of our mobility model. We have incorporated
 a simple and well-characterised model of population movement in the
 current work. In
 addition to utilising other possible data sources, future
 work could consider other models of human population movement
-\cite{simini2012universal}.}
+\cite{simini2012universal}.
 When relevant,
 spatially-explicit data on population-level immunity to the circulating
 pathogen (e.g.~following previous epidemics and/or due to vaccination)
-could also be used to refine our transmission model. \sangeeta{
+could also be used to refine our transmission model. 
 Finally, the impact of the health capacity of a region to respond to a
 public health emergency could also be accounted for in future iterations of
-the model. Ongoing efforts to collate } 
+the model. Ongoing efforts to collate 
 quantitative information on the performance of health systems and the
 ability of regions or countries to respond to an epidemic
-\cite{healthsites}, \cite{maina2019spatial} \sangeeta{can potentially provide
- valuable data sources for future work}. 
-\sangeeta{Here using a relatively simple
+\cite{healthsites}, \cite{maina2019spatial} can potentially provide
+ valuable data for future work. 
+Here using a relatively simple
 modelling approach we provide one of the first pieces of evidence of the potential
 value of digital surveillance for real-time quantitative analysis of
-epidemic data, with important operational and actionable outputs.}
+epidemic data, with important operational and actionable outputs.
 
 
 \subsection*{Figures}\label{figures}
@@ -723,13 +695,13 @@ Methods for definitions of each metric.}
 \end{figure*}
 
 \begin{figure*}
-\includegraphics{{../../ms-figures/2019-10-31_alerts_in_1_all_roc_ProMED_14_28}.pdf}
+\includegraphics{{../../ms-figures/2019-11-09_alerts_in_1_all_roc_ProMED_14_28}.pdf}
 \caption{Predicted weekly presence of cases in
 each country. The left panel shows the True and False alert rates using
 different thresholds for classification for alerts raised 1 (violet), 2
 (light violet), 3 (dark pink) and 4 (green) weeks ahead. The
 black curve depicts the overall True and False alert rates. On each
-curve, the dot shows the True and False Alert rates at 50\% threshold.
+curve, the dot shows the True and False Alert rates at 42.5\% threshold.
 For a given threshold (\(x^{th}\)
 percentile of the forecast interval), we defined a True alert for a week
 where the \(x^{th}\) percentile of the forecast interval and the
@@ -743,22 +715,22 @@ classified true alerts to the total number of true and missed alerts
 similarly the ratio of false alerts to the total number of false alerts
 and weeks of no alert (where the observed and the threshold incidence
 are both 0). The right panel shows the True (green), False (orange) and
-Missed (red) 1 week ahead alerts using the 50\textsuperscript{th} percentile of the
+Missed (red) 1 week ahead alerts using the 42.5\textsuperscript{th} percentile of the
 forecast interval as threshold. 
 The figure only shows countries on the
-African continent for which either the 50\textsuperscript{th}
+African continent for which either the 42.5\textsuperscript{th}
 percentile of the predicted incidence or the
 observed incidence was greater than 0 at least once. 
 The first alert in each country is shown
-using larger symbols (square or triangle). Alerts in a country in a
+using larger squares. Alerts in a country in a
 week where there were no observed cases in the previous week are shown
-using hollow triangles. In each case, weeks for which all observed points
+using triangles. In each case, weeks for which all observed points
 were imputed are shown in lighter shades.
 Country codes, shown on the y-axis, are as
-follows: BFA - Burkina Faso, CIV - Côte d'Ivoire,
-GHA - Ghana, GIN - Guinea, LBR - Liberia, MLI - Mali, NGA - Nigeria,
-SEN - Senegal, SLE - Sierra Leone. The alerts are based on forecasts 
-using the ProMED data, a 2-week calibration window and a 4 week
+follows: CIV - Côte d’Ivoire, GHA - Ghana, GIN - Guinea, 
+LBR - Liberia, MLI - Mali, NGA - Nigeria, SEN - Senegal, 
+SLE - Sierra Leone, BFA - Burkina Faso. The alerts are based on forecasts 
+using ProMED data, a 2-week calibration window and a 4 week
 forecast horizon.}
 \label{fig:alerts}
 \end{figure*}
@@ -802,7 +774,7 @@ package ggmcmc.
   \label{processing-promedhealthmap-data-feed}
 We used a set of curated ProMED and HealthMap records on the human cases
 of Ebola in West Africa. The dates in the feeds ranged from March 2014
-to October 2016. \sangeeta{Each  dataset} recorded the cumulative number of
+to October 2016. Each dataset recorded the cumulative number of
 suspected/confirmed cases and suspected/confirmed deaths by country at
 various dates in this period. We derived the country specific daily and
 weekly incidence time series from these data after the following data
@@ -812,16 +784,16 @@ cleaning and pre-processing:
 \item
   We first extracted the total case counts as a sum of suspected and
   confirmed cases (ProMED and HealthMap data did not record probable
-  cases \sangeeta{for the West African Ebola epidemic}).
+  cases for the West African Ebola epidemic).
 \item
   Each unique record in ProMED is associated with a
-  unique alert id. \sangeeta{A alert id can correspond to various reports from
+  unique alert id. An alert id can correspond to various reports from
   different sources (news, social media etc.) which might report
   different case numbers. In such cases, we assigned the median of the 
-  case numbers to the record.}
+  case numbers to the record.
 \item
   In some instances, cumulative case count was inconsistent in that it
-  failed to be monotonically \sangeeta{non-decreasing}. 
+  failed to be monotonically non-decreasing. 
   We identified consecutive dates
   (\(t_k\) and \(t_{k + 1}\)) where the cumulative case count was not
   increasing. If removing either \(t_k\) or \(t_{k + 1}\) made the
@@ -830,9 +802,9 @@ cleaning and pre-processing:
   we removed both \(t_k\) and \(t_{k + 1}\). These rules were applied
   iteratively until the cumulative case count was consistent.
 \item
-  \sangeeta{If an inconsistent point was at the end of the the cumulative case
+  If an inconsistent point was at the end of the the cumulative case
   series, applying the above rules led to the removal of a large
-  number of points. Hence,} to remove outliers at the end of , we used
+  number of points. Hence, to remove outliers at the end, we used
   Chebyshev inequality with sample mean \cite{saw1984chebyshev}. Given a
   set of observations \(X_1, X_2 \dots X_n\), the formulation of
   Chebyshev inequality by Saw et al.~gives the probability that the
@@ -852,15 +824,16 @@ cleaning and pre-processing:
 \end{itemize}
 
 An example of the pre-processing of ProMED feed is presented in the
-supplementary text (Figure 1).
+supplementary text (SI Fig~\ref{fig:dataclean}).
 
 \subsection*{Data collated by WHO}\label{data-collated-by-who}
 
-We used the \sangeeta{West African Ebola} incidence data 
+We used the West African Ebola incidence data 
 collated by the WHO during the 
-epidemic \sangeeta{which was} made available by \cite{garske20160308}
-\sangeeta{approximately an year after the end of the epidemic}, referred to as
-the ``WHO data'' in the interest of brevity. The cleaned version of the
+epidemic which was made available  
+approximately an year after the end of the epidemic
+\cite{garske20160308}.
+This data set is referred to as ``WHO data'' in the interest of brevity. The cleaned version of the
 WHO data consisted of cases reported between December 2013 and October
 2015 in the three most affected countries - Guinea, Sierra Leone and
 Liberia. The location of residence of cases was geo-coded to the second
@@ -868,13 +841,13 @@ administrative level. We aggregated the WHO data to national level to
 match the spatial resolution of ProMED and HealthMap that were only
 available at the country level. 
 
-\sangeeta{Since the data collected by ProMED and
-  HealthMap are manually curated by outbreak analysts, we have used
-  the word ``curate'' in refering to their data collection
-  process. Similarly, we refer to the data ``collated'' by WHO 
+Since the data collected by ProMED and
+HealthMap are manually curated by outbreak analysts, we have used
+the word ``curate'' in referring to their data collection
+process. Similarly, we refer to the data ``collated'' by WHO 
 as WHO coordinated the international response to the outbreak and in
 this role, they collated the information from Ministries of Health,
-situation reports from NGOs, and local and foreign medical teams.}
+situation reports from NGOs, and local and international medical teams.
 
 \subsection*{Demographic Data}\label{demographic-data}
 
@@ -1005,8 +978,8 @@ n\). \(\Lambda_{j}^{t}\) is given by
 \label{eq:lambdajt}
 \end{equation} 
 
-The likelihood of the parameters for data \sangeeta{up to time $T$, the duration
-of the outbreak so far}, is
+The likelihood of the parameters for data up to time $T$, the duration
+of the outbreak so far, is
 
 \begin{equation*}
   \mathcal{L} = P
@@ -1015,7 +988,7 @@ of the outbreak so far}, is
     p_{stay},
     \gamma,
     {\langle R_{j}^{t} \rangle}_{j = 1, 2 \dots n}^{t = 1, 2, \dots T}\right) = 
-     \prod_{t = 1}^{t}{e^{-\Lambda_{i}^{t}} 
+     \prod_{t = 1}^{T}{e^{-\Lambda_{i}^{t}} 
        \frac{\left(I_{i}^{t}\right)^{\Lambda_{i}^{t}}}{\Lambda_{i}^{t} !}}.
   \end{equation*}
 
@@ -1049,8 +1022,8 @@ We varied the length of the time window to obtain different models, with short t
 windows increasing the number of parameters in the model. 
 To reduce
 the number of parameters in the model, we divided the 55 countries on
-African continent into 5 groups and \sangeeta{forced each country in a
-group to have the same reproduction number} in each time window. 
+African continent into 5 groups and forced each country in a
+group to have the same reproduction number in each time window. 
 The first three groups correspond
 of the three mainly affected countries - Sierra Leone, Guinea and Liberia.
 The countries that shared a border with these three countries
@@ -1072,9 +1045,7 @@ the extremes of this interval.
 
 For the gravity model parameters \(p_{stay}\) and \(\gamma\), we chose
 uninformative uniform priors. Since \(p_{stay}\) is a probability, the
-prior was a uniform distribution on the interval \([0, 1]\). For
-simplicity, and in the absence of data to inform these, we assumed the
-exponents \(\alpha\) and \(\beta\) on the populations to be 1.
+prior was a uniform distribution on the interval \([0, 1]\). 
 \(\gamma\) was allowed to vary between 1 and 2 in the results presented
 in the main text. We performed a sensitivity analysis where \(\gamma\)
 has a uniform prior between 1 and 10. The results of this analysis are
@@ -1104,7 +1075,7 @@ epidemic trajectory according to equation (1), assuming that future
 
 Given the retrospective nature of our analysis, we validated the
 incidence projected using our model against observed incidence. In
-addition to the \sangeeta{accuracy} of the projected incidence, the uncertainty
+addition to the accuracy of the forecasted incidence, the uncertainty
 associated with the forecasts (e.g., measured by the width of the
 prediction interval) is an important indicator of model performance. A
 narrow prediction interval that contains the observed values is

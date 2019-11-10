@@ -1,3 +1,4 @@
+
 ## Reset the countries so that all counries with 0 alerts in week 1
 ## are grouped together
 arrange_by_alerts <- function(df) {
@@ -50,6 +51,16 @@ yaxis_levels <- function(countries, weeks, by = 0.05) {
     )
 
     forced_y_level
+}
+
+build_caption <- function(countries) {
+
+    fullnames <- countrycode::countrycode(
+        countries, "iso3c", "country.name"
+    )
+    out <- glue::glue("{countries} - {fullnames}")
+    out <- glue::glue_collapse(out, sep = ", ")
+    out
 }
 ## All alerts for all weeks for all countries
 all_alerts <- function(alerts, by = 0.05) {
@@ -180,6 +191,14 @@ source(here::here("analysis/common_plot_properties.R"))
 
 message("Reading from and writing to ", all_files[[datasource]]$outdir)
 
+threshold_to_use <- readr::read_csv(here::here(
+    all_files[[datasource]]$outdir,
+    glue::glue("{Sys.Date()}_{datasource}_threshold_maximising_avg.csv")
+    )
+   )
+
+
+
 incid_pred <- vroom::vroom(
   file = here::here(
     all_files[[datasource]]$outdir,
@@ -187,8 +206,28 @@ incid_pred <- vroom::vroom(
     )
   )
 incid_pred <- incid_pred[incid_pred$n.dates.sim != 14, ]
+
 nonna_alerts <- dplyr::filter(incid_pred, alert_type != "No Alert")
-nonna_alerts <- dplyr::filter(nonna_alerts, threshold == "50%")
+
+nonna_alerts <- split(
+    nonna_alerts,
+    list(nonna_alerts$time_window, nonna_alerts$n.dates.sim),
+    sep = "_"
+)
+
+nonna_alerts <- purrr::imap_dfr(
+    nonna_alerts,
+    function(df, param) {
+        use <- threshold_to_use[threshold_to_use$params == param, "threshold"]
+        use <- dplyr::pull(use, "threshold")
+        message("Filtering ", param, " on ", use)
+        df <- df[df$threshold == use, ]
+        df
+    }
+
+)
+
+##nonna_alerts <- dplyr::filter(nonna_alerts, threshold == threshold_to_use)
 
 ## First Alert
 first_alerts <- dplyr::group_by(
@@ -250,6 +289,7 @@ purrr::walk(
     params,
     function(param) {
         alerts <- alerts_byparams[[param]]
+
         ## Plot 1. All countries, all weeks
         p <- all_alerts(alerts)
         ggplot2::ggsave(
@@ -262,7 +302,14 @@ purrr::walk(
             width = mriids_plot_theme$single_col_width,
             height = mriids_plot_theme$single_col_height
         )
-
+        cat(
+            build_caption(alerts$country),
+            file = here::here(
+                all_files[[datasource]]$outdir,
+                glue::glue("{Sys.Date()}_alerts_per_week_{datasource}",
+                           "_{param}_captions.txt")
+                )
+            )
     }
 )
 
@@ -293,7 +340,16 @@ purrr::walk(
             units = mriids_plot_theme$units,
             width = mriids_plot_theme$single_col_width,
             height = mriids_plot_theme$single_col_height
-        )
+            )
+
+        cat(
+            build_caption(alerts$country),
+            file = here::here(
+                all_files[[datasource]]$outdir,
+                glue::glue("{Sys.Date()}_alerts_by_week_{datasource}",
+                           "_{param}_captions.txt")
+                )
+            )
       }
   )
 
@@ -330,6 +386,14 @@ purrr::walk(
                   width = mriids_plot_theme$single_col_width,
                   height = mriids_plot_theme$single_col_height
                   )
+                cat(
+                    build_caption(df$country),
+                    file = here::here(
+                       all_files[[datasource]]$outdir,
+                       glue::glue("{Sys.Date()}_alerts_in_{week}_{datasource}",
+                                  "_{param}_captions.txt")
+                       )
+                )
 
 
             }
@@ -353,7 +417,9 @@ roc_byparams <- split(
 purrr::walk(
     names(roc_byparams),
     function(param) {
-        p <-  roc(roc_byparams[[param]])
+        use <- threshold_to_use[threshold_to_use$params == param, "threshold"]
+        use <- dplyr::pull(use, "threshold")
+        p <-  roc(roc_byparams[[param]], threshold = use)
 
         ggplot2::ggsave(
             filename = here::here(
@@ -399,8 +465,9 @@ purrr::walk(
                 size = 4
             )
         )
-
-        p2 <- roc(rates)
+        use <- threshold_to_use[threshold_to_use$params == param, "threshold"]
+        use <- dplyr::pull(use, "threshold")
+        p2 <- roc(rates, threshold = use)
         plot <- cowplot::plot_grid(
             p2,
             p1,
@@ -422,14 +489,6 @@ purrr::walk(
             width = mriids_plot_theme$double_col_width,
             height = mriids_plot_theme$double_col_width / 2,
             )
-
-        readr::write_rds(
-            x = plot,
-            path = here::here(
-                all_files[[datasource]]$outdir,
-                glue::glue("{Sys.Date()}_alerts_in_1_all_roc",
-                           "_{datasource}_{param}.rds"))
-        )
         roc_byweek <- split(rates, rates$week_of_projection)
         purrr::walk(
             names(byweek),
@@ -439,7 +498,7 @@ purrr::walk(
                                strip.background = element_blank(),
                                strip.text.x = element_blank()
                            )
-                p2 <- roc(roc_byweek[[week]], plot_overall = FALSE)
+                p2 <- roc(roc_byweek[[week]], plot_overall = FALSE, threshold = use)
                 plot <- cowplot::plot_grid(
                     p2,
                     p1,
@@ -464,5 +523,56 @@ purrr::walk(
 
             }
         )
+    }
+)
+
+
+
+no_cases_threshold <- readr::read_csv(here::here(
+    all_files[[datasource]]$outdir,
+    glue::glue("{Sys.Date()}_{datasource}_threshold_maximising_avg_no_cases_last_week.csv")
+    )
+  )
+
+
+infile <- here::here(
+    all_files[[datasource]]$outdir,
+    glue::glue(
+       "{Sys.Date()}_{datasource}_tpr_fpr_no_cases_last_week.csv"
+    )
+)
+message("***********************************************************")
+message("*", infile, "*")
+message("***********************************************************")
+
+res <- readr::read_csv(infile)
+
+roc_byparams <- split(
+    res, list(res$time_window, res$n.dates.sim), sep = "_"
+)
+
+purrr::walk(
+    names(roc_byparams),
+    function(param) {
+        use <- no_cases_threshold[no_cases_threshold$params == param, "threshold"]
+        use <- dplyr::pull(use, "threshold")
+        message("Filtering ", param, " on ", use)
+
+        p <-  roc(
+            roc_byparams[[param]],
+            threshold = use
+        )
+
+        ggplot2::ggsave(
+            filename = here::here(
+                all_files[[datasource]]$outdir,
+                glue::glue("{Sys.Date()}_roc_{datasource}",
+                           "no_cases_last_week_{param}.pdf")),
+            plot = p,
+            units = mriids_plot_theme$units,
+            width = mriids_plot_theme$single_col_width,
+            height = mriids_plot_theme$single_col_height
+        )
+
     }
 )

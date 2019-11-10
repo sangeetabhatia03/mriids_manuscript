@@ -414,7 +414,7 @@ for (ds in c("ProMED", "HealthMap", "WHO")) {
 
 
 ## 16-10-2019
-for (datasource in c("ProMED", "HealthMap", "WHO")) {
+for (datasource in c("ProMED", "HealthMap")) {
 
     message("Working on ", datasource)
 
@@ -433,20 +433,23 @@ for (datasource in c("ProMED", "HealthMap", "WHO")) {
         local = TRUE
     )
     source(
-        "analysis/plot_sensitivity_specificity_alerts.R", local = TRUE
-    )
-
-    source(
         "analysis/roc_new_weekly_observations.R",
         local = TRUE
     )
+    source(
+        "analysis/roc_summary.R", local = TRUE
+    )
+    source(
+        "analysis/plot_sensitivity_specificity_alerts.R", local = TRUE
+    )
+
 
     source(
         "analysis/tpr_fpr_by_threshold.R",
         local = TRUE
     )
 
-    source("analysis/sensitivity_over_time.R", local = TRUE)
+    ##source("analysis/sensitivity_over_time.R", local = TRUE)
 
 }
 
